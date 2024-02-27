@@ -6,7 +6,6 @@ SRCFOLDER = src\\
 OBJFOLDER = obj\\
 OUTNAME = main
 OBJS = $(CFILES:%.c=$(OBJFOLDER)%.o)
-DIR = C:\\Users\\adamn\\Dropbox\\src\\c code\\shell
 
 
 default: $(OUTNAME)
