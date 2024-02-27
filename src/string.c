@@ -1,4 +1,4 @@
-#include "include/string.h"
+#include "../include/string.h"
 #include <stdlib.h>
 
 void str_free(String str)

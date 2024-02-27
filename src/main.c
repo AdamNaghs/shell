@@ -1,6 +1,6 @@
-#include "include/IO.h"
-#include "include/string.h"
-#include "include/shell.h"
+#include "../include/IO.h"
+#include "../include/string.h"
+#include "../include/shell.h"
 int main()
 {
     String str = input('\n',0);

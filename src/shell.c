@@ -1,6 +1,6 @@
-#include "include\shell.h"
-#include "include\IO.h"
-#include "include\signal.h"
+#include "../include/shell.h"
+#include "../include/IO.h"
+#include "../include/signal.h"
 #include <stdlib.h>
 #include <string.h>
 

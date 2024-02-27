@@ -1,5 +1,5 @@
-#include "include\signal.h"
-#include "include\IO.h"
+#include "../include/signal.h"
+#include "../include/IO.h"
 #include <signal.h>
 #include <stdlib.h>
 

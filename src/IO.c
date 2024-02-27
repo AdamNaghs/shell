@@ -1,5 +1,5 @@
-#include "include/string.h"
-#include "include/IO.h"
+#include "../include/string.h"
+#include "../include/IO.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
