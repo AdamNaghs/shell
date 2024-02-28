@@ -17,8 +17,14 @@ struct cmd_return
     int func_return;
 };
 
+struct internal_cmd internal_cmd_new(String,internal_cmd_func);
+
 void add_internal_cmd(struct internal_cmd);
 
 struct cmd_return run_internal_cmd(String_Array);
+
+struct internal_cmd* get_internal_cmd_list(void);
+
+void load_internal_cmd_builtins(void);
 
 #endif /* SHELL_CMD_H */

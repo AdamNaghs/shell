@@ -1,5 +1,5 @@
 CC = gcc
-CFILES = main.c IO.c string.c shell.c signal.c
+CFILES = main.c IO.c string.c shell.c signal.c credentials.c cmd.c
 CFLAGS = -Wall -Werror -g 
 LFLAGS = 
 SRCFOLDER = src\\

@@ -1,8 +1,14 @@
 #include "../include/cmd.h"
 #include <stdlib.h>
 #include <string.h> /* strcmp */
+#include "../include/builtins.h"
 size_t cap = 10;
 struct internal_cmd* cmd_arr;
+
+struct internal_cmd internal_cmd_new(String str,internal_cmd_func func)
+{
+    return (struct internal_cmd){.name = str,.func = func,};
+}
 
 void add_internal_cmd(struct internal_cmd cmd)
 {
@@ -41,4 +47,14 @@ struct cmd_return run_internal_cmd(String_Array arr)
         }
     }
     return ret;
+}
+
+void load_internal_cmd_builtins(void)
+{
+
+}
+
+struct internal_cmd* get_internal_cmd_list(void)
+{
+    return cmd_arr;
 }
