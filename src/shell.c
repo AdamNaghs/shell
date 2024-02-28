@@ -3,12 +3,13 @@
 #include "../include/signal.h"
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
-#define MAX_LINE_WIDTH 1000
+#define MAX_LINE_WIDTH 10000
 
 String_Array sys_call(String s)
 {
-    FILE *p = _popen(s.cstr, "r");
+    FILE *p = popen(s.cstr, "r");
     if (!p)
         return (String_Array){.arr = NULL, .size = 0};
     String_Array ret = {.arr = (String *)malloc(10 * sizeof(String)), .size = 10};
@@ -17,9 +18,11 @@ String_Array sys_call(String s)
     {
         char *line;
         char buf[MAX_LINE_WIDTH];
-        line = fgets(buf, sizeof(buf), p);
+        line = fgets(buf, MAX_LINE_WIDTH, p);
         if (line == NULL)
+        {
             break;
+        }
         printf("%s", line); /* line includes '\n' */
         size_t len = strlen(buf);
         if (i >= ret.size)
@@ -28,13 +31,24 @@ String_Array sys_call(String s)
             if (!ret.arr)
             {
                 perror(RED "'sys_call' could not realloc ret.arr.\n" CRESET);
+                pclose(p);
                 exit(1);
             }
         }
-        ret.arr[ret.size++] = (String){.cstr = (char *)malloc(len * sizeof(char) + 1), .size = len};
-        i++;
+        ret.arr[i++] = (String){.cstr = (char *)malloc(len * sizeof(char) + 1), .size = len};
     }
-    _pclose(p);
+    ret.arr = (String *)realloc(ret.arr, ret.size = i);
+    if (i && !ret.arr)
+    {
+        perror(RED "'sys_call' could not realloc ret.arr.\n" CRESET);
+        pclose(p);
+        exit(1);
+    }
+    if (-1 == pclose(p))
+    {
+        perror(RED "'sys_call' failed to close file.\n");
+        printf("Code %d\n", errno);
+    }
     return ret;
 }
 

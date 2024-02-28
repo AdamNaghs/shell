@@ -2,10 +2,11 @@ CC = gcc
 CFILES = main.c IO.c string.c shell.c signal.c
 CFLAGS = -Wall -Werror -g
 LFLAGS = 
-SRCFOLDER = src\\
-OBJFOLDER = obj\\
+SRCFOLDER = src/
+OBJFOLDER = obj/
 OUTNAME = main
 OBJS = $(CFILES:%.c=$(OBJFOLDER)%.o)
+RM = rm
 
 
 default: $(OUTNAME)
@@ -17,4 +18,6 @@ $(OBJFOLDER)%.o: $(SRCFOLDER)%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	del $(OBJS)
+	$(RM) $(OBJS)
+	$(RM) $(OUTNAME).exe
+	$(RM) $(OUTNAME)

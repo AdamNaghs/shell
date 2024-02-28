@@ -33,7 +33,7 @@ void println(String str, FILE *ostream)
     fflush(ostream);
 }
 
-String input(char enter_char, unsigned long long max_size)
+String input(char enter_char, size_t max_size)
 {
     String ret = {.cstr = NULL, .size = 0};
     if (max_size == 0)
