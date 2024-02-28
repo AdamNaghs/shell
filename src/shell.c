@@ -14,7 +14,7 @@
 #ifndef pclose
 #define pclose _pclose
 #endif
-String_Array sys_call(String s)
+String_Array outer_sys_call(String s)
 {
     FILE *p = popen(s.cstr, "r");
     if (!p)
@@ -37,21 +37,21 @@ String_Array sys_call(String s)
             String* tmp = (String *)realloc(ret.arr, ret.size *= 2);
             if (!tmp)
             {
-                perror(RED "'sys_call' could not realloc ret.arr.\n" CRESET);
+                perror(RED "'outer_sys_call' could not realloc ret.arr.\n" CRESET);
                 pclose(p);
                 exit(1);
             }
             ret.arr = tmp;
         }
         ret.arr[i] = (String){.cstr = (char *)malloc(len * sizeof(char) + 1), .size = len};
-        memcpy_s(ret.arr[i].cstr,len+1,buf,len);
+        memcpy(ret.arr[i].cstr,buf,len);
         ret.arr[i].cstr[len] = '\0'; 
         i++;
     }
     ret.size = i;
     if (-1 == pclose(p))
     {
-        perror(RED "'sys_call' failed to close file.\n");
+        perror(RED "'outer_sys_call' failed to close file.\n");
         printf("Code %d\n", errno);
         str_arr_free(ret);
         exit(1);
@@ -59,7 +59,7 @@ String_Array sys_call(String s)
     String* tmp = (String *)realloc(ret.arr, ret.size * sizeof(String));
     if (i && !tmp)
     {
-        perror(RED "'sys_call' could not realloc ret.arr.\n" CRESET);
+        perror(RED "'outer_sys_call' could not realloc ret.arr.\n" CRESET);
         exit(1);
     }
     ret.arr = tmp;
@@ -73,7 +73,7 @@ void shell_loop(void)
     {
         printf(BLU "asn@tmpUser> " CRESET);
         String a = input('\n', 0);
-        sys_call(a);
+        outer_sys_call(a);
         str_free(a);
     }
 }

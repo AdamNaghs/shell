@@ -24,5 +24,7 @@ void print_ln(String str, FILE *ostream);
 /* delim is the array of seperators */
 String_Array str_split(String str, String delim);
 
+String str_arr_join(String_Array arr, char seperator);
+
 
 #endif /* SHELL_IO */

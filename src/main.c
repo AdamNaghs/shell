@@ -1,9 +1,9 @@
 #include "../include/IO.h"
 #include "../include/string.h"
 #include "../include/shell.h"
+
 int main()
 {
-/*
     String str = input('\n',0);
     char delim[1] = {' '};
     String_Array a = str_split(str,(String){delim,1});
@@ -13,8 +13,9 @@ int main()
         printf("%s\n",a.arr[i].cstr);
     }
     str_free(str);
+    str = str_arr_join(a, ' ');
+    printf("%s\n",str.cstr);
     str_arr_free(a);
-*/
-    shell_loop();
+    /*shell_loop();*/
     return 0;
 }

@@ -123,3 +123,23 @@ void str_arr_free(String_Array arr)
     }
     free(arr.arr);
 }
+
+String str_arr_join(String_Array arr, char seperator)
+{
+    /* determine length */
+    size_t i, tmp = 0, len = 0;
+    for (i = 0; i < arr.size; i++)
+    {
+        len += arr.arr[i].size + 1; /* +1 for seperator and at the end it will account for the \0 */
+    }
+    String ret = {.cstr = (char*)malloc(len * sizeof(char) + 1), .size = len - 1};
+    for (i = 0; i < arr.size; i++)
+    {
+        memcpy(ret.cstr + tmp,arr.arr[i].cstr,arr.arr[i].size);
+        tmp+= arr.arr[i].size;
+        ret.cstr[tmp] = seperator;
+        tmp++;
+    }
+    ret.cstr[tmp] = '\0';
+    return ret;
+}
