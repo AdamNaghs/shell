@@ -31,32 +31,38 @@ String_Array sys_call(String s)
             break;
         }
         printf("%s", line); /* line includes '\n' */
-        size_t len = strlen(buf);
+        size_t len = strnlen(line,MAX_LINE_WIDTH);
         if (i >= ret.size)
         {
-            ret.arr = (String *)realloc(ret.arr, ret.size *= 2);
-            if (!ret.arr)
+            String* tmp = (String *)realloc(ret.arr, ret.size *= 2);
+            if (!tmp)
             {
                 perror(RED "'sys_call' could not realloc ret.arr.\n" CRESET);
                 pclose(p);
                 exit(1);
             }
+            ret.arr = tmp;
         }
         ret.arr[i] = (String){.cstr = (char *)malloc(len * sizeof(char) + 1), .size = len};
-        memcpy(ret.arr[i].cstr,buf,len + 1);
+        memcpy_s(ret.arr[i].cstr,len+1,buf,len);
+        ret.arr[i].cstr[len] = '\0'; 
+        i++;
     }
-    ret.arr = (String *)realloc(ret.arr, ret.size = i);
-    if (i && !ret.arr)
-    {
-        perror(RED "'sys_call' could not realloc ret.arr.\n" CRESET);
-        pclose(p);
-        exit(1);
-    }
+    ret.size = i;
     if (-1 == pclose(p))
     {
         perror(RED "'sys_call' failed to close file.\n");
         printf("Code %d\n", errno);
+        str_arr_free(ret);
+        exit(1);
     }
+    String* tmp = (String *)realloc(ret.arr, ret.size * sizeof(String));
+    if (i && !tmp)
+    {
+        perror(RED "'sys_call' could not realloc ret.arr.\n" CRESET);
+        exit(1);
+    }
+    ret.arr = tmp;
     return ret;
 }
 
