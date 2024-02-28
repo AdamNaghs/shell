@@ -5,8 +5,15 @@
 #include <string.h>
 #include <errno.h>
 
-#define MAX_LINE_WIDTH 10000
 
+#define MAX_LINE_WIDTH 1000
+
+#ifndef popen
+#define popen _popen
+#endif
+#ifndef pclose
+#define pclose _pclose
+#endif
 String_Array sys_call(String s)
 {
     FILE *p = popen(s.cstr, "r");
@@ -35,7 +42,8 @@ String_Array sys_call(String s)
                 exit(1);
             }
         }
-        ret.arr[i++] = (String){.cstr = (char *)malloc(len * sizeof(char) + 1), .size = len};
+        ret.arr[i] = (String){.cstr = (char *)malloc(len * sizeof(char) + 1), .size = len};
+        memcpy(ret.arr[i].cstr,buf,len + 1);
     }
     ret.arr = (String *)realloc(ret.arr, ret.size = i);
     if (i && !ret.arr)
