@@ -26,5 +26,8 @@ String_Array str_split(String str, String delim);
 
 String str_arr_join(String_Array arr, char seperator);
 
+/* old string array is not freed, neither is the string*/
+String_Array str_arr_add(String_Array,String);
+
 
 #endif /* SHELL_IO */

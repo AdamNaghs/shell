@@ -25,6 +25,6 @@ struct cmd_return run_internal_cmd(String_Array);
 
 struct internal_cmd* get_internal_cmd_list(void);
 
-void load_internal_cmd_builtins(void);
+size_t get_internal_cmd_list_size(void);
 
 #endif /* SHELL_CMD_H */

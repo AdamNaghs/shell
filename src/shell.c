@@ -1,6 +1,8 @@
 #include "../include/shell.h"
 #include "../include/IO.h"
 #include "../include/signal.h"
+#include "../include/cmd.h"
+#include "../include/builtins.h"
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -13,6 +15,9 @@
 #endif
 #ifndef pclose
 #define pclose _pclose
+#endif
+#ifndef strdup
+#define strdup _strdup
 #endif
 String_Array outer_sys_call(String s)
 {
@@ -69,11 +74,38 @@ String_Array outer_sys_call(String s)
 void shell_loop(void)
 {
     bind_signals();
+    load_builtins();
+    char buf[2] = " ";
+    String delim = (String){.cstr = buf, .size = 1};
+    struct internal_cmd* cmd_list = get_internal_cmd_list();
+
+/*
+    const char* osys_char_ptr = "osys";
+    String osys_str = (String){.cstr = strdup(osys_char_ptr),.size = 4};
+    add_internal_cmd(internal_cmd_new(osys_str,outer_sys_call));
+*/
     while (1)
     {
         printf(BLU "asn@tmpUser> " CRESET);
         String a = input('\n', 0);
-        outer_sys_call(a);
+        if (a.size == 0)
+            continue;
+        String_Array arr = str_split(a,delim);
+        size_t i = 0;
+        bool ran = false;
+        for (; i < get_internal_cmd_list_size(); i++)
+        {
+            if (0 == strcmp(arr.arr[0].cstr, cmd_list[i].name.cstr))
+            {
+                cmd_list[i].func(arr);
+                ran = true;
+            }
+        }
         str_free(a);
+        if (!ran)
+        {
+            printf("Could not find command '%s'.\n",arr.arr[0].cstr);
+        }
+        str_arr_free(arr);
     }
 }

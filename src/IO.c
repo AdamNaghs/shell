@@ -47,7 +47,7 @@ String input(char enter_char, size_t max_size)
     }
     if (!ret.cstr)
     {
-        perror( RED "'input' could not malloc ret.cstr.\n" CRESET);
+        perror(RED "'input' could not malloc ret.cstr.\n" CRESET);
         exit(1);
     }
     char c;
@@ -116,10 +116,12 @@ String_Array str_split(String str, String delim)
 
 void str_arr_free(String_Array arr)
 {
+    if (!arr.arr) return;
     size_t i;
     for (i = 0; i < arr.size; i++)
     {
-        str_free(arr.arr[i]);
+        if (arr.arr[i].cstr)
+            str_free(arr.arr[i]);
     }
     free(arr.arr);
 }
@@ -132,14 +134,26 @@ String str_arr_join(String_Array arr, char seperator)
     {
         len += arr.arr[i].size + 1; /* +1 for seperator and at the end it will account for the \0 */
     }
-    String ret = {.cstr = (char*)malloc(len * sizeof(char) + 1), .size = len - 1};
+    String ret = {.cstr = (char *)malloc(len * sizeof(char) + 1), .size = len - 1};
     for (i = 0; i < arr.size; i++)
     {
-        memcpy(ret.cstr + tmp,arr.arr[i].cstr,arr.arr[i].size);
-        tmp+= arr.arr[i].size;
+        memcpy(ret.cstr + tmp, arr.arr[i].cstr, arr.arr[i].size);
+        tmp += arr.arr[i].size;
         ret.cstr[tmp] = seperator;
         tmp++;
     }
     ret.cstr[tmp] = '\0';
+    return ret;
+}
+
+String_Array str_arr_add(String_Array arr, String str)
+{
+    String_Array ret = {.arr = (String *)malloc(sizeof(String) * arr.size + 1), .size = arr.size + 1};
+    size_t i = 0;
+    for (; i < arr.size; i++)
+    {
+        ret.arr[i] = str_new(arr.arr[i].cstr);
+    }
+    ret.arr[arr.size] = str_new(str.cstr);
     return ret;
 }
