@@ -81,8 +81,7 @@ void shell_loop(void)
 
 /*
     const char* osys_char_ptr = "osys";
-    String osys_str = (String){.cstr = strdup(osys_char_ptr),.size = 4};
-    add_internal_cmd(internal_cmd_new(osys_str,outer_sys_call));
+    add_internal_cmd(internal_cmd_new(str_new(osys_char_ptr),outer_sys_call));
 */
     while (1)
     {

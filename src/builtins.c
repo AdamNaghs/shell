@@ -55,9 +55,10 @@ int b_echo(String_Array arr)
 
 int b_exit(String_Array arr)
 {
-    printf(GRN "Exitting...\n" CRESET);
     if (cwd)
         closedir(cwd);
+    free(get_internal_cmd_list());
+    printf(GRN "Exitting...\n" CRESET);
     exit(1);
     return 0;
 }
