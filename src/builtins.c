@@ -66,12 +66,22 @@ int b_ls(String_Array arr)
     return 0;
 }
 
+int b_osys(String_Array arr)
+{
+    String_Array tmp_arr = {.arr = arr.arr + 1, .size = arr.size - 1};
+    String tmp = str_arr_join(tmp_arr, ' ');
+    int ret = system(tmp.cstr);
+    str_free(tmp);
+    return ret;
+}
+
 int b_help(String_Array arr)
 {
     printf("help - Prints this message to stdout.\n");
     printf("exit - Exits program.\n");
     printf("echo - Prints message.\n");
     printf("cd - Change directory.\n");
+    printf("osys - Outer system/shell call.\n");
     printf("ls - List files in current directory.\n");
     return 0;
 }
@@ -96,6 +106,9 @@ void load_builtins(void)
 
     const char *str_ls = "ls";
     add_internal_cmd(internal_cmd_new((String){.cstr = strdup(str_ls), .size = 2}, b_ls));
+
+    const char *str_osys = "osys";
+    add_internal_cmd(internal_cmd_new((String){.cstr = strdup(str_osys), .size = 4}, b_osys));
 
     const char *str_help = "help";
     add_internal_cmd(internal_cmd_new((String){.cstr = strdup(str_help), .size = 4}, b_help));
