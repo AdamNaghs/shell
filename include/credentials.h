@@ -16,6 +16,7 @@
 
 size_t str_hash(String str);
 
-
+/* returns when the user logs in or creates a new user */
+void attempt_login_loop(void);
 
 #endif /* SHELL_CREDENTIALS */

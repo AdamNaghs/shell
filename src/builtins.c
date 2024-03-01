@@ -3,41 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <direct.h>/* getcwd chdir */
 
-static DIR *cwd = NULL;
-String_Array cwd_str_arr = (String_Array){.arr = NULL, .size = 0};
-
-void try_init_cwd(void)
-{
-    if (cwd)
-        return;
-    cwd = opendir(".");
-    char tmp[2] = ".";
-    String_Array tmp_arr = str_arr_add(cwd_str_arr, str_new(tmp));
-    str_arr_free(cwd_str_arr);
-    cwd_str_arr = tmp_arr;
-    String tmp_str = str_arr_join(cwd_str_arr, '\\');
-    cwd = opendir(tmp_str.cstr);
-    str_free(tmp_str);
-    if (!cwd)
-    {
-        printf(RED "Could not open current working directory.\n" CRESET);
-        exit(1);
-    }
-}
-
-void refresh_cwd(void)
-{
-    if (!cwd)
-    {
-        try_init_cwd();
-        return;
-    }
-    closedir(cwd);
-    String tmp_str = str_arr_join(cwd_str_arr, '\\');
-    cwd = opendir(tmp_str.cstr);
-    str_free(tmp_str);
-}
+#define LS_BUF 4096
 
 int b_echo(String_Array arr)
 {
@@ -55,8 +23,6 @@ int b_echo(String_Array arr)
 
 int b_exit(String_Array arr)
 {
-    if (cwd)
-        closedir(cwd);
     free(get_internal_cmd_list());
     printf(GRN "Exitting...\n" CRESET);
     exit(1);
@@ -69,59 +35,31 @@ int b_cd(String_Array arr)
     {
         return 0;
     }
-    try_init_cwd();
-    refresh_cwd();
-    char leave_folder[3] = ".." ;
-    String tmp = str_new(leave_folder);
-    if (-1 != str_contains_str(arr.arr[1],tmp))
+    if (-1 == chdir(arr.arr[1].cstr))
     {
-        if (1 == cwd_str_arr.size)
-        {
-            printf(RED "Ascending from starting directory not yet implemented.\n" CRESET);
-            return -1;
-            exit(1);
-        }
-        String* tmp_arr_ptr = (String*) realloc(cwd_str_arr.arr,sizeof(String)*(cwd_str_arr.size - 1));
-        if (!tmp_arr_ptr)
-        {
-            printf(RED "Could not realloc 'cwd_str_arr'.\n" CRESET);
-            exit(1);
-        }
-        cwd_str_arr.arr = tmp_arr_ptr;
-        cwd_str_arr.size--;
-        return b_cd(cwd_str_arr);
-    }
-    str_free(tmp);
-    struct dirent *dir;
-    while (NULL != ((dir = readdir(cwd))))
-    {
-        if (0 == strcmp(arr.arr[1].cstr, dir->d_name))
-        {
-
-            String_Array tmp = str_arr_add(cwd_str_arr,str_new(arr.arr[1].cstr));
-            str_arr_free(cwd_str_arr);
-            cwd_str_arr = tmp;
-            String tmp_str = str_arr_join(cwd_str_arr, '\\');
-            if (cwd)
-                closedir(cwd);
-            cwd = opendir(tmp_str.cstr);
-            if (!cwd)
-            {
-                printf(RED "Could not open directory '%s'.\n" CRESET, tmp_str.cstr);
-            }
-            str_free(tmp_str);
-            
-        }
-    }
+    };
     return 0;
 }
 
 int b_ls(String_Array arr)
 {
-    try_init_cwd();
-    refresh_cwd();
+    char buf[LS_BUF];
+    char *cwd;
+    cwd = getcwd(buf, LS_BUF);
     struct dirent *dir;
-    while (NULL != ((dir = readdir(cwd))))
+    DIR *d;
+    if (arr.size == 1)
+    {
+        if (cwd)
+            d = opendir(cwd);
+        else
+            d = opendir(".");
+    }
+    else
+    {
+        d = opendir(arr.arr[1].cstr);
+    }
+    while (NULL != ((dir = readdir(d))))
     {
         printf("%s\n", dir->d_name);
     }

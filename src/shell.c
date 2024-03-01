@@ -3,6 +3,7 @@
 #include "../include/signal.h"
 #include "../include/cmd.h"
 #include "../include/builtins.h"
+#include "../include/credentials.h"
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -74,6 +75,7 @@ String_Array outer_sys_call(String s)
 void shell_loop(void)
 {
     bind_signals();
+    attempt_login_loop();
     load_builtins();
     char buf[2] = " ";
     String delim = (String){.cstr = buf, .size = 1};

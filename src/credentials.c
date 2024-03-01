@@ -1,4 +1,7 @@
 #include "../include/credentials.h"
+#include "../include/IO.h"
+
+
 
 size_t str_hash(String string)
 {
@@ -15,4 +18,13 @@ size_t str_hash(String string)
         p_pow = (p_pow * p) % m;
     }
     return hash_value;
+}
+/* String get_username(void) */
+
+/* String get_password(void) */
+
+/* returns -1 on fail and 0 on success */
+void attempt_login_loop()
+{
+    return;
 }

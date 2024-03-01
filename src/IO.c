@@ -6,6 +6,18 @@
 
 #define MAX_STR 10000
 
+static FILE* input_file = NULL;
+
+void set_input_file(FILE* fd)
+{
+    if (!fd)
+    {
+        printf(RED "'fd' is null.\n" CRESET);
+        exit(1);
+    }
+    input_file = fd;
+}
+
 void print(String str, FILE *ostream)
 {
     if (!ostream)
@@ -35,6 +47,10 @@ void println(String str, FILE *ostream)
 
 String input(char enter_char, size_t max_size)
 {
+    if (!input_file)
+    {
+        input_file = stdin;
+    }
     String ret = {.cstr = NULL, .size = 0};
     if (max_size == 0)
     {
@@ -51,7 +67,7 @@ String input(char enter_char, size_t max_size)
         exit(1);
     }
     char c;
-    while ((c = getchar()) != enter_char && ret.size < max_size)
+    while ((c = fgetc(input_file)) != enter_char && ret.size < max_size)
     {
         ret.cstr[ret.size++] = c;
     }
