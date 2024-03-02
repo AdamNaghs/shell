@@ -5,8 +5,6 @@
 #include <dirent.h>
 #include <direct.h>/* getcwd chdir */
 
-#define LS_BUF 4096
-
 int b_echo(String_Array arr)
 {
     if (arr.size == 1)
@@ -41,6 +39,8 @@ int b_cd(String_Array arr)
     return 0;
 }
 
+#define LS_BUF 4096
+
 int b_ls(String_Array arr)
 {
     char buf[LS_BUF];
@@ -66,6 +66,14 @@ int b_ls(String_Array arr)
     return 0;
 }
 
+int b_clear(String_Array arr)
+{
+    size_t i = 0;
+    for (; i < 100; i++)
+        printf("\n");
+    return 0;
+}
+
 int b_osys(String_Array arr)
 {
     String_Array tmp_arr = {.arr = arr.arr + 1, .size = arr.size - 1};
@@ -75,42 +83,56 @@ int b_osys(String_Array arr)
     return ret;
 }
 
-int b_help(String_Array arr)
+int b_pwd(String_Array arr)
 {
-    printf("help - Prints this message to stdout.\n");
-    printf("exit - Exits program.\n");
-    printf("echo - Prints message.\n");
-    printf("cd - Change directory.\n");
-    printf("osys - Outer system/shell call.\n");
-    printf("ls - List files in current directory.\n");
+    char buf[LS_BUF];
+    char* cwd;
+    cwd = getcwd(buf,LS_BUF);
+    if (!cwd) return 1;
+    printf("%s\n",cwd);
     return 0;
 }
 
-#ifndef strdup
-#define strdup _strdup
-#endif
+int b_help(String_Array arr)
+{
+    printf(BHCYN "help"  CRESET "\t- Prints this message to stdout.\n");
+    printf(BHCYN "exit"  CRESET "\t- Exits program.\n");
+    printf(BHCYN "echo"  CRESET "\t- Prints message.\n");
+    printf(BHCYN "osys"  CRESET "\t- Outer system/shell call.\n");
+    printf(BHCYN "clear" CRESET "\t- Wipes terminal.\n");
+    printf(BHCYN "cd"    CRESET "\t- Change directory.\n");
+    printf(BHCYN "ls"    CRESET "\t- List files in current directory.\n");
+    printf(BHCYN "pwd"   CRESET "\t- Print working directory.\n");
+    return 0;
+}
 
 void load_builtins(void)
 {
     static bool ran = false;
     if (ran)
         return;
-    const char *str_echo = "echo";
-    add_internal_cmd(internal_cmd_new((String){.cstr = strdup(str_echo), .size = 4}, b_echo));
+    char *str_echo = "echo";
+    add_internal_cmd(internal_cmd_new(str_new(str_echo), b_echo));
 
-    const char *str_exit = "exit";
-    add_internal_cmd(internal_cmd_new((String){.cstr = strdup(str_exit), .size = 4}, b_exit));
+    char *str_exit = "exit";
+    add_internal_cmd(internal_cmd_new(str_new(str_exit), b_exit));
 
-    const char *str_cd = "cd";
-    add_internal_cmd(internal_cmd_new((String){.cstr = strdup(str_cd), .size = 2}, b_cd));
+    char *str_cd = "cd";
+    add_internal_cmd(internal_cmd_new(str_new(str_cd), b_cd));
 
-    const char *str_ls = "ls";
-    add_internal_cmd(internal_cmd_new((String){.cstr = strdup(str_ls), .size = 2}, b_ls));
+    char *str_ls = "ls";
+    add_internal_cmd(internal_cmd_new(str_new(str_ls), b_ls));
 
-    const char *str_osys = "osys";
-    add_internal_cmd(internal_cmd_new((String){.cstr = strdup(str_osys), .size = 4}, b_osys));
+    char *str_osys = "osys";
+    add_internal_cmd(internal_cmd_new(str_new(str_osys), b_osys));
 
-    const char *str_help = "help";
-    add_internal_cmd(internal_cmd_new((String){.cstr = strdup(str_help), .size = 4}, b_help));
+    char *str_clear = "clear";
+    add_internal_cmd(internal_cmd_new(str_new(str_clear), b_clear));
+
+    char *str_help = "help";
+    add_internal_cmd(internal_cmd_new(str_new(str_help), b_help));
+
+    char *str_pwd = "pwd";
+    add_internal_cmd(internal_cmd_new(str_new(str_pwd), b_pwd));
     ran = true;
 }
