@@ -6,43 +6,73 @@
 #include <direct.h>
 #define GETCWD _getcwd
 #define CHDIR _chdir
+#define MKDIR _mkdir
 #else
 #include <unistd.h>
 #define GETCWD getcwd
 #define CHDIR chdir
+#define MKDIR(path) mkdir(path,0777);
 #endif
+
+struct cmd_return b_mkdir(String_Array arr)
+{
+    char tmp[1] = "";
+    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(tmp), };
+    if (arr.size <= 1)
+    {
+        ret.success = false;
+        ret.func_return = 1;
+        return ret;
+    }
+    String path = arr.arr[1];
+    MKDIR(path.cstr);
+    return ret;
+}
 
 #define PWD_BUF 4096
 
-int b_cd(String_Array arr)
+struct cmd_return b_cd(String_Array arr)
 {
+    char tmp[1] = "";
+    struct cmd_return ret = {.success = false, .func_return = 0, .str = str_new(tmp), };
     if (arr.size == 1)
     {
-        return 0;
+        ret.func_return = 1;
+        return ret;
     }
     if (-1 == CHDIR(arr.arr[1].cstr))
     {
         printf(RED "Could not open directory " BHRED "'%s'\n" CRESET, arr.arr[1].cstr);
     }
-    return 0;
+    ret.success = true;
+    return ret;
 }
 
-int b_pwd(String_Array arr)
+struct cmd_return b_pwd(String_Array arr)
 {
+    char tmp[1] = "";
+    struct cmd_return ret = {.success = false, .func_return = 0, .str = str_new(tmp), };
     char buf[PWD_BUF];
     if (!GETCWD(buf, sizeof(buf)))
     {
-        return 1;
+        ret.func_return = 1;
+        return ret;
     }
-    printf("%s\n", buf);
-    return 0;
+    String tmp_str = str_new(buf);
+    str_append(&ret.str, tmp_str);
+    str_free(tmp_str);
+    ret.success = true;
+    return ret;
 }
 /* windows dependant */
 #define LS_BUF 4096
 #ifdef _WIN32
 #include <windows.h>
-int b_ls(String_Array arr)
+struct cmd_return b_ls(String_Array arr)
 {
+    char tmp[1] = "";
+    struct cmd_return ret = {.success = false, .func_return = 0, .str = str_new(tmp), };
+
     WIN32_FIND_DATA findFileData;
     HANDLE hFind = INVALID_HANDLE_VALUE;
 
@@ -58,20 +88,34 @@ int b_ls(String_Array arr)
     if (hFind == INVALID_HANDLE_VALUE)
     {
         printf("Unable to open directory '%s'\n", searchPath);
-        return 1;
+        ret.func_return = 1;
+        return ret;
     }
+    char new_line_char[2] = "\n";
+    String new_line_str = {.cstr = new_line_char, .size = 1};
     do
     {
-        printf("%s\n", findFileData.cFileName);
+        String tmp_str = str_new(findFileData.cFileName);
+        str_append(&tmp_str, new_line_str);
+        str_append(&ret.str, tmp_str);
+        str_free(tmp_str);
     } while (FindNextFile(hFind, &findFileData) != 0);
     FindClose(hFind);
-
-    return 0;
+    if (ret.str.size)
+    {
+        ret.str.cstr[ret.str.size - 1] = '\0';
+        ret.str.size -= 1;
+    }
+    ret.success = true;
+    return ret;
 }
 #else
 #include <dirent.h> /* opendir, readdir, closedir, */
-int b_ls(String_Array arr)
+struct cmd_return b_ls(String_Array arr)
 {
+    char tmp[1] = "";
+    struct cmd_return ret = {{.success = false, .func_return = 0, .str = str_new(tmp), };
+
     char buf[LS_BUF];
     char *cwd;
     cwd = GETCWD(buf, LS_BUF);
@@ -91,66 +135,142 @@ int b_ls(String_Array arr)
     while (NULL != ((dir = readdir(d))))
     {
         printf("%s\n", dir->d_name);
+        String tmp_str = str_new(dir->d_name);
+        str_append(&ret.str, tmp_str);
+        str_free(tmp_str);
     }
     if (d)
     {
         closedir(d);
     }
-    return 0;
+    ret.success = true;
+    return ret;
 }
 #endif
 
 /* cstdlib */
-int b_echo(String_Array arr)
+struct cmd_return b_echo(String_Array arr)
 {
+    char tmp_char[1] = "";
+    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(tmp_char), };
+
     if (arr.size == 1)
     {
-        printf("\n");
-        return 0;
+        return ret;
     }
     String_Array new_arr = {.arr = arr.arr + 1, .size = arr.size - 1};
     String tmp = str_arr_join(new_arr, ' ');
-    printf("%s\n", tmp.cstr);
+    str_append(&ret.str, tmp);
     str_free(tmp);
-    return 0;
+    return ret;
+}
+#ifndef popen
+#define popen _popen
+#endif
+#ifndef pclose
+#define pclose _pclose
+#endif
+void capture_system_call(struct cmd_return* ret,String command)
+{
+    FILE *pipe = popen(command.cstr, "r");
+    if (!pipe) {
+        // Handle popen failure
+        ret->success = false;
+        ret->func_return = 1;
+    } else {
+        char buffer[128];
+        while (fgets(buffer, sizeof(buffer), pipe) != NULL) {
+            String buffer_str = str_new(buffer);
+            str_append(&ret->str, buffer_str);
+            str_free(buffer_str);
+        }
+        ret->func_return = pclose(pipe);
+    }
 }
 
-int b_exit(String_Array arr)
+#define RM_BUF 4096
+/* not really working */
+struct cmd_return b_rm(String_Array arr)
 {
+    char tmp_char[1] = "";
+    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(tmp_char), };
+
+    String args = str_arr_join((String_Array){arr.arr+1,arr.size-1},' ');
+
+    #ifdef _WIN32
+    char buf[5] = "del ";
+    #else
+    char buf[4] = "rm ";
+    #endif
+    String command = str_new(buf);
+    str_append(&command,args);
+    capture_system_call(&ret,command);
+    str_free(command);
+    str_free(args);
+    return ret;
+}
+
+struct cmd_return b_exit(String_Array arr)
+{
+    char tmp_char[1] = "";
+    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(tmp_char), };
+
     free(get_internal_cmd_list());
     printf(GRN "Exitting...\n" CRESET);
     exit(1);
-    return 0;
+    return ret;
 }
 
-int b_clear(String_Array arr)
+struct cmd_return b_clear(String_Array arr)
 {
-    size_t i = 0;
-    for (; i < 100; i++)
-        printf("\n");
-    return 0;
+    char tmp_char[1] = "";
+    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(tmp_char), };
+
+    #ifdef _WIN32
+    ret.func_return = system("cls");
+    #else
+    ret.func_return = system("clear");
+    #endif
+    return ret;
 }
 
-int b_osys(String_Array arr)
+struct cmd_return b_osys1(String_Array arr)
 {
+    char tmp_char[1] = "";
+    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(tmp_char), };
+
     String_Array tmp_arr = {.arr = arr.arr + 1, .size = arr.size - 1};
     String tmp = str_arr_join(tmp_arr, ' ');
-    int ret = system(tmp.cstr);
+    ret.func_return = system(tmp.cstr);
     str_free(tmp);
     return ret;
 }
 
-int b_help(String_Array arr)
+struct cmd_return b_osys(String_Array arr) {
+    char tmp_char[1] = "";
+    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(tmp_char), };
+
+    String_Array tmp_arr = {.arr = arr.arr + 1, .size = arr.size - 1};
+    String cmd = str_arr_join(tmp_arr, ' ');
+
+    capture_system_call(&ret,cmd);
+    str_free(cmd);
+    return ret;
+}
+
+
+struct cmd_return b_help(String_Array arr)
 {
-    printf(BHCYN "help" CRESET "\t- Prints this message to stdout.\n");
-    printf(BHCYN "exit" CRESET "\t- Exits program.\n");
-    printf(BHCYN "echo" CRESET "\t- Prints message.\n");
-    printf(BHCYN "osys" CRESET "\t- Outer system/shell call.\n");
-    printf(BHCYN "clear" CRESET "\t- Wipes terminal.\n");
-    printf(BHCYN "cd" CRESET "\t- Change directory.\n");
-    printf(BHCYN "ls" CRESET "\t- List files in current directory.\n");
-    printf(BHCYN "pwd" CRESET "\t- Print working directory.\n");
-    return 0;
+    char tmp_char[1] = "";
+    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(tmp_char), };
+    char help_buf[1000] =
+        BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n"
+        BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n"
+        BHCYN "rm" CRESET "\t - Removes files or directories.\n";
+    String tmp_str = str_new(help_buf);
+    str_append(&ret.str, tmp_str);
+    str_free(tmp_str);
+    return ret;
 }
 
 void load_builtins(void)
@@ -181,5 +301,11 @@ void load_builtins(void)
 
     char str_pwd[4] = "pwd";
     add_internal_cmd(internal_cmd_new(str_new(str_pwd), b_pwd));
+
+    char str_mkdir[6] = "mkdir";
+    add_internal_cmd(internal_cmd_new(str_new(str_mkdir), b_mkdir));
+
+    char str_rm[6] = "rm";
+    add_internal_cmd(internal_cmd_new(str_new(str_rm), b_rm));
     ran = true;
 }

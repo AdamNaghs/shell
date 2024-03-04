@@ -11,6 +11,12 @@ void str_free(String str)
 
 String str_new(char *str)
 {
+    if (!str)
+    {
+        String ret = (String){.cstr = (char*)malloc(sizeof(char)), .size = 0};
+        ret.cstr[0] = '\0';
+        return ret;
+    }
     return (String){.cstr = strdup(str), .size = strlen(str)};
 }
 
@@ -48,4 +54,12 @@ signed long long str_contains_str(String str, String c)
         }
     }
     return -1;
+}
+
+void str_append(String* dest, String end)
+{
+    dest->size += end.size;
+    dest->cstr = (char*)realloc(dest->cstr,dest->size * sizeof(char));
+    memcpy(dest->cstr + dest->size - end.size,end.cstr,end.size);
+    dest->cstr[dest->size] = '\0';
 }

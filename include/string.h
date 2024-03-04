@@ -14,6 +14,8 @@ signed long long str_contains_str(String str, String c);
 
 String str_new(char* str);
 
+void str_append(String* dest, String end);
+
 void str_free(String str);
 
 #endif /* SHELL_STR */

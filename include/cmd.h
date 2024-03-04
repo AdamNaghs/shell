@@ -3,7 +3,7 @@
 #include "IO.h"
 #include <stdbool.h>
 
-typedef int (*internal_cmd_func)(String_Array);
+typedef struct cmd_return (*internal_cmd_func)(String_Array);
 
 struct internal_cmd
 {
@@ -15,13 +15,12 @@ struct cmd_return
 {
     bool success;
     int func_return;
+    String str;
 };
 
 struct internal_cmd internal_cmd_new(String,internal_cmd_func);
 
 void add_internal_cmd(struct internal_cmd);
-
-struct cmd_return run_internal_cmd(String_Array);
 
 struct internal_cmd* get_internal_cmd_list(void);
 
