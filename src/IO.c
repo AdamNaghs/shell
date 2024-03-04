@@ -173,3 +173,9 @@ String_Array str_arr_add(String_Array arr, String str)
     ret.arr[arr.size] = str_new(str.cstr);
     return ret;
 }
+
+void str_arr_replace(String_Array arr, size_t idx,String new_str)
+{
+    str_free(arr.arr[idx]);
+    arr.arr[idx] = str_new(new_str.cstr);
+}

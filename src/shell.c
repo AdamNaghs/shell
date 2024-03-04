@@ -50,6 +50,7 @@ void shell_loop(void)
             {
                 cmd_list[i].func(arr);
                 ran = true;
+                break;
             }
         }
         str_free(a);

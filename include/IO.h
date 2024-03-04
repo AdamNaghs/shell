@@ -35,5 +35,7 @@ String str_arr_join(String_Array arr, char seperator);
 /* old string array is not freed, neither is the string*/
 String_Array str_arr_add(String_Array,String);
 
+void str_arr_replace(String_Array,size_t idx,String new_str);
+
 
 #endif /* SHELL_IO */
