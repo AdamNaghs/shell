@@ -41,7 +41,7 @@ void test_creds(void)
     str_free(salt);
 
     printf("Testing 'generate_hash' on str 'test'.\n");
-    char* test_char = "test";
+    char test_char[5] = "test";
     String test_str = str_new(test_char);
     String hash = generate_hash(test_str);
     printf("Hash: %s\n",hash.cstr);

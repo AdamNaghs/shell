@@ -2,38 +2,45 @@
 #include "../include/cmd.h"      /* get_internal_cmd_list, size, add*/
 #include <stdlib.h>
 #include <string.h>
-#include <direct.h> /* getcwd, chdir */
-#include <dirent.h> /* opendir, closedir*/
-#include <windows.h>
-/* windows dependant */
+#ifdef _WIN32
+#include <direct.h>
+#define GETCWD _getcwd
+#define CHDIR _chdir
+#else
+#include <unistd.h>
+#define GETCWD getcwd
+#define CHDIR chdir
+#endif
+
+#define PWD_BUF 4096
+
 int b_cd(String_Array arr)
 {
     if (arr.size == 1)
     {
         return 0;
     }
-    if (-1 == chdir(arr.arr[1].cstr))
+    if (-1 == CHDIR(arr.arr[1].cstr))
     {
         printf(RED "Could not open directory " BHRED "'%s'\n" CRESET, arr.arr[1].cstr);
-    };
+    }
     return 0;
 }
-
-#define PWD_BUF 4096
 
 int b_pwd(String_Array arr)
 {
     char buf[PWD_BUF];
-    char *cwd;
-    cwd = getcwd(buf, PWD_BUF);
-    if (!cwd)
+    if (!GETCWD(buf, sizeof(buf)))
+    {
         return 1;
-    printf("%s\n", cwd);
+    }
+    printf("%s\n", buf);
     return 0;
 }
-
+/* windows dependant */
 #define LS_BUF 4096
-
+#ifdef _WIN32
+#include <windows.h>
 int b_ls(String_Array arr)
 {
     WIN32_FIND_DATA findFileData;
@@ -75,6 +82,37 @@ int b_ls(String_Array arr)
 
     return 0;
 }
+#else
+#include <dirent.h> /* opendir, readdir, closedir, */
+int b_ls(String_Array arr)
+{
+    char buf[LS_BUF];
+    char *cwd;
+    cwd = GETCWD(buf, LS_BUF);
+    struct dirent *dir;
+    DIR *d;
+    if (arr.size == 1)
+    {
+        if (cwd)
+            d = opendir(cwd);
+        else
+            d = opendir(".");
+    }
+    else
+    {
+        d = opendir(arr.arr[1].cstr);
+    }
+    while (NULL != ((dir = readdir(d))))
+    {
+        printf("%s\n", dir->d_name);
+    }
+    if (d)
+    {
+        closedir(d);
+    }
+    return 0;
+}
+#endif
 
 /* cstdlib */
 int b_echo(String_Array arr)
@@ -134,30 +172,28 @@ void load_builtins(void)
     static bool ran = false;
     if (ran)
         return;
-    char *str_echo = "echo";
+    char str_echo[5] = "echo";
     add_internal_cmd(internal_cmd_new(str_new(str_echo), b_echo));
 
-    char *str_exit = "exit";
+    char str_exit[5] = "exit";
     add_internal_cmd(internal_cmd_new(str_new(str_exit), b_exit));
 
-    char *str_cd = "cd";
+    char str_cd[3] = "cd";
     add_internal_cmd(internal_cmd_new(str_new(str_cd), b_cd));
 
-    char *str_ls = "ls";
+    char str_ls[3] = "ls";
     add_internal_cmd(internal_cmd_new(str_new(str_ls), b_ls));
 
-    char *str_osys = "osys";
+    char str_osys[5] = "osys";
     add_internal_cmd(internal_cmd_new(str_new(str_osys), b_osys));
 
-    char *str_clear = "clear";
+    char str_clear[6] = "clear";
     add_internal_cmd(internal_cmd_new(str_new(str_clear), b_clear));
 
-    char *str_help = "help";
+    char str_help[5] = "help";
     add_internal_cmd(internal_cmd_new(str_new(str_help), b_help));
 
-    char *str_pwd = "pwd";
+    char str_pwd[4] = "pwd";
     add_internal_cmd(internal_cmd_new(str_new(str_pwd), b_pwd));
     ran = true;
 }
-
-
