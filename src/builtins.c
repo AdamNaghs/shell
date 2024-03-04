@@ -47,16 +47,10 @@ int b_ls(String_Array arr)
     HANDLE hFind = INVALID_HANDLE_VALUE;
 
     char searchPath[LS_BUF];
-    if (arr.size == 1)
-    {
-        // Use the current directory if no arguments are provided
+    if (arr.size == 1) /* Use the current directory if no arguments are provided */
         snprintf(searchPath, LS_BUF, ".\\*");
-    }
-    else
-    {
-        // Use the provided directory path
+    else /* Use the provided directory path */
         snprintf(searchPath, LS_BUF, "%s\\*", arr.arr[1].cstr);
-    }
 
     // Find the first file in the directory
     hFind = FindFirstFile(searchPath, &findFileData);
@@ -66,19 +60,11 @@ int b_ls(String_Array arr)
         printf("Unable to open directory '%s'\n", searchPath);
         return 1;
     }
-    else
+    do
     {
-        do
-        {
-            // Skip "." and ".." entries
-            if (strcmp(findFileData.cFileName, ".") != 0 &&
-                strcmp(findFileData.cFileName, "..") != 0)
-            {
-                printf("%s\n", findFileData.cFileName);
-            }
-        } while (FindNextFile(hFind, &findFileData) != 0);
-        FindClose(hFind);
-    }
+        printf("%s\n", findFileData.cFileName);
+    } while (FindNextFile(hFind, &findFileData) != 0);
+    FindClose(hFind);
 
     return 0;
 }
