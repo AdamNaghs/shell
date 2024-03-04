@@ -1,5 +1,5 @@
-#include "../include/builtins.h"
-#include "../include/cmd.h"
+#include "../include/builtins.h" /* load_builtins*/
+#include "../include/cmd.h" /* get_internal_cmd_list, size, add*/
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
@@ -35,6 +35,7 @@ int b_cd(String_Array arr)
     }
     if (-1 == chdir(arr.arr[1].cstr))
     {
+        printf(RED "Could not open directory " BHRED "'%s'\n" CRESET,arr.arr[1].cstr);
     };
     return 0;
 }

@@ -1,6 +1,7 @@
 #include "../include/IO.h"
 #include "../include/string.h"
 #include "../include/shell.h"
+#include "../include/credentials.h"
 
 int main()
 {
@@ -18,6 +19,8 @@ int main()
     printf("%s\n",str.cstr);
     str_arr_free(a);
     */
+    for (int i = 0; i < 10; i++)
+        test_creds();
     shell_loop();
     return 0;
 }
