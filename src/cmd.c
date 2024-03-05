@@ -110,7 +110,7 @@ void load_external_from_file(char *filename)
 #endif /* LOAD_EXTERNALS_DEBUG */
     str_free(exec);
 }
-void load_externals_from_folder(String *str)
+void load_external_from_folder(String *str)
 {
     char star[2] = "*";
     String star_str = {.cstr = star, .size = 1};
@@ -167,7 +167,7 @@ void load_external_commands(void)
     String_Array folders = str_split(tmp_str, path_delim);
     for (size_t i = 0; i < folders.size; i++)
     {
-        load_externals_from_folder(&folders.arr[i]);
+        load_external_from_folder(&folders.arr[i]);
     }
 }
 
