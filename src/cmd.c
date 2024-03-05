@@ -105,7 +105,7 @@ void load_external_from_file(char *filename)
 }
 #ifdef _WIN32
 #include <windows.h>
-void load_external_from_folder(String *str)
+void load_external_from_folder(String str)
 {
     char star[2] = "*";
     String star_str = {.cstr = star, .size = 1};
@@ -113,8 +113,8 @@ void load_external_from_folder(String *str)
     String slash_str = {.cstr = slash, .size = 1};
     WIN32_FIND_DATA findFileData;
     HANDLE hFind = INVALID_HANDLE_VALUE;
-    String tmp = str_new(str->cstr);
-    if (str->size && str->cstr[str->size - 1] != '\\')
+    String tmp = str_new(str.cstr);
+    if (str.size && str.cstr[str.size - 1] != '\\')
     {
         str_append(&tmp, slash_str);
     }
@@ -123,7 +123,7 @@ void load_external_from_folder(String *str)
     if (hFind == INVALID_HANDLE_VALUE)
     {
         /* assume it is a file */
-        load_external_from_file(str->cstr);
+        load_external_from_file(str.cstr);
         return;
     }
     else
@@ -142,10 +142,36 @@ void load_external_from_folder(String *str)
     } while (FindNextFile(hFind, &findFileData) != 0);
     str_free(tmp);
 }
-#else  /* _WIN32 */
+#else /* _WIN32 */
+#include <dirent.h>
+#include <sys/stat.h>
 /* call load_external_from_file once I get a file name in the folder */
-void load_external_from_folder(String *str)
+void load_external_from_folder(String str)
 {
+    struct dirent *dir_entry;
+    DIR *d;
+    struct stat file_stats;
+    d = opendir(str.cstr);
+    if (!d)
+    {
+        printf(RED "Could not open directory '%s'.\n" CRESET, str.cstr);
+        return;
+    }
+    while ((dir_entry = readdir(d)) != NULL)
+    {
+        char path[1024];
+        snprintf(path, sizeof(path), "%s/%s", str.cstr, dir_entry->d_name);
+
+        if (stat(path, &file_stats) == -1)
+        {
+            printf(RED"Stat failed.\n"CRESET);
+            continue;
+        }
+        if (!S_ISDIR(file_stats.st_mode))
+        {
+            load_external_from_file(dir_entry->d_name);
+        }
+    }
 }
 #endif /* _WIN32 */
 
@@ -162,6 +188,6 @@ void load_external_commands(void)
     size_t i;
     for (i = 0; i < folders.size; i++)
     {
-        load_external_from_folder(&folders.arr[i]);
+        load_external_from_folder(folders.arr[i]);
     }
 }
