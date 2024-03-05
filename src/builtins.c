@@ -9,11 +9,17 @@
 #define GETCWD _getcwd
 #define CHDIR _chdir
 #define MKDIR _mkdir
+#define RMDIR _rmdir
 #else
 #include <unistd.h>
+#include <sys/stat.h>
 #define GETCWD getcwd
 #define CHDIR chdir
-#define MKDIR(path) mkdir(path, 0777);
+int MKDIR (char* path)
+{
+    return mkdir(path,777);
+}
+#define RMDIR rmdir
 #endif
 
 struct cmd_return b_mkdir(String_Array arr)
@@ -112,7 +118,6 @@ struct cmd_return b_ls(String_Array arr)
 {
     char new_line_char[2] = "\n";
     String new_line_str = {.cstr = new_line_char, .size = 1};
-    char tmp[1] = "";
     struct cmd_return ret = DEFAULT_CMD_RETURN;
     char buf[LS_BUF];
     char *cwd;
@@ -163,23 +168,40 @@ struct cmd_return b_echo(String_Array arr)
     return ret;
 }
 
+#ifdef _WIN32
+bool is_dir(char* filename)
+{
+
+}
+#else
+#include <sys/stat.h>
+bool is_dir(char* filename)
+{
+    struct stat file_stat;
+    stat(filename, &file_stat);
+    return S_ISDIR(file_stat.st_mode);
+}
+#endif
+
 #define RM_BUF 4096
-/* not really working */
 struct cmd_return b_rm(String_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
 
     String args = str_arr_join((String_Array){arr.arr + 1, arr.size - 1}, ' ');
 
-#ifdef _WIN32
-    char buf[5] = "del ";
-#else
-    char buf[4] = "rm ";
-#endif
-    String command = str_new(buf);
-    str_append(&command, args);
-    capture_system_call(&ret, command);
-    str_free(command);
+    ret.func_return = remove(args.cstr);
+    str_free(args);
+    return ret;
+}
+
+struct cmd_return b_rmdir(String_Array arr)
+{
+    struct cmd_return ret = CMD_RETURN_SUCCESS;
+
+    String args = str_arr_join((String_Array){arr.arr + 1, arr.size - 1}, ' ');
+
+    ret.func_return = RMDIR(args.cstr);
     str_free(args);
     return ret;
 }
@@ -236,7 +258,8 @@ struct cmd_return b_help(String_Array arr)
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     char help_buf[1000] =
         BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n" BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n" 
-        BHCYN "rm" CRESET "\t - Removes files or directories.\n"
+        BHCYN "rm" CRESET "\t - Removes files.\n"
+        BHCYN "rmdir" CRESET "\t - Removes directories.\n"
         BHCYN "touch" CRESET "\t - Creates files.\n";
     String tmp_str = str_new(help_buf);
     str_append(&ret.str, tmp_str);
@@ -301,5 +324,8 @@ void load_builtins(void)
 
     char str_touch[6] = "touch";
     add_internal_cmd(internal_cmd_new(str_new(str_touch), b_touch));
+
+    char str_rmdir[6] = "rmdir";
+    add_internal_cmd(internal_cmd_new(str_new(str_rmdir), b_rmdir));
     ran = true;
 }
