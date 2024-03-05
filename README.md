@@ -1,0 +1,60 @@
+# ASN Shell
+
+This is a simple shell that I made for educational purposes and for fun.
+I've made a simpler version of a shell before so this time I challenged myself
+by supporting Linux & Windows and programs in the system PATH instead of just
+builtin commands.
+
+I also intend on eventually adding a simple shell scripting language.
+
+# Crossplatform
+
+I don't have much experience with the windows api so at the moment I am focussing on implemeting the windows version of some functions before the linux verison.
+
+I am also developing this on windows and while im not sure how useful this shell will be I think it would be more useful to me if it ran on my native platform first.
+
+# Notes
+Not sure whether or not I should store the external programs found in the path or if I should just call osys whenever the shell doesn't recognize a command.
+
+I think another project I may do is a terminal written in a graphics library and then I'll try integrating my shell.
+# Commands
+
+So far ASN supports a few simple builtin commands
+
+    help - Prints this message to stdout.
+    exit - Exits program.
+    echo - Prints message.
+    osys - Outer system/shell call.
+    clear - Wipes terminal.
+    cd - Change directory.
+    ls - List files in current directory.
+    pwd - Print working directory.
+    mkdir  - Creates new direction with provided path.
+    rm  - Removes files or directories.
+
+I also recently added support for programs in the system path.
+
+The commands and programms are all internally stored in an array.
+
+The internal commands call a command from the builtins.c file.
+The external commands call a fascade command which is basically equavilent to osys which capture the output of the command you called outside of the shell and returns it for viewing.
+
+# Strings
+
+In my code I've tried to treat strings as immutable, but thats made a lot of clutter and eventually I broke that personal rule anyway and made a str_append function.
+
+For the most part, all strings need to be freed except for some places in my code where I explicitely made a String on the stack.
+
+I've always hated how char* strings in C need you to parse them to determine their length so my idea in implementing my own string was so lessen some of that headache. However it is not a complete string library and I lean on the std <string.h> header a lot.
+
+The way I've implemented and used Strings is also probably the source of a lot of memory leaks.
+
+# Deprecated functions
+At some places in my code I am using deprecated functions. I intend to go back in and replace these but please feel free to still create issue's about them
+
+# Login Security
+I've never created a login before so I might save this for last.
+
+My biggest worry is finding a place to store the encrypted login information that would be out of reach from attackers but still in reach for my program.
+
+I don't want to have any dependancies besides the libc and my own headers so I will likely implement my own encyption methods when the time comes.
