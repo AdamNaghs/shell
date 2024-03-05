@@ -112,3 +112,8 @@ void str_append(String *dest, String end)
     }
     dest->cstr[dest->size] = '\0';
 }
+
+bool str_equal(String a,String b)
+{
+    return a.size == b.size && !memcmp(a.cstr,b.cstr,a.size);
+}
