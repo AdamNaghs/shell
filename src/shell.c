@@ -24,14 +24,15 @@ void shell_loop(void)
         const char* osys_char_ptr = "osys";
         add_internal_cmd(internal_cmd_new(str_new(osys_char_ptr),outer_sys_call));
     */
-    struct cmd_return ret;
     while (1)
     {
+        struct cmd_return ret = {.func_return = 0, .str = {.cstr = NULL, .size = 0},.success = false};
         printf(BLU "asn@tmpUser> " CRESET);
         String a = input('\n', 0);
         if (a.size == 0)
             continue;
         String_Array commands = str_split(a, pipe_delim);
+        str_free(a);
 
         size_t i = 0, cmd = 0;
         bool ran = false;
@@ -64,7 +65,6 @@ void shell_loop(void)
             break_find_cmd_loop:
             str_arr_free(args);
         }
-        str_free(a);
         if (!ran)
         {
             printf("Could not find command '%s'.\n", commands.arr[0].cstr);
@@ -72,8 +72,9 @@ void shell_loop(void)
         else
         {
             printf("%s\n", ret.str.cstr);
-            str_free(ret.str);
         }
         str_arr_free(commands);
+        if (ret.str.cstr)
+            str_free(ret.str);
     }
 }
