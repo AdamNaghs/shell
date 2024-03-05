@@ -87,12 +87,13 @@ The colors don't work in some terminals. I am not yet sure how I can check if a 
     1. Get login working (credentials.h/c)
     2. Get mixed input and output from caputure_system_call working. (cmd.c)
     3. getenv is deprecated (cmd.c)
+    4. Find out if _dupenv_s is unix compatible
+    5. Find ansi C and crossplatform way to replace getenv
 ### Unix
-    1. Implement load_external_commands()
+    1. Implement load_external_from_folder function (cmd.c)
     2. Debug and Fix b_ls
 ### Windows
-    1. Find out if _dupenv_s is unix compatible
-    2. Find ansi C and crossplatform way to replace getenv
+    1. 
 
 # Debug Macros
 Comment out any of these macros and rebuild to disable these features.

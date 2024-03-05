@@ -155,7 +155,7 @@ void load_external_from_folder(String *str)
     str_free(tmp);
 }
 #else  /* _WIN32 */
-/* call load_external_from_file once I get a file name in the folder*/
+/* call load_external_from_file once I get a file name in the folder */
 void load_external_from_folder(String *str);
 #endif /* _WIN32 */
 void load_external_commands(void)
