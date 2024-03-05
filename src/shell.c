@@ -41,6 +41,7 @@ void shell_loop(void)
         for (; cmd < commands.size; cmd++)
         {
             String_Array args = str_split(commands.arr[cmd], space_delim);
+            if (!args.size) break;
             for (; i < get_internal_cmd_list_size(); i++)
             {
                 if (0 == strcmp(args.arr[0].cstr, cmd_list[i].name.cstr))

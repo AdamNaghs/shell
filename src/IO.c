@@ -112,13 +112,13 @@ String_Array str_split(String str, String delim)
             memcpy(new_str.cstr, str.cstr + word_start, new_str.size);
             new_str.cstr[new_str.size] = '\0';
             word_start = ++delim_idx;
-            if (found >= ret.size)
+             if (found >= ret.size)
             {
                 ret.size *= 2;
                 ret.arr = (String *)realloc(ret.arr, ret.size);
                 if (!ret.arr)
                 {
-                    perror(RED "'split_arr' could not realloc ret.arr.\n" CRESET);
+                    perror(RED "'str_split' could not realloc ret.arr 0.\n" CRESET);
                     exit(1);
                 }
             }
@@ -137,10 +137,16 @@ String_Array str_split(String str, String delim)
         ret.arr[last_idx].cstr[ret.arr[last_idx].size] = '\0';
     }
     ret.size = found;
+    if (!ret.size)
+    {
+        if (ret.arr)
+            free(ret.arr);
+        return ret;
+    }
     ret.arr = (String *)realloc(ret.arr, sizeof(String) * ret.size);
     if (!ret.arr)
     {
-        perror(RED "'split_arr' could not realloc ret.arr.\n" CRESET);
+        perror(RED "'str_split' could not realloc ret.arr 1.\n" CRESET);
         exit(1);
     }
     return ret;
