@@ -19,8 +19,6 @@ void shell_loop(void)
     String space_delim = (String){.cstr = buf, .size = 1};
     char buf1[2] = "|";
     String pipe_delim = (String){.cstr = buf1, .size = 1};
-    char buf2[2] = "$";
-    String var_prefix = (String){.cstr = buf2, .size = 1};
     struct internal_cmd *cmd_list = get_internal_cmd_list();
     while (1)
     {
@@ -34,7 +32,7 @@ void shell_loop(void)
             str_free(a);
             continue;
         }
-        paste_vars(var_prefix,&a);
+        paste_vars('$',&a);
         String_Array commands = str_split(a, pipe_delim);
         str_free(a);
 

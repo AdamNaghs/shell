@@ -38,7 +38,23 @@ Variable var_new(String name, String value)
 {
     return (Variable){str_new(name.cstr), str_new(value.cstr)};
 }
-
+/* returns null if it does not have it*/
+Variable *get_value(String name)
+{
+    size_t i;
+    String tmp = str_new(NULL);
+    str_append(&tmp, name);
+    for (i = 0; i < size; i++)
+    {
+        if (0 == strcmp(tmp.cstr, var_arr[i].name.cstr))
+        {
+            str_free(tmp);
+            return &var_arr[i];
+        }
+    }
+    str_free(tmp);
+    return NULL;
+}
 /* return 0 if it read a variable and -1 if it did not, manages variables in an internal array */
 int read_var(String inp)
 {
@@ -49,7 +65,7 @@ int read_var(String inp)
     {
         inp.size--;
     }
-    if (str_contains_char(inp, ' '))
+    if (-1 != str_contains_char(inp, ' '))
     {
         return -1;
     }
@@ -66,7 +82,16 @@ int read_var(String inp)
         str_arr_free(arr);
         return -1;
     }
-    add_var(var_new(arr.arr[0], arr.arr[1]));
+    Variable *v = get_value(arr.arr[0]);
+    if (NULL != v)
+    {
+        str_free(v->value);
+        v->value = str_new(arr.arr[1].cstr);
+    }
+    else
+    {
+        add_var(var_new(arr.arr[0], arr.arr[1]));
+    }
     str_arr_free(arr);
     return 0;
 }
@@ -89,49 +114,47 @@ void free_all_vars(void)
     cap = 0;
     ran = 0;
 }
-/* returns null if it does not have it*/
-String *get_value(String name)
-{
-    size_t i;
-    String tmp = str_new(NULL);
-    str_append(&tmp, name);
-    for (i = 0; i < size; i++)
-    {
-        if (0 == strcmp(tmp.cstr, var_arr[i].name.cstr))
-        {
-            str_free(tmp);
-            return &var_arr[i].value;
-        }
-    }
-    str_free(tmp);
-    return NULL;
-}
 
 /* will look for and replace variables that are prefixed by 'prefix'*/
-int paste_vars(String prefix, String *string)
+int paste_vars(char prefix, String *string)
 {
-    signed long long idx = str_contains_str(*string, prefix);
+    signed long long idx = str_contains_char(*string, prefix);
     if (idx == -1)
         return -1;
+
     String ret = str_new(NULL);
-    str_append(&ret, (String){.cstr = string->cstr + idx, .size = (unsigned long long)idx});
-    String tmp = {.cstr = string->cstr + idx, .size = string->size - idx};
-    size_t i;
-    for (i = 0; i < tmp.size && tmp.cstr[i] != '\0' && isalpha(tmp.cstr[i]) && isdigit(tmp.cstr[i]); i++)
+    str_append(&ret, (String){.cstr = string->cstr, .size = (size_t)idx});
+
+    /* Find the end of the variable name */
+    size_t end_idx = idx + 1;
+    while (end_idx < string->size && (isalpha(string->cstr[end_idx]) || isdigit(string->cstr[end_idx])))
     {
+        end_idx++;
     }
-    String name = {.cstr = string->cstr + idx + i, .size = (unsigned long long)idx + i - 1};
-    String *value = get_value(name);
-    if (!value)
+
+    /* Extract the variable name */
+    String var_name = {.cstr = string->cstr + idx + 1, .size = (unsigned long long)end_idx - idx - 1};
+    Variable *var = get_value(var_name);
+
+    /* Append the value or the variable name itself if value not found */
+    if (var)
     {
-        str_append(&ret, (String){.cstr = string->cstr + idx + i, .size = (unsigned long long)idx + (string->size - i)});
+        str_append(&ret, var->value);
     }
     else
     {
-        str_append(&ret, *value);
-        str_append(&ret, (String){.cstr = string->cstr + idx + i, .size = (unsigned long long)idx + (string->size - i)});
+        str_append(&ret, var_name);
     }
+
+    /* Append the rest of the original string */
+    if (end_idx < string->size)
+    {
+        str_append(&ret, (String){.cstr = string->cstr + end_idx, .size = string->size - end_idx});
+    }
+
     str_free(*string);
     *string = ret;
-    return 0;
+
+    /* Check if there are more variables to replace */
+    return paste_vars(prefix, string);
 }
