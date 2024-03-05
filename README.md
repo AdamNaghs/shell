@@ -17,23 +17,14 @@ I am also developing this on windows and while im not sure how useful this shell
 Create a folder named 'obj' in the same folder as the 'src' and 'include' folder.
 
 
-### Linux
-1. Remove '.exe' from OUT_TYPE.
-2. replace '\\' with '/'
-3. Set RM to 'rm'
-### Windows
-1. Set OUT_TYPE to '.exe'
-2. replace '/' with '\\'
-3. Set RM to 'del'
-
 I'm using a makefile to build and clean.
+The makefile can compile for both linux and windows.
 
 When building, call 'make' while in the same directory as the makefile.
 
 After changing the code, call 'make clean' then 'make' to rebuild the objs and the exe.
 
 I'm currently only using the address sanitizer and -g to debug. Please let me know what other flags I should add while compiling or what other programs I can use to debug my code (aside from gdb).
-
 
 # Notes
 Not sure whether or not I should store the external programs found in the path or if I should just call osys whenever the shell doesn't recognize a command.
