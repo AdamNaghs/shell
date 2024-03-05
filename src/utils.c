@@ -3,6 +3,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <errno.h>
+#include <stdlib.h>
 /* currently unused in windows implementation of the shell */
 bool is_dir(char *filename)
 {
@@ -23,7 +24,15 @@ FILE* FOPEN(char *path,char* mode)
 
     return f;
 }
-
+#define MAX_ENV 16384
+char env_buf[16384];
+char* GETENV(char* path)
+{
+    /*size_t size = MAX_ENV;
+    _dupenv_s(&env_buf,&size,path);
+    return env_buf;*/
+    return getenv(path);
+}
 #else
 #include <sys/stat.h>
 bool is_dir(char *filename)
