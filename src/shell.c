@@ -13,7 +13,7 @@ void shell_loop(void)
     bind_signals();
     attempt_login_loop();
     load_builtins();
-    load_external_commands();
+    //load_external_commands();
     char buf[2] = " ";
     String space_delim = (String){.cstr = buf, .size = 1};
     char buf1[2] = "|";
