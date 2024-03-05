@@ -14,6 +14,7 @@
 #define PCLOSE _pclose
 FILE* FOPEN(char *path,char* mode);
 #define FCLOSE fclose
+char* GETENV(char* path);
 #else
 #include <unistd.h>
 #include <sys/stat.h>

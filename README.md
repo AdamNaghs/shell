@@ -111,6 +111,6 @@ The colors don't work in some terminals. I am not yet sure how I can check if a 
 
 # Debug Macros
 Comment out any of these macros and rebuild to disable these features.
-    LOAD_EXTENALS_DEBUG - If enabled, it will cause all of the programs in the path to be printed when they are added.
-    
+
+    LOAD_EXTENALS_DEBUG - If enabled, it will cause all of the programs in the path to be printed when they are added.    
     COLOR_ENABLED - Enabled colors.

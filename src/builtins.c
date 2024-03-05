@@ -1,3 +1,4 @@
+#include "../include/var.h"
 #include "../include/builtins.h" /* load_builtins*/
 #include "../include/cmd.h"      /* get_internal_cmd_list, size, add*/
 #include "../include/utils.h"    /* is_dir */
@@ -177,7 +178,6 @@ struct cmd_return b_rmdir(String_Array arr)
 {
     return b_rm(arr);
 }
-
 struct cmd_return b_exit(String_Array arr)
 {
     char tmp_char[1] = "";
@@ -191,6 +191,7 @@ struct cmd_return b_exit(String_Array arr)
     for (; i < get_internal_cmd_list_size(); i++)
         str_free(list[i].name);
     free(list);
+    free_all_vars();
     printf(GRN "Exitting...\n" CRESET);
     exit(1);
     return ret;

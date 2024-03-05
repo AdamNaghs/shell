@@ -1,13 +1,13 @@
-CC = clang
-CFILES = main.c IO.c string.c shell.c signal.c credentials.c cmd.c builtins.c utils.c
-CFLAGS = -Wall -g -fsanitize=address -std=c99 -pedantic 
+CC = gcc
+CFILES = main.c IO.c string.c shell.c signal.c credentials.c cmd.c builtins.c utils.c var.c
+CFLAGS = -Wall -g -std=c99 -pedantic 
 LFLAGS = 
 SRCFOLDER = src\\
 OBJFOLDER = obj\\
 OUTNAME = main
 OBJS = $(CFILES:%.c=$(OBJFOLDER)%.o)
 RM = del
-OUT_TYPE = 
+OUT_TYPE = .exe
 
 default: $(OUTNAME)
 

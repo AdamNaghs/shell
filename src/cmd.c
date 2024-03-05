@@ -125,7 +125,7 @@ void load_external_from_folder(String str)
     else
     {
 #ifdef LOAD_EXTERNALS_DEBUG
-        printf("Found dir '%s'\n", str->cstr);
+        printf("Found dir '%s'\n", str.cstr);
 #endif /* LOAD_EXTERNALS_DEBUG */
     }
     do
@@ -168,7 +168,7 @@ void load_external_from_folder(String str)
 
 void load_external_commands(void)
 {
-    char *path = getenv("PATH");
+    char *path = GETENV("PATH");
 #ifdef LOAD_EXTERNALS_DEBUG
     printf("Loading files in path: '%s'\n", path);
 #endif
