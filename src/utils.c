@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #ifdef _WIN32
 #include <windows.h>
+#include <errno.h>
 bool is_dir(char *filename)
 {
     DWORD file_attr = GetFileAttributes(filename);
@@ -12,6 +13,14 @@ bool is_dir(char *filename)
     if (file_attr & FILE_ATTRIBUTE_DIRECTORY)
         return true;
     return false;
+}
+FILE* FOPEN(char *path,char* mode)
+{
+    FILE* f = (FILE*) malloc(sizeof(FILE));
+    if (0 != fopen_s(&f,path,mode))
+        exit(1);
+
+    return f;
 }
 #else
 #include <sys/stat.h>

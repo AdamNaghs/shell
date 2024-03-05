@@ -5,12 +5,15 @@
 
 #ifdef _WIN32
 #include <direct.h>
+#include <stdio.h>
 #define GETCWD _getcwd
 #define CHDIR _chdir
 #define MKDIR _mkdir
 #define RMDIR _rmdir
-#define popen _popen
-#define pclose _pclose
+#define POPEN _popen
+#define PCLOSE _pclose
+FILE* FOPEN(char *path,char* mode);
+#define FCLOSE fclose
 #else
 #include <unistd.h>
 #include <sys/stat.h>
@@ -19,6 +22,11 @@
 #define CHDIR chdir
 int MKDIR(char *path);
 #define RMDIR rmdir
+#define POPEN popen
+#define PCLOSE pclose
+#define FOPEN fopen
+#define FCLOSE fclose
+#define GETENV getenv
 #endif
 
 bool is_dir(char* str);
