@@ -3,7 +3,7 @@
 #include "IO.h"
 #include <stdbool.h>
 
-/* #define LOAD_EXTERNALS_DEBUG */
+#define LOAD_EXTERNALS_DEBUG 
 
 typedef struct cmd_return (*internal_cmd_func)(String_Array);
 
