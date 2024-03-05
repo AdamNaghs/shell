@@ -96,6 +96,7 @@ The colors don't work in some terminals. I am not yet sure how I can check if a 
 
 1.  osys and external commands do not mix stdin, stdout, and stderr while running a process.
 2.  osys and external commands sometimes stop, or appear to, perhaps becuase of the lack of file stream mixing.
+3.  Using rm on a directory crashes the program.
 # Todo
 ### All Versions
     1. Get login working (credentials.h/c)
