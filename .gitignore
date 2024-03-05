@@ -4,3 +4,13 @@ main.lib
 main.pdb
 main
 main.exe
+obj/builtins.o
+obj/cmd.o
+obj/credentials.o
+obj/IO.o
+obj/main.o
+obj/shell.o
+obj/signal.o
+obj/string.o
+obj/utils.o
+obj/var.o

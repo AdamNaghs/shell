@@ -123,6 +123,8 @@ struct cmd_return b_ls(String_Array arr)
     {
         d = opendir(arr.arr[1].cstr);
     }
+    if (!d)
+        return ret;
     while (NULL != ((dir = readdir(d))))
     {
         String tmp_str = str_new(dir->d_name);
@@ -240,10 +242,11 @@ struct cmd_return b_help(String_Array arr)
 struct cmd_return b_touch(String_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
+    static char open_mode[2] = "a";
     size_t i = 1;
     for (; i < arr.size; i++)
     {
-        FILE *f = FOPEN(arr.arr[i].cstr, "a");
+        FILE *f = FOPEN(arr.arr[i].cstr, open_mode);
         if (!f)
         {
             char tmp[4096];
