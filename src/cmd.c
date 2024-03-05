@@ -155,7 +155,6 @@ void load_externals_from_folder(String *str)
     str_free(tmp);
 }
 
-/* not really necessary, does the same thing as osys but less stable */
 void load_external_commands(void)
 {
     char *path = getenv("PATH");
