@@ -69,7 +69,7 @@ String input(char enter_char, size_t max_size)
     char c;
     while ((c = fgetc(input_file)) != enter_char && ret.size < max_size)
     {
-        if (c == EOF)
+        if (c == EOF || c == '\0')
             break;
         ret.cstr[ret.size++] = c;
     }
