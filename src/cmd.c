@@ -5,11 +5,13 @@
 size_t cmd_arr_cap = 10;
 size_t cmd_arr_len = 0;
 struct internal_cmd *cmd_arr;
+#ifdef _WIN32
 #ifndef popen
 #define popen _popen
 #endif
 #ifndef pclose
 #define pclose _pclose
+#endif
 #endif
 #define CPT_SYS_CALL_BUF 4096
 void capture_system_call(struct cmd_return *ret, String command)
@@ -164,7 +166,7 @@ void load_external_from_folder(String str)
 
         if (stat(path, &file_stats) == -1)
         {
-            printf(RED"Stat failed.\n"CRESET);
+            perror(RED"Stat failed.\n"CRESET);
             continue;
         }
         if (!S_ISDIR(file_stats.st_mode))
@@ -190,4 +192,5 @@ void load_external_commands(void)
     {
         load_external_from_folder(folders.arr[i]);
     }
+    str_arr_free(folders);
 }

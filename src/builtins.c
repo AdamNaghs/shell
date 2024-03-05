@@ -110,6 +110,8 @@ struct cmd_return b_ls(String_Array arr)
 #include <dirent.h> /* opendir, readdir, closedir, */
 struct cmd_return b_ls(String_Array arr)
 {
+    char new_line_char[2] = "\n";
+    String new_line_str = {.cstr = new_line_char, .size = 1};
     char tmp[1] = "";
     struct cmd_return ret = DEFAULT_CMD_RETURN;
     char buf[LS_BUF];
@@ -130,8 +132,8 @@ struct cmd_return b_ls(String_Array arr)
     }
     while (NULL != ((dir = readdir(d))))
     {
-        printf("%s\n", dir->d_name);
         String tmp_str = str_new(dir->d_name);
+        str_append(&tmp_str,new_line_str);
         str_append(&ret.str, tmp_str);
         str_free(tmp_str);
     }
@@ -140,6 +142,7 @@ struct cmd_return b_ls(String_Array arr)
         closedir(d);
     }
     ret.success = true;
+    /*ret.str.cstr[ret.str.size--] = '\0';*/
     return ret;
 }
 #endif
@@ -189,8 +192,11 @@ struct cmd_return b_exit(String_Array arr)
         .func_return = 0,
         .str = str_new(tmp_char),
     };
-
-    free(get_internal_cmd_list());
+    struct internal_cmd* list = get_internal_cmd_list();
+    size_t i = 0;
+    for (; i < get_internal_cmd_list_size();i++)
+        str_free(list[i].name);
+    free(list);
     printf(GRN "Exitting...\n" CRESET);
     exit(1);
     return ret;
@@ -229,10 +235,32 @@ struct cmd_return b_help(String_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     char help_buf[1000] =
-        BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n" BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n" BHCYN "rm" CRESET "\t - Removes files or directories.\n";
+        BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n" BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n" 
+        BHCYN "rm" CRESET "\t - Removes files or directories.\n"
+        BHCYN "touch" CRESET "\t - Creates files.\n";
     String tmp_str = str_new(help_buf);
     str_append(&ret.str, tmp_str);
     str_free(tmp_str);
+    return ret;
+}
+
+struct cmd_return b_touch(String_Array arr)
+{
+    struct cmd_return ret = CMD_RETURN_SUCCESS;
+    size_t i = 1;
+    for (; i < arr.size; i++)
+    {
+        FILE *f = fopen(arr.arr[i].cstr, "a");
+        if (!f)
+        {
+            char tmp[4096];
+            sprintf(tmp,RED "Failed to create file '%s'.\n" CRESET, arr.arr[i].cstr);
+            String tmp_str =  {tmp,4096};
+            str_append(&ret.str,tmp_str);
+            continue;
+        }
+        fclose(f);
+    }
     return ret;
 }
 
@@ -268,7 +296,10 @@ void load_builtins(void)
     char str_mkdir[6] = "mkdir";
     add_internal_cmd(internal_cmd_new(str_new(str_mkdir), b_mkdir));
 
-    char str_rm[6] = "rm";
+    char str_rm[3] = "rm";
     add_internal_cmd(internal_cmd_new(str_new(str_rm), b_rm));
+
+    char str_touch[6] = "touch";
+    add_internal_cmd(internal_cmd_new(str_new(str_touch), b_touch));
     ran = true;
 }

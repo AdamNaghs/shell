@@ -16,6 +16,16 @@ I am also developing this on windows and while im not sure how useful this shell
 # Building
 Create a folder named 'obj' in the same folder as the 'src' and 'include' folder.
 
+
+### Linux
+1. Remove '.exe' from OUT_TYPE.
+2. replace '\\' with '/'
+3. Set RM to 'rm'
+### Windows
+1. Set OUT_TYPE to '.exe'
+2. replace '/' with '\\'
+3. Set RM to 'del'
+
 I'm using a makefile to build and clean.
 
 When building, call 'make' while in the same directory as the makefile.
@@ -42,7 +52,9 @@ So far ASN supports a few simple builtin commands
     ls - List files in current directory.
     pwd - Print working directory.
     mkdir  - Creates new direction with provided path.
-    rm  - Removes files or directories.
+    rm - Removes files or directories.
+    touch - Creates files.
+
 
 Some commands like 'rm' and 'clear' just use the system function to call 'del' or 'rm' depending on if you're using windows or not. I need to fix this, but for now its just a simple solution.
 
