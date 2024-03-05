@@ -69,7 +69,7 @@ void shell_loop(void)
                 }
             }
         break_find_cmd_loop:
-        str_arr_free(args);
+            str_arr_free(args);
         }
         if (!ran)
         {
