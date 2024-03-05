@@ -4,7 +4,7 @@ CFLAGS = -Wall -g -fsanitize=address -std=c99 -pedantic
 LFLAGS = 
 SRCFOLDER = src\\
 OBJFOLDER = obj\\
-OUTNAME = main.exe
+OUTNAME = main
 OBJS = $(CFILES:%.c=$(OBJFOLDER)%.o)
 RM = del
 
@@ -12,7 +12,7 @@ RM = del
 default: $(OUTNAME)
 
 $(OUTNAME): $(OBJS)
-	$(CC) $(LFLAGS) $(OBJS) $(CFLAGS) -o $(OUTNAME)
+	$(CC) $(LFLAGS) $(OBJS) $(CFLAGS) -o $(OUTNAME).exe
 
 $(OBJFOLDER)%.o: $(SRCFOLDER)%.c
 	$(CC) $(CFLAGS) -c $< -o $@ $(CFLAGS)
@@ -21,3 +21,6 @@ clean:
 	$(RM) $(OBJS)
 	$(RM) $(OUTNAME).exe
 	$(RM) $(OUTNAME)
+	$(RM) $(OUTNAME).exp
+	$(RM) $(OUTNAME).lib
+	$(RM) $(OUTNAME).pdb
