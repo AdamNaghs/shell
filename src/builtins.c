@@ -211,18 +211,6 @@ struct cmd_return b_clear(String_Array arr)
     return ret;
 }
 
-struct cmd_return b_osys1(String_Array arr)
-{
-    char tmp_char[1] = "";
-    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(tmp_char), };
-
-    String_Array tmp_arr = {.arr = arr.arr + 1, .size = arr.size - 1};
-    String tmp = str_arr_join(tmp_arr, ' ');
-    ret.func_return = system(tmp.cstr);
-    str_free(tmp);
-    return ret;
-}
-
 struct cmd_return b_osys(String_Array arr) {
     struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(NULL), };
 
