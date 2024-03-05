@@ -81,3 +81,13 @@ The colors don't work in some terminals. I am not yet sure how I can check if a 
 
 1.  osys and external commands do not mix stdin, stdout, and stderr while running a process.
 2.  test_creds in has a memory overwrite according to the clang address sanitizer
+
+# Todo
+### All Versions
+    1. Get login working
+    2. Get mixed input and output from caputure_system_call working.
+### Unix
+    1. Implement load_external_commands()
+    2. Debug and Fix b_ls
+### Windows
+    1. 
