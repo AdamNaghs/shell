@@ -16,7 +16,7 @@ $(OUTNAME): $(OBJS)
 	$(CC) $(LFLAGS) $(OBJS) $(CFLAGS) -o $(OUTNAME)$(OUT_TYPE)
 
 $(OBJFOLDER)%.o: $(SRCFOLDER)%.c
-	$(CC) $(CFLAGS) -c $< -o $@ $(CFLAGS)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	$(RM) $(OBJS)
