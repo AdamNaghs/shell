@@ -16,7 +16,6 @@ I am also developing this on windows and while im not sure how useful this shell
 # Building
 Create a folder named 'obj' in the same folder as the 'src' and 'include' folder.
 
-
 I'm using a makefile to build and clean.
 The makefile can compile for both linux and windows.
 
