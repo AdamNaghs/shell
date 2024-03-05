@@ -14,6 +14,8 @@ I don't have much experience with the windows api so at the moment I am focussin
 I am also developing this on windows and while im not sure how useful this shell will be I think it would be more useful to me if it ran on my native platform first.
 
 # Building
+Create a folder named 'obj' in the same folder as the 'src' and 'include' folder.
+
 I'm using a makefile to build and clean.
 
 When building, call 'make' while in the same directory as the makefile.
