@@ -87,8 +87,6 @@ struct cmd_return facade_internal_cmd(String_Array cmd)
     return ret;
 }
 
-#ifdef _WIN32
-#include <windows.h>
 void load_external_from_file(char *filename)
 {
     String cmd = str_new(filename);
@@ -110,6 +108,8 @@ void load_external_from_file(char *filename)
 #endif /* LOAD_EXTERNALS_DEBUG */
     str_free(exec);
 }
+#ifdef _WIN32
+#include <windows.h>
 void load_external_from_folder(String *str)
 {
     char star[2] = "*";
@@ -154,7 +154,10 @@ void load_external_from_folder(String *str)
     } while (FindNextFile(hFind, &findFileData) != 0);
     str_free(tmp);
 }
-
+#else  /* _WIN32 */
+/* call load_external_from_file once I get a file name in the folder*/
+void load_external_from_folder(String *str);
+#endif /* _WIN32 */
 void load_external_commands(void)
 {
     char *path = getenv("PATH");
@@ -170,9 +173,3 @@ void load_external_commands(void)
         load_external_from_folder(&folders.arr[i]);
     }
 }
-
-#else  /* _WIN32 */
-void load_external_commands(void)
-{
-}
-#endif /* _WIN32 */
