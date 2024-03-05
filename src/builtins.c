@@ -177,7 +177,7 @@ struct cmd_return b_rm(String_Array arr)
     String args = str_arr_join((String_Array){arr.arr + 1, arr.size - 1}, ' ');
     if (is_dir(args.cstr))
     {
-        ret.func_return = rmdir(args.cstr);
+        ret.func_return = RMDIR(args.cstr);
     }
     else
     {
