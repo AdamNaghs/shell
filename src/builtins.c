@@ -229,10 +229,32 @@ struct cmd_return b_help(String_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     char help_buf[1000] =
-        BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n" BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n" BHCYN "rm" CRESET "\t - Removes files or directories.\n";
+        BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n" BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n" 
+        BHCYN "rm" CRESET "\t - Removes files or directories.\n"
+        BHCYN "touch" CRESET "\t - Creates files.\n";
     String tmp_str = str_new(help_buf);
     str_append(&ret.str, tmp_str);
     str_free(tmp_str);
+    return ret;
+}
+
+struct cmd_return b_touch(String_Array arr)
+{
+    struct cmd_return ret = CMD_RETURN_SUCCESS;
+    size_t i = 1;
+    for (; i < arr.size; i++)
+    {
+        FILE *f = fopen(arr.arr[i].cstr, "a");
+        if (!f)
+        {
+            char tmp[4096];
+            sprintf(tmp,RED "Failed to create file '%s'.\n" CRESET, arr.arr[i].cstr);
+            String tmp_str =  {tmp,4096};
+            str_append(&ret.str,tmp_str);
+            continue;
+        }
+        fclose(f);
+    }
     return ret;
 }
 
@@ -268,7 +290,10 @@ void load_builtins(void)
     char str_mkdir[6] = "mkdir";
     add_internal_cmd(internal_cmd_new(str_new(str_mkdir), b_mkdir));
 
-    char str_rm[6] = "rm";
+    char str_rm[3] = "rm";
     add_internal_cmd(internal_cmd_new(str_new(str_rm), b_rm));
+
+    char str_touch[6] = "touch";
+    add_internal_cmd(internal_cmd_new(str_new(str_touch), b_touch));
     ran = true;
 }

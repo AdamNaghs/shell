@@ -42,7 +42,9 @@ So far ASN supports a few simple builtin commands
     ls - List files in current directory.
     pwd - Print working directory.
     mkdir  - Creates new direction with provided path.
-    rm  - Removes files or directories.
+    rm - Removes files or directories.
+    touch - Creates files.
+
 
 Some commands like 'rm' and 'clear' just use the system function to call 'del' or 'rm' depending on if you're using windows or not. I need to fix this, but for now its just a simple solution.
 
