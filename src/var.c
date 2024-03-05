@@ -46,7 +46,7 @@ Variable *get_value(String name)
     str_append(&tmp, name);
     for (i = 0; i < size; i++)
     {
-        if (0 == strcmp(tmp.cstr, var_arr[i].name.cstr))
+        if (str_equal(tmp, var_arr[i].name))
         {
             str_free(tmp);
             return &var_arr[i];

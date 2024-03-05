@@ -2,7 +2,6 @@
 #include "../include/builtins.h"
 #include "../include/utils.h"
 #include <stdlib.h>
-#include <string.h> /* strcmp */
 #include <stdio.h>
 size_t cmd_arr_cap = 10;
 size_t cmd_arr_len = 0;

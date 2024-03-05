@@ -47,7 +47,7 @@ void shell_loop(void)
                 break;
             for (; i < get_internal_cmd_list_size(); i++)
             {
-                if (0 == strcmp(args.arr[0].cstr, cmd_list[i].name.cstr))
+                if (str_equal(args.arr[0], cmd_list[i].name))
                 {
                     if (cmd == 0)
                     {

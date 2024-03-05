@@ -1,5 +1,6 @@
 #ifndef SHELL_STR
 #define SHELL_STR
+#include <stdbool.h>
 /* needs to be freed */
 typedef struct
 {
@@ -17,5 +18,7 @@ String str_new(char* str);
 void str_append(String* dest, String end);
 
 void str_free(String str);
+
+bool str_equal(String,String);
 
 #endif /* SHELL_STR */
