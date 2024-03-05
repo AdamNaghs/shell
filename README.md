@@ -60,7 +60,7 @@ Some commands like 'rm' and 'clear' just use the system function to call 'del' o
 
 I also recently added support for programs in the system path.
 
-The commands and programms are all internally stored in an array.
+The commands and programs are all internally stored in an array.
 
 The internal commands call a command from the builtins.c file.
 The external commands call a fascade command from cmd.c which is basically equavilent to using osys which captures the output of the command you called outside of the shell and returns it for viewing.
@@ -95,18 +95,17 @@ The colors don't work in some terminals. I am not yet sure how I can check if a 
 # Known Issues
 
 1.  osys and external commands do not mix stdin, stdout, and stderr while running a process.
-2.  osys and external commands sometimes stop, or appear to, perhaps becuase of the lack of file stream mixing.
-3.  Using rm/rmdir on a does not delete it.
+2.  osys and external commands sometimes stop, or appear to perhaps because of the lack of file stream mixing.
+3.  Using rm/rmdir on a does not delete a folder.
 # Todo
 ### All Versions
     1. Get login working (credentials.h/c)
     2. Get mixed input and output from caputure_system_call working. (cmd.c)
     3. getenv is deprecated (cmd.c)
-    4. Find out if _dupenv_s is unix compatible
-    5. Find ansi C and crossplatform way to replace getenv
+        3a. Find out if _dupenv_s is unix compatible
+        3b. Find ansi C and crossplatform way to replace getenv
 ### Unix
-    1. Implement load_external_from_folder function (cmd.c)
-    2. Debug and Fix b_ls
+    1. 
 ### Windows
     1. 
 
