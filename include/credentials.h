@@ -13,6 +13,7 @@
         Should have a logout function that does not quit,
         but brings the user to a login screen.
 */
+/* has memory leaks (used address sanitizer)*/
 void test_creds(void);
 
 size_t str_hash(String str);
