@@ -42,7 +42,7 @@ So far ASN supports a few simple builtin commands
     mkdir  - Creates new direction with provided path.
     rm  - Removes files or directories.
 
-Some commands like 'rm' just use the system function to call 'del' or 'rm' depending on if you're using windows or not. I need to fix this and but for now its just a simple solution.
+Some commands like 'rm' just use the system function to call 'del' or 'rm' depending on if you're using windows or not. I need to fix this, but for now its just a simple solution.
 
 I also recently added support for programs in the system path.
 
