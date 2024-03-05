@@ -117,12 +117,13 @@ String_Array str_split(String str, String delim)
              if (found >= ret.size)
             {
                 ret.size *= 2;
-                ret.arr = (String *)realloc(ret.arr, ret.size);
-                if (!ret.arr)
+                String* tmp = (String *)realloc(ret.arr, ret.size * sizeof(String));
+                if (!tmp)
                 {
                     perror(RED "'str_split' could not realloc ret.arr 0.\n" CRESET);
                     exit(1);
                 }
+                ret.arr = tmp;
             }
             ret.arr[found++] = new_str;
         }
