@@ -16,7 +16,7 @@ void str_arr_free(String_Array arr);
     Get this working, right now we are using getchar
     which only gets stdin.
 */
-void set_input_file(FILE* fd);
+void set_input_file(FILE *fd);
 
 /* ret_char is the char that once pressed returns the string.
     provide 0 for max_size if you do not care how long the input is */
@@ -33,9 +33,8 @@ String_Array str_split(String str, String delim);
 String str_arr_join(String_Array arr, char seperator);
 
 /* old string array is not freed, neither is the string*/
-String_Array str_arr_add(String_Array,String);
+String_Array str_arr_add(String_Array, String);
 
-void str_arr_replace(String_Array,size_t idx,String new_str);
-
+void str_arr_replace(String_Array, size_t idx, String new_str);
 
 #endif /* SHELL_IO */

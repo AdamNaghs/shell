@@ -6,6 +6,8 @@
 #ifndef COLORS_H
 #define COLORS_H
 
+#ifdef COLORS_ENABLED
+
 /*Regular text*/
 #ifndef BLK
 #define BLK "\e[0;30m"
@@ -194,5 +196,198 @@
 #ifndef COLOR_RESET
 #define COLOR_RESET "\e[0m"
 #endif
+
+#else /* COLORS_ENABLED */
+
+/*Regular text*/
+#ifndef BLK
+#define BLK ""
+#endif
+#ifndef RED
+#define RED ""
+#endif
+#ifndef GRN
+#define GRN ""
+#endif
+#ifndef YEL
+#define YEL ""
+#endif
+#ifndef BLU
+#define BLU ""
+#endif
+#ifndef MAG
+#define MAG ""
+#endif
+#ifndef CYN
+#define CYN ""
+#endif
+#ifndef WHT
+#define WHT ""
+#endif 
+
+/*Regular bold text*/
+#ifndef BBLK
+#define BBLK ""
+#endif
+#ifndef BRED
+#define BRED ""
+#endif
+#ifndef BGRN
+#define BGRN ""
+#endif
+#ifndef BYEL
+#define BYEL ""
+#endif
+#ifndef BBLU
+#define BBLU ""
+#endif
+#ifndef BMAG
+#define BMAG ""
+#endif
+#ifndef BCYN
+#define BCYN ""
+#endif
+#ifndef BWHT
+#define BWHT ""
+#endif
+
+/*Regular underline text*/
+#ifndef UBLK
+#define UBLK ""
+#endif
+#ifndef URED
+#define URED ""
+#endif
+#ifndef UGRN
+#define UGRN ""
+#endif
+#ifndef UYEL
+#define UYEL ""
+#endif
+#ifndef UBLU
+#define UBLU ""
+#endif
+#ifndef UMAG
+#define UMAG ""
+#endif
+#ifndef UCYN
+#define UCYN ""
+#endif
+#ifndef UWHT
+#define UWHT ""
+#endif
+
+/*Regular background*/
+#ifndef BLKB
+#define BLKB ""
+#endif
+#ifndef REDB
+#define REDB ""
+#endif
+#ifndef GRNB
+#define GRNB ""
+#endif
+#ifndef YELB
+#define YELB ""
+#endif
+#ifndef BLUB
+#define BLUB ""
+#endif
+#ifndef MAGB
+#define MAGB ""
+#endif
+#ifndef CYNB
+#define CYNB ""
+#endif
+#ifndef WHTB
+#define WHTB ""
+#endif
+
+/*High intensty background */
+#ifndef BLKHB
+#define BLKHB ""
+#endif
+#ifndef REDHB
+#define REDHB ""
+#endif
+#ifndef GRNHB
+#define GRNHB ""
+#endif
+#ifndef YELHB
+#define YELHB ""
+#endif
+#ifndef BLUHB
+#define BLUHB ""
+#endif
+#ifndef MAGHB
+#define MAGHB ""
+#endif
+#ifndef CYNHB
+#define CYNHB ""
+#endif
+#ifndef WHTHB
+#define WHTHB ""
+#endif
+
+/*High intensty text*/
+#ifndef HBLK
+#define HBLK ""
+#endif
+#ifndef HRED
+#define HRED ""
+#endif
+#ifndef HGRN
+#define HGRN ""
+#endif
+#ifndef HYEL
+#define HYEL ""
+#endif
+#ifndef HBLU
+#define HBLU ""
+#endif
+#ifndef HMAG
+#define HMAG ""
+#endif
+#ifndef HCYN
+#define HCYN ""
+#endif
+#ifndef HWHT
+#define HWHT ""
+#endif
+
+/*Bold high intensity text*/
+#ifndef BHBLK
+#define BHBLK ""
+#endif
+#ifndef BHRED
+#define BHRED ""
+#endif
+#ifndef BHGRN
+#define BHGRN ""
+#endif
+#ifndef BHYEL
+#define BHYEL ""
+#endif
+#ifndef BHBLU
+#define BHBLU ""
+#endif
+#ifndef BHMAG
+#define BHMAG ""
+#endif
+#ifndef BHCYN
+#define BHCYN ""
+#endif
+#ifndef BHWHT
+#define BHWHT ""
+#endif
+
+#ifndef CRESET
+#define CRESET ""
+#endif
+#ifndef COLOR_RESET
+#define COLOR_RESET ""
+#endif
+
+#endif /* COLORS_ENABLED*/
 
 #endif /* COLORS_H */

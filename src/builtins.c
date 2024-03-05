@@ -1,7 +1,9 @@
 #include "../include/builtins.h" /* load_builtins*/
 #include "../include/cmd.h"      /* get_internal_cmd_list, size, add*/
-#include <stdlib.h> /* getenv, malloc, realloc, free */
+#include <stdlib.h>              /* getenv, malloc, realloc, free */
 #include <string.h>
+#include <stdbool.h>
+
 #ifdef _WIN32
 #include <direct.h>
 #define GETCWD _getcwd
@@ -11,13 +13,12 @@
 #include <unistd.h>
 #define GETCWD getcwd
 #define CHDIR chdir
-#define MKDIR(path) mkdir(path,0777);
+#define MKDIR(path) mkdir(path, 0777);
 #endif
 
 struct cmd_return b_mkdir(String_Array arr)
 {
-    char tmp[1] = "";
-    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(tmp), };
+    struct cmd_return ret = DEFAULT_CMD_RETURN;
     if (arr.size <= 1)
     {
         ret.success = false;
@@ -33,8 +34,7 @@ struct cmd_return b_mkdir(String_Array arr)
 
 struct cmd_return b_cd(String_Array arr)
 {
-    char tmp[1] = "";
-    struct cmd_return ret = {.success = false, .func_return = 0, .str = str_new(tmp), };
+    struct cmd_return ret = DEFAULT_CMD_RETURN;
     if (arr.size == 1)
     {
         ret.func_return = 1;
@@ -50,8 +50,7 @@ struct cmd_return b_cd(String_Array arr)
 
 struct cmd_return b_pwd(String_Array arr)
 {
-    char tmp[1] = "";
-    struct cmd_return ret = {.success = false, .func_return = 0, .str = str_new(tmp), };
+    struct cmd_return ret = DEFAULT_CMD_RETURN;
     char buf[PWD_BUF];
     if (!GETCWD(buf, sizeof(buf)))
     {
@@ -70,9 +69,7 @@ struct cmd_return b_pwd(String_Array arr)
 #include <windows.h>
 struct cmd_return b_ls(String_Array arr)
 {
-    char tmp[1] = "";
-    struct cmd_return ret = {.success = false, .func_return = 0, .str = str_new(tmp), };
-
+    struct cmd_return ret = DEFAULT_CMD_RETURN;
     WIN32_FIND_DATA findFileData;
     HANDLE hFind = INVALID_HANDLE_VALUE;
 
@@ -82,7 +79,7 @@ struct cmd_return b_ls(String_Array arr)
     else /* Use the provided directory path */
         snprintf(searchPath, LS_BUF, "%s\\*", arr.arr[1].cstr);
 
-    // Find the first file in the directory
+    /* Find the first file in the directory */
     hFind = FindFirstFile(searchPath, &findFileData);
 
     if (hFind == INVALID_HANDLE_VALUE)
@@ -114,8 +111,7 @@ struct cmd_return b_ls(String_Array arr)
 struct cmd_return b_ls(String_Array arr)
 {
     char tmp[1] = "";
-    struct cmd_return ret = {{.success = false, .func_return = 0, .str = str_new(tmp), };
-
+    struct cmd_return ret = DEFAULT_CMD_RETURN;
     char buf[LS_BUF];
     char *cwd;
     cwd = GETCWD(buf, LS_BUF);
@@ -151,8 +147,7 @@ struct cmd_return b_ls(String_Array arr)
 /* cstdlib */
 struct cmd_return b_echo(String_Array arr)
 {
-    char tmp_char[1] = "";
-    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(tmp_char), };
+    struct cmd_return ret = CMD_RETURN_SUCCESS;
 
     if (arr.size == 1)
     {
@@ -169,19 +164,18 @@ struct cmd_return b_echo(String_Array arr)
 /* not really working */
 struct cmd_return b_rm(String_Array arr)
 {
-    char tmp_char[1] = "";
-    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(tmp_char), };
+    struct cmd_return ret = CMD_RETURN_SUCCESS;
 
-    String args = str_arr_join((String_Array){arr.arr+1,arr.size-1},' ');
+    String args = str_arr_join((String_Array){arr.arr + 1, arr.size - 1}, ' ');
 
-    #ifdef _WIN32
+#ifdef _WIN32
     char buf[5] = "del ";
-    #else
+#else
     char buf[4] = "rm ";
-    #endif
+#endif
     String command = str_new(buf);
-    str_append(&command,args);
-    capture_system_call(&ret,command);
+    str_append(&command, args);
+    capture_system_call(&ret, command);
     str_free(command);
     str_free(args);
     return ret;
@@ -190,7 +184,11 @@ struct cmd_return b_rm(String_Array arr)
 struct cmd_return b_exit(String_Array arr)
 {
     char tmp_char[1] = "";
-    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(tmp_char), };
+    struct cmd_return ret = {
+        .success = true,
+        .func_return = 0,
+        .str = str_new(tmp_char),
+    };
 
     free(get_internal_cmd_list());
     printf(GRN "Exitting...\n" CRESET);
@@ -201,35 +199,37 @@ struct cmd_return b_exit(String_Array arr)
 struct cmd_return b_clear(String_Array arr)
 {
     char tmp_char[1] = "";
-    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(tmp_char), };
+    struct cmd_return ret = {
+        .success = true,
+        .func_return = 0,
+        .str = str_new(tmp_char),
+    };
 
-    #ifdef _WIN32
+#ifdef _WIN32
     ret.func_return = system("cls");
-    #else
+#else
     ret.func_return = system("clear");
-    #endif
+#endif
     return ret;
 }
 
-struct cmd_return b_osys(String_Array arr) {
-    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(NULL), };
+struct cmd_return b_osys(String_Array arr)
+{
+    struct cmd_return ret = CMD_RETURN_SUCCESS;
 
     String_Array tmp_arr = {.arr = arr.arr + 1, .size = arr.size - 1};
     String cmd = str_arr_join(tmp_arr, ' ');
 
-    capture_system_call(&ret,cmd);
+    capture_system_call(&ret, cmd);
     str_free(cmd);
     return ret;
 }
 
-
 struct cmd_return b_help(String_Array arr)
 {
-    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(NULL), };
+    struct cmd_return ret = CMD_RETURN_SUCCESS;
     char help_buf[1000] =
-        BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n"
-        BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n"
-        BHCYN "rm" CRESET "\t - Removes files or directories.\n";
+        BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n" BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n" BHCYN "rm" CRESET "\t - Removes files or directories.\n";
     String tmp_str = str_new(help_buf);
     str_append(&ret.str, tmp_str);
     str_free(tmp_str);
