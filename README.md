@@ -16,6 +16,16 @@ I am also developing this on windows and while im not sure how useful this shell
 # Building
 Create a folder named 'obj' in the same folder as the 'src' and 'include' folder.
 
+
+### Linux
+1. Remove '.exe' from OUT_TYPE.
+2. replace '\\' with '/'
+3. Set RM to 'rm'
+### Windows
+1. Set OUT_TYPE to '.exe'
+2. replace '/' with '\\'
+3. Set RM to 'del'
+
 I'm using a makefile to build and clean.
 
 When building, call 'make' while in the same directory as the makefile.
