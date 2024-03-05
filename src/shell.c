@@ -46,7 +46,7 @@ void shell_loop(void)
         for (; cmd < commands.size; cmd++)
         {
             String_Array args;// = str_split(commands.arr[cmd], space_delim);
-            STR_ARRAY_STACK_ALLOC(args,str_count(a,space_delim));
+            STR_ARRAY_STACK_ALLOC(args,str_count(commands.arr[cmd],space_delim));
             str_split_as_view(&args,commands.arr[cmd],space_delim);
             if (!args.size)
                 break;
@@ -63,17 +63,20 @@ void shell_loop(void)
                         String tmp = str_new(commands.arr[cmd].cstr);
                         str_append(&tmp, space_delim);
                         str_append(&tmp, ret.str);
-                        String_Array piped_command = str_split(tmp, space_delim);
+                        String_Array piped_command_return;// = str_split(tmp, space_delim);
+                        STR_ARRAY_STACK_ALLOC(piped_command_return,str_count(tmp,space_delim));
+                        str_split_as_view(&piped_command_return, tmp, space_delim);
                         str_free(ret.str);
-                        ret = cmd_list[i].func(piped_command);
-                        str_arr_free(piped_command);
+                        ret = cmd_list[i].func(piped_command_return);
                         str_free(tmp);
+                        //str_arr_free(piped_command_return);
                     }
                     ran = true;
                     goto break_find_cmd_loop;
                 }
             }
         break_find_cmd_loop:
+            ;
             //str_arr_free(args);
         }
         if (!ran)

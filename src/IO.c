@@ -235,27 +235,36 @@ void str_split_as_view(String_Array* _arr_, String _str_, String _delim_)
 
         if (is_delim && word_start != delim_idx)
         {
-            size_t substring_len = delim_idx - word_start;
-            char* substring = (char*)malloc((substring_len + 1) * sizeof(char));
-            if (!substring)
-            {
-                perror(RED "str_split_as_view: malloc failed\n" CRESET);
-                exit(1);
-            }
-            memcpy(substring, _str_.cstr + word_start, substring_len);
-            substring[substring_len] = '\0';
-
             if (found >= _arr_->size)
             {
                 perror(RED "Provided String_Array is not large enough to contain input.\n" CRESET);
                 exit(1);
             }
 
-            _arr_->arr[found].cstr = substring;
-            _arr_->arr[found].size = substring_len;
-            found++;
+            _str_.cstr[delim_idx] = '\0'; // Place null terminator at the delimiter index
+            _arr_->arr[found] = (String){.cstr = _str_.cstr + word_start, .size = delim_idx - word_start};
 
-            word_start = ++delim_idx;
+            // Remove leading delimiters for the first substring
+            if (found == 0)
+            {
+                while (_arr_->arr[found].size > 0 && strchr(_delim_.cstr, _arr_->arr[found].cstr[0]) != NULL)
+                {
+                    _arr_->arr[found].cstr++;
+                    _arr_->arr[found].size--;
+                }
+            }
+
+            // Remove trailing delimiters for all substrings and add null terminator
+            size_t end_idx = _arr_->arr[found].cstr - _str_.cstr + _arr_->arr[found].size;
+            while (end_idx > 0 && strchr(_delim_.cstr, _str_.cstr[end_idx - 1]) != NULL)
+            {
+                end_idx--;
+            }
+            _arr_->arr[found].size = end_idx - (_arr_->arr[found].cstr - _str_.cstr);
+            _str_.cstr[end_idx] = '\0';
+
+            found++;
+            word_start = delim_idx + 1; // Move past the delimiter
         }
     }
 
@@ -263,10 +272,19 @@ void str_split_as_view(String_Array* _arr_, String _str_, String _delim_)
     if (found > 0)
     {
         size_t last_idx = found - 1;
-        while (_arr_->arr[last_idx].size > 0 && strchr(_delim_.cstr, _arr_->arr[last_idx].cstr[_arr_->arr[last_idx].size - 1]) != NULL)
+        size_t last_char_idx = _arr_->arr[last_idx].cstr - _str_.cstr + _arr_->arr[last_idx].size;
+
+        while (last_char_idx < _str_.size && strchr(_delim_.cstr, _str_.cstr[last_char_idx]) != NULL)
         {
-            _arr_->arr[last_idx].size--;
+            last_char_idx++;
         }
-        _arr_->arr[last_idx].cstr[_arr_->arr[last_idx].size] = '\0';
+
+        _arr_->arr[last_idx].size = last_char_idx - (_arr_->arr[last_idx].cstr - _str_.cstr);
+
+        /* Add null terminator after skipping trailing delimiters */
+        if (_arr_->arr[last_idx].size > 0)
+        {
+            _str_.cstr[_arr_->arr[last_idx].cstr - _str_.cstr + _arr_->arr[last_idx].size] = '\0';
+        }
     }
 }
