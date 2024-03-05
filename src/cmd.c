@@ -15,28 +15,23 @@ struct internal_cmd *cmd_arr;
 void capture_system_call(struct cmd_return *ret, String command)
 {
     String new_cmd = str_new(command.cstr);
-    // static char non_blocking[7] = " 2>&1 ";
-    // static String tmp_str = {.cstr = non_blocking, .size = 7};
-    // str_append(&new_cmd,tmp_str);
     FILE *pipe = popen(new_cmd.cstr, "r");
     str_free(new_cmd);
     if (!pipe)
     {
-        // Handle popen failure
+        /* Handle popen failure */
         ret->success = false;
         ret->func_return = 1;
+        return;
     }
-    else
+    char buffer[CPT_SYS_CALL_BUF];
+    while (fgets(buffer, sizeof(buffer), pipe) != NULL)
     {
-        char buffer[CPT_SYS_CALL_BUF];
-        while (fgets(buffer, sizeof(buffer), pipe) != NULL)
-        {
-            String buffer_str = str_new(buffer);
-            str_append(&ret->str, buffer_str);
-            str_free(buffer_str);
-        }
-        ret->func_return = pclose(pipe);
+        String buffer_str = str_new(buffer);
+        str_append(&ret->str, buffer_str);
+        str_free(buffer_str);
     }
+    ret->func_return = pclose(pipe);
 }
 
 struct internal_cmd internal_cmd_new(String str, internal_cmd_func func)
@@ -119,23 +114,16 @@ void load_external_from_folder(String *str)
     WIN32_FIND_DATA findFileData;
     HANDLE hFind = INVALID_HANDLE_VALUE;
     String tmp = str_new(str->cstr);
-    if (str->size)
+    if (str->size && str->cstr[str->size - 1] != '\\')
     {
-        if (str->cstr[str->size - 1] != '\\')
-        {
-            str_append(&tmp, slash_str);
-        }
+        str_append(&tmp, slash_str);
     }
-
     str_append(&tmp, star_str);
     hFind = FindFirstFile(tmp.cstr, &findFileData);
     if (hFind == INVALID_HANDLE_VALUE)
     {
         /* assume it is a file */
         load_external_from_file(str->cstr);
-// #ifdef LOAD_EXTERNALS_DEBUG
-//         printf(RED "Unable to open file '%s'\nFailed to load external commands.\n" CRESET, str->cstr);
-// #endif /* LOAD_EXTERNALS_DEBUG */
         return;
     }
     else
@@ -156,8 +144,11 @@ void load_external_from_folder(String *str)
 }
 #else  /* _WIN32 */
 /* call load_external_from_file once I get a file name in the folder */
-void load_external_from_folder(String *str);
+void load_external_from_folder(String *str)
+{
+}
 #endif /* _WIN32 */
+
 void load_external_commands(void)
 {
     char *path = getenv("PATH");
