@@ -116,11 +116,13 @@ void free_all_vars(void)
 }
 
 /* will look for and replace variables that are prefixed by 'prefix'*/
-int paste_vars(char prefix, String *string)
+void paste_vars(char prefix, String *string)
 {
     signed long long idx = str_contains_char(*string, prefix);
-    if (idx == -1)
-        return -1;
+    if (idx == -1 || idx + 1 >= string->size || !isalpha(string->cstr[idx + 1])) {
+        /* Either no prefix found, or the next character after the prefix is not a letter*/
+        return;
+    }
 
     String ret = str_new(NULL);
     str_append(&ret, (String){.cstr = string->cstr, .size = (size_t)idx});

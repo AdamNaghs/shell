@@ -12,7 +12,7 @@ typedef struct
 int read_var(String inp);
 
 /* will look for and replace variables that are prefixed by 'prefix'*/
-int paste_vars(char prefix, String* string);
+void paste_vars(char prefix, String* string);
 
 void free_all_vars(void);
 
