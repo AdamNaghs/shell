@@ -22,6 +22,7 @@ FILE* FOPEN(char *path,char* mode)
 
     return f;
 }
+
 #else
 #include <sys/stat.h>
 bool is_dir(char *filename)

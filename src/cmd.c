@@ -11,7 +11,7 @@ struct internal_cmd *cmd_arr;
 void capture_system_call(struct cmd_return *ret, String command)
 {
     String new_cmd = str_new(command.cstr);
-    FILE *pipe = popen(new_cmd.cstr, "r");
+    FILE *pipe = POPEN(new_cmd.cstr, "r");
     str_free(new_cmd);
     if (!pipe)
     {
@@ -27,7 +27,7 @@ void capture_system_call(struct cmd_return *ret, String command)
         str_append(&ret->str, buffer_str);
         str_free(buffer_str);
     }
-    ret->func_return = pclose(pipe);
+    ret->func_return = PCLOSE(pipe);
 }
 
 struct internal_cmd internal_cmd_new(String str, internal_cmd_func func)

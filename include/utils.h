@@ -29,6 +29,7 @@ int MKDIR(char *path);
 #define GETENV getenv
 #endif
 
+
 bool is_dir(char* str);
 
 #endif

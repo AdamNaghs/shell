@@ -29,10 +29,14 @@ struct cmd_return b_cd(String_Array arr)
         ret.func_return = 1;
         return ret;
     }
-    if (-1 == CHDIR(arr.arr[1].cstr))
+    String str = str_arr_join((String_Array){arr.arr + 1, arr.size - 1}, ' ');
+    if (str.size)
+        str.cstr[str.size--] = '\0';
+    if (-1 == CHDIR(str.cstr))
     {
-        printf(RED "Could not open directory " BHRED "'%s'\n" CRESET, arr.arr[1].cstr);
+        printf(RED "Could not open directory " BHRED "'%s'\n" CRESET, str.cstr);
     }
+    str_free(str);
     ret.success = true;
     return ret;
 }
@@ -238,7 +242,7 @@ struct cmd_return b_touch(String_Array arr)
     size_t i = 1;
     for (; i < arr.size; i++)
     {
-        FILE *f = fopen(arr.arr[i].cstr, "a");
+        FILE *f = FOPEN(arr.arr[i].cstr, "a");
         if (!f)
         {
             char tmp[4096];
@@ -247,7 +251,7 @@ struct cmd_return b_touch(String_Array arr)
             str_append(&ret.str, tmp_str);
             continue;
         }
-        fclose(f);
+        FCLOSE(f);
     }
     return ret;
 }
