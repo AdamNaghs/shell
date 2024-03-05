@@ -31,7 +31,7 @@ struct cmd_return b_cd(String_Array arr)
     }
     String str = str_arr_join((String_Array){arr.arr + 1, arr.size - 1}, ' ');
     if (str.size)
-        str.cstr[str.size--] = '\0';
+        str.cstr[str.size--] = '\0'; /* remove extra ' ' at end */
     if (-1 == CHDIR(str.cstr))
     {
         printf(RED "Could not open directory " BHRED "'%s'\n" CRESET, str.cstr);
