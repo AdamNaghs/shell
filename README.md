@@ -41,12 +41,14 @@ So far ASN supports a few simple builtin commands
     mkdir  - Creates new direction with provided path.
     rm  - Removes files or directories.
 
+Some commands like 'rm' just use the system function to call 'del' or 'rm' depending on if you're using windows or not. I need to fix this and but for now its just a simple solution.
+
 I also recently added support for programs in the system path.
 
 The commands and programms are all internally stored in an array.
 
 The internal commands call a command from the builtins.c file.
-The external commands call a fascade command which is basically equavilent to osys which capture the output of the command you called outside of the shell and returns it for viewing.
+The external commands call a fascade command from cmd.c which is basically equavilent to using osys which captures the output of the command you called outside of the shell and returns it for viewing.
 
 # Strings
 
