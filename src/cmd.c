@@ -1,6 +1,7 @@
 #include "../include/cmd.h"
 #include "../include/builtins.h"
 #include "../include/utils.h"
+#include "../include/colors.h"
 #include <stdlib.h>
 #include <stdio.h>
 size_t cmd_arr_cap = 10;

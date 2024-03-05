@@ -1,7 +1,7 @@
 #ifndef SHELL_CMD_H
 #define SHELL_CMD_H
-#include "IO.h"
 #include <stdbool.h>
+#include "string_array.h"
 
 #define LOAD_EXTERNALS_DEBUG 
 
