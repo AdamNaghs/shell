@@ -4,6 +4,7 @@
 #include "../include/cmd.h"
 #include "../include/builtins.h"
 #include "../include/credentials.h"
+#include "../include/var.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -18,6 +19,8 @@ void shell_loop(void)
     String space_delim = (String){.cstr = buf, .size = 1};
     char buf1[2] = "|";
     String pipe_delim = (String){.cstr = buf1, .size = 1};
+    char buf2[2] = "$";
+    String var_prefix = (String){.cstr = buf2, .size = 1};
     struct internal_cmd *cmd_list = get_internal_cmd_list();
     while (1)
     {
@@ -26,6 +29,12 @@ void shell_loop(void)
         String a = input('\n', 0);
         if (a.size == 0)
             continue;
+        if (0 == read_var(a))
+        {
+            str_free(a);
+            continue;
+        }
+        paste_vars(var_prefix,&a);
         String_Array commands = str_split(a, pipe_delim);
         str_free(a);
 
