@@ -1,4 +1,5 @@
 #include "../include/var.h"
+#include "../include/colors.h"
 #include "../include/builtins.h" /* load_builtins*/
 #include "../include/cmd.h"      /* get_internal_cmd_list, size, add*/
 #include "../include/utils.h"    /* is_dir */

@@ -1,8 +1,6 @@
 #include "../include/string.h"
 #include "../include/IO.h"
 #include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
 
 #define MAX_STR 10000
 
@@ -18,32 +16,6 @@ void set_input_file(FILE *fd)
     input_file = fd;
 }
 
-void print(String str, FILE *ostream)
-{
-    if (!ostream)
-    {
-        perror(RED "'print' given NULL ostream.\n" CRESET);
-        exit(1);
-    }
-    size_t i;
-    for (i = 0; i < str.size; i++)
-        putc(str.cstr[i], ostream);
-    fflush(ostream);
-}
-
-void println(String str, FILE *ostream)
-{
-    if (!ostream)
-    {
-        perror(RED "'print' given NULL ostream.\n" CRESET);
-        exit(1);
-    }
-    size_t i;
-    for (i = 0; i < str.size; i++)
-        putc(str.cstr[i], ostream);
-    putc('\n', ostream);
-    fflush(ostream);
-}
 
 String input(char enter_char, size_t max_size)
 {
@@ -84,124 +56,3 @@ String input(char enter_char, size_t max_size)
     return ret;
 }
 
-String_Array str_split(String str, String delim)
-{
-    String_Array ret = {.arr = (String *)malloc(100 * sizeof(String)), .size = 100};
-    size_t word_start = 0, delim_idx, i, j, found = 0;
-    /* Skip leading delimiters */
-    while (word_start < str.size && strchr(delim.cstr, str.cstr[word_start]) != NULL)
-    {
-        word_start++;
-    }
-    for (i = word_start; i < str.size; i++)
-    {
-        bool is_delim = false;
-        for (j = 0; j < delim.size; j++)
-        {
-            if (str.cstr[i] == delim.cstr[j] || i == str.size - 1)
-            {
-                is_delim = true;
-                delim_idx = i;
-                if (i == str.size - 1)
-                    delim_idx++;
-                break;
-            }
-        }
-
-        if (is_delim && word_start != delim_idx)
-        {
-            String new_str = {.cstr = (char *)malloc((delim_idx - word_start) * sizeof(char) + 1), .size = delim_idx - word_start};
-            memcpy(new_str.cstr, str.cstr + word_start, new_str.size);
-            new_str.cstr[new_str.size] = '\0';
-            word_start = ++delim_idx;
-             if (found >= ret.size)
-            {
-                ret.size *= 2;
-                String* tmp = (String *)realloc(ret.arr, ret.size * sizeof(String));
-                if (!tmp)
-                {
-                    perror(RED "'str_split' could not realloc ret.arr 0.\n" CRESET);
-                    exit(1);
-                }
-                ret.arr = tmp;
-            }
-            ret.arr[found++] = new_str;
-        }
-    }
-
-    /* Skip trailing delimiters for the last element in the array */
-    if (found > 0)
-    {
-        size_t last_idx = found - 1;
-        while (ret.arr[last_idx].size > 0 && strchr(delim.cstr, ret.arr[last_idx].cstr[ret.arr[last_idx].size - 1]) != NULL)
-        {
-            ret.arr[last_idx].size--;
-        }
-        ret.arr[last_idx].cstr[ret.arr[last_idx].size] = '\0';
-    }
-    ret.size = found;
-    if (!ret.size)
-    {
-        if (ret.arr)
-            free(ret.arr);
-        return ret;
-    }
-    ret.arr = (String *)realloc(ret.arr, sizeof(String) * ret.size);
-    if (!ret.arr)
-    {
-        perror(RED "'str_split' could not realloc ret.arr 1.\n" CRESET);
-        exit(1);
-    }
-    return ret;
-}
-
-void str_arr_free(String_Array arr)
-{
-    if (!arr.arr)
-        return;
-    size_t i;
-    for (i = 0; i < arr.size; i++)
-    {
-        if (arr.arr[i].cstr)
-            str_free(arr.arr[i]);
-    }
-    free(arr.arr);
-}
-
-String str_arr_join(String_Array arr, char seperator)
-{
-    /* determine length */
-    size_t i, tmp = 0, len = 0;
-    for (i = 0; i < arr.size; i++)
-    {
-        len += arr.arr[i].size + 1; /* +1 for seperator and at the end it will account for the \0 */
-    }
-    String ret = {.cstr = (char *)malloc(len * sizeof(char) + 1), .size = len - 1};
-    for (i = 0; i < arr.size; i++)
-    {
-        memcpy(ret.cstr + tmp, arr.arr[i].cstr, arr.arr[i].size);
-        tmp += arr.arr[i].size;
-        ret.cstr[tmp] = seperator;
-        tmp++;
-    }
-    ret.cstr[tmp] = '\0';
-    return ret;
-}
-
-String_Array str_arr_add(String_Array arr, String str)
-{
-    String_Array ret = {.arr = (String *)malloc(sizeof(String) * arr.size + 1), .size = arr.size + 1};
-    size_t i = 0;
-    for (; i < arr.size; i++)
-    {
-        ret.arr[i] = str_new(arr.arr[i].cstr);
-    }
-    ret.arr[arr.size] = str_new(str.cstr);
-    return ret;
-}
-
-void str_arr_replace(String_Array arr, size_t idx, String new_str)
-{
-    str_free(arr.arr[idx]);
-    arr.arr[idx] = str_new(new_str.cstr);
-}

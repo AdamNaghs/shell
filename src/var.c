@@ -1,5 +1,5 @@
 #include "../include/var.h"
-#include "../include/IO.h"
+#include "../include/string_array.h"
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>

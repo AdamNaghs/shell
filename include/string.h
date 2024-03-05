@@ -1,6 +1,7 @@
 #ifndef SHELL_STR
 #define SHELL_STR
 #include <stdbool.h>
+#include <stddef.h>
 /* needs to be freed */
 typedef struct
 {
@@ -22,5 +23,8 @@ void str_append(String* dest, String end);
 void str_free(String str);
 
 bool str_equal(String,String);
+
+/* count occurences of delim */
+size_t str_count(String str, String delim);
 
 #endif /* SHELL_STR */

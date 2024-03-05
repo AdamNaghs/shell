@@ -1,6 +1,7 @@
 #include "../include/cmd.h"
 #include "../include/builtins.h"
 #include "../include/utils.h"
+#include "../include/colors.h"
 #include <stdlib.h>
 #include <stdio.h>
 size_t cmd_arr_cap = 10;
@@ -167,7 +168,8 @@ void load_external_from_folder(String str)
 
 void load_external_commands(void)
 {
-    char *path = GETENV("PATH");
+    char tmp_buf[5] = "PATH";
+    char *path = GETENV(tmp_buf);
 #ifdef LOAD_EXTERNALS_DEBUG
     printf("Loading files in path: '%s'\n", path);
 #endif

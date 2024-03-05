@@ -117,3 +117,35 @@ bool str_equal(String a,String b)
 {
     return a.size == b.size && !memcmp(a.cstr,b.cstr,a.size);
 }
+
+size_t str_count(String str, String delim)
+{
+    size_t word_start = 0, delim_idx = 0, i = 0, j = 0, found = 0;
+    /* Skip leading delimiters */
+    while (word_start < str.size && strchr(delim.cstr, str.cstr[word_start]) != NULL)
+    {
+        word_start++;
+    }
+    for (i = word_start; i < str.size; i++)
+    {
+        bool is_delim = false;
+        for (j = 0; j < delim.size; j++)
+        {
+            if (str.cstr[i] == delim.cstr[j] || i == str.size - 1)
+            {
+                is_delim = true;
+                delim_idx = i;
+                if (i == str.size - 1)
+                    delim_idx++;
+                break;
+            }
+        }
+
+        if (is_delim && word_start != delim_idx)
+        {
+            word_start = ++delim_idx;
+            found++;
+        }
+    }
+    return found;
+}

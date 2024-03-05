@@ -35,14 +35,19 @@ void shell_loop(void)
             continue;
         }
         paste_vars('$', &a);
-        String_Array commands = str_split(a, pipe_delim);
-        str_free(a);
+        //String_Array commands = str_split(a, pipe_delim);
+        String_Array commands;
+        STR_ARRAY_STACK_ALLOC(commands,str_count(a,pipe_delim));
+        str_split_as_view(&commands,a,pipe_delim);
+        
 
         size_t i = 0, cmd = 0;
         bool ran = false;
         for (; cmd < commands.size; cmd++)
         {
-            String_Array args = str_split(commands.arr[cmd], space_delim);
+            String_Array args;// = str_split(commands.arr[cmd], space_delim);
+            STR_ARRAY_STACK_ALLOC(args,str_count(commands.arr[cmd],space_delim));
+            str_split_as_view(&args,commands.arr[cmd],space_delim);
             if (!args.size)
                 break;
             for (; i < get_internal_cmd_list_size(); i++)
@@ -58,18 +63,21 @@ void shell_loop(void)
                         String tmp = str_new(commands.arr[cmd].cstr);
                         str_append(&tmp, space_delim);
                         str_append(&tmp, ret.str);
-                        String_Array piped_command = str_split(tmp, space_delim);
+                        String_Array piped_command_return;// = str_split(tmp, space_delim);
+                        STR_ARRAY_STACK_ALLOC(piped_command_return,str_count(tmp,space_delim));
+                        str_split_as_view(&piped_command_return, tmp, space_delim);
                         str_free(ret.str);
-                        ret = cmd_list[i].func(piped_command);
-                        str_arr_free(piped_command);
+                        ret = cmd_list[i].func(piped_command_return);
                         str_free(tmp);
+                        //str_arr_free(piped_command_return);
                     }
                     ran = true;
                     goto break_find_cmd_loop;
                 }
             }
         break_find_cmd_loop:
-        str_arr_free(args);
+            ;
+            //str_arr_free(args);
         }
         if (!ran)
         {
@@ -79,7 +87,8 @@ void shell_loop(void)
         {
             printf("%s\n", ret.str.cstr);
         }
-        str_arr_free(commands);
+        //str_arr_free(commands);
+        str_free(a);
         if (ret.str.cstr)
             str_free(ret.str);
     }
