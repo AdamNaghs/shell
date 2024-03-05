@@ -158,5 +158,5 @@ void paste_vars(char prefix, String *string)
     *string = ret;
 
     /* Check if there are more variables to replace */
-    return paste_vars(prefix, string);
+    paste_vars(prefix, string);
 }
