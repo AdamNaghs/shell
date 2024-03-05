@@ -5,24 +5,6 @@
 #include <string.h>
 #include <stdbool.h>
 
-#ifdef _WIN32
-#include <direct.h>
-#define GETCWD _getcwd
-#define CHDIR _chdir
-#define MKDIR _mkdir
-#define RMDIR _rmdir
-#else
-#include <unistd.h>
-#include <sys/stat.h>
-#define GETCWD getcwd
-#define CHDIR chdir
-int MKDIR(char *path)
-{
-    return mkdir(path, 777);
-}
-#define RMDIR rmdir
-#endif
-
 struct cmd_return b_mkdir(String_Array arr)
 {
     struct cmd_return ret = DEFAULT_CMD_RETURN;

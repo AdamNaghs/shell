@@ -6,17 +6,6 @@
 size_t cmd_arr_cap = 10;
 size_t cmd_arr_len = 0;
 struct internal_cmd *cmd_arr;
-#ifdef _WIN32
-#ifndef popen
-#define popen _popen
-#endif
-#ifndef pclose
-#define pclose _pclose
-#endif
-#else /* _WIN32 */
-#include <unistd.h>
-#include <stdio.h>
-#endif
 #define CPT_SYS_CALL_BUF 4096
 void capture_system_call(struct cmd_return *ret, String command)
 {
