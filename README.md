@@ -13,6 +13,15 @@ I don't have much experience with the windows api so at the moment I am focussin
 
 I am also developing this on windows and while im not sure how useful this shell will be I think it would be more useful to me if it ran on my native platform first.
 
+# Building
+I'm using a makefile to build and clean.
+
+When building, call 'make' while in the same directory as the makefile.
+
+After changing the code, call 'make clean' then 'make' to rebuild the objs and the exe.
+
+I'm currently only using the address sanitizer and -g to debug. Please let me know what other flags I should add while compiling or what other programs I can use to debug my code (aside from gdb).
+
 # Notes
 Not sure whether or not I should store the external programs found in the path or if I should just call osys whenever the shell doesn't recognize a command.
 
@@ -58,3 +67,6 @@ I've never created a login before so I might save this for last.
 My biggest worry is finding a place to store the encrypted login information that would be out of reach from attackers but still in reach for my program.
 
 I don't want to have any dependancies besides the libc and my own headers so I will likely implement my own encyption methods when the time comes.
+
+# Colored output
+The colors don't work in some terminals. I am not yet sure how I can check if a terminal has them enabled yet to handle replacing all the colors to something else.
