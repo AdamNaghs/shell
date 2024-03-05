@@ -1,5 +1,5 @@
 CC = gcc
-CFILES = main.c IO.c string.c shell.c signal.c credentials.c cmd.c builtins.c utils.c var.c
+CFILES = main.c IO.c string.c shell.c signal.c credentials.c cmd.c builtins.c utils.c var.c string_array.c
 CFLAGS = -Wall -g -std=c99 -pedantic 
 LFLAGS = 
 OUTNAME = main
