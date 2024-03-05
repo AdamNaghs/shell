@@ -61,6 +61,10 @@ The way I've implemented and used Strings is also probably the source of a lot o
 # Deprecated functions
 At some places in my code I am using deprecated functions. I intend to go back in and replace these but please feel free to still create issue's about them
 
+I also would like to make my code compile to ansi C so I am not sure how to get around using some of the deprecated functions.
+
+I realize that my code does not currently compile to ansi C, but I just need to restructure the for loops for the most part and maybe take out some newer functions.
+
 # Login Security
 I've never created a login before so I might save this for last.
 
