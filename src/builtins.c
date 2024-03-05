@@ -1,5 +1,6 @@
 #include "../include/builtins.h" /* load_builtins*/
 #include "../include/cmd.h"      /* get_internal_cmd_list, size, add*/
+#include "../include/utils.h"    /* is_dir */
 #include <stdlib.h>              /* getenv, malloc, realloc, free */
 #include <string.h>
 #include <stdbool.h>
@@ -15,9 +16,9 @@
 #include <sys/stat.h>
 #define GETCWD getcwd
 #define CHDIR chdir
-int MKDIR (char* path)
+int MKDIR(char *path)
 {
-    return mkdir(path,777);
+    return mkdir(path, 777);
 }
 #define RMDIR rmdir
 #endif
@@ -138,7 +139,7 @@ struct cmd_return b_ls(String_Array arr)
     while (NULL != ((dir = readdir(d))))
     {
         String tmp_str = str_new(dir->d_name);
-        str_append(&tmp_str,new_line_str);
+        str_append(&tmp_str, new_line_str);
         str_append(&ret.str, tmp_str);
         str_free(tmp_str);
     }
@@ -168,42 +169,27 @@ struct cmd_return b_echo(String_Array arr)
     return ret;
 }
 
-#ifdef _WIN32
-bool is_dir(char* filename)
-{
-
-}
-#else
-#include <sys/stat.h>
-bool is_dir(char* filename)
-{
-    struct stat file_stat;
-    stat(filename, &file_stat);
-    return S_ISDIR(file_stat.st_mode);
-}
-#endif
-
 #define RM_BUF 4096
 struct cmd_return b_rm(String_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
 
     String args = str_arr_join((String_Array){arr.arr + 1, arr.size - 1}, ' ');
-
-    ret.func_return = remove(args.cstr);
+    if (is_dir(args.cstr))
+    {
+        ret.func_return = rmdir(args.cstr);
+    }
+    else
+    {
+        ret.func_return = remove(args.cstr);
+    }
     str_free(args);
     return ret;
 }
 
 struct cmd_return b_rmdir(String_Array arr)
 {
-    struct cmd_return ret = CMD_RETURN_SUCCESS;
-
-    String args = str_arr_join((String_Array){arr.arr + 1, arr.size - 1}, ' ');
-
-    ret.func_return = RMDIR(args.cstr);
-    str_free(args);
-    return ret;
+    return b_rm(arr);
 }
 
 struct cmd_return b_exit(String_Array arr)
@@ -214,9 +200,9 @@ struct cmd_return b_exit(String_Array arr)
         .func_return = 0,
         .str = str_new(tmp_char),
     };
-    struct internal_cmd* list = get_internal_cmd_list();
+    struct internal_cmd *list = get_internal_cmd_list();
     size_t i = 0;
-    for (; i < get_internal_cmd_list_size();i++)
+    for (; i < get_internal_cmd_list_size(); i++)
         str_free(list[i].name);
     free(list);
     printf(GRN "Exitting...\n" CRESET);
@@ -257,10 +243,7 @@ struct cmd_return b_help(String_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     char help_buf[1000] =
-        BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n" BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n" 
-        BHCYN "rm" CRESET "\t - Removes files.\n"
-        BHCYN "rmdir" CRESET "\t - Removes directories.\n"
-        BHCYN "touch" CRESET "\t - Creates files.\n";
+        BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n" BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n" BHCYN "rm" CRESET "\t - Removes files.\n" BHCYN "rmdir" CRESET "\t - Removes directories.\n" BHCYN "touch" CRESET "\t - Creates files.\n";
     String tmp_str = str_new(help_buf);
     str_append(&ret.str, tmp_str);
     str_free(tmp_str);
@@ -277,9 +260,9 @@ struct cmd_return b_touch(String_Array arr)
         if (!f)
         {
             char tmp[4096];
-            sprintf(tmp,RED "Failed to create file '%s'.\n" CRESET, arr.arr[i].cstr);
-            String tmp_str =  {tmp,4096};
-            str_append(&ret.str,tmp_str);
+            sprintf(tmp, RED "Failed to create file '%s'.\n" CRESET, arr.arr[i].cstr);
+            String tmp_str = {tmp, 4096};
+            str_append(&ret.str, tmp_str);
             continue;
         }
         fclose(f);
