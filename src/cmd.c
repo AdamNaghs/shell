@@ -1,7 +1,8 @@
 #include "../include/cmd.h"
+#include "../include/builtins.h"
+#include "../include/utils.h"
 #include <stdlib.h>
 #include <string.h> /* strcmp */
-#include "../include/builtins.h"
 size_t cmd_arr_cap = 10;
 size_t cmd_arr_len = 0;
 struct internal_cmd *cmd_arr;
@@ -155,7 +156,6 @@ void load_external_from_folder(String str)
 {
     struct dirent *dir_entry;
     DIR *d;
-    struct stat file_stats;
     d = opendir(str.cstr);
     if (!d)
     {
@@ -167,16 +167,12 @@ void load_external_from_folder(String str)
         char path[1024];
         snprintf(path, sizeof(path), "%s/%s", str.cstr, dir_entry->d_name);
 
-        if (stat(path, &file_stats) == -1)
-        {
-            perror(RED"Stat failed.\n"CRESET);
-            continue;
-        }
-        if (!S_ISDIR(file_stats.st_mode))
-        {
-            load_external_from_file(dir_entry->d_name);
-        }
+        load_external_from_file(dir_entry->d_name);
+#ifdef LOAD_EXTERNALS_DEBUG
+        printf("Added command '%s'\n", path);
+#endif
     }
+    closedir(d);
 }
 #endif /* _WIN32 */
 
@@ -187,13 +183,20 @@ void load_external_commands(void)
     printf("Loading files in path: '%s'\n", path);
 #endif
     String tmp_str = {.cstr = path, .size = strlen(path)};
+#ifdef _WIN32
     char delim[2] = ";";
+#else
+    char delim[2] = ":";
+#endif
     String path_delim = {.cstr = delim, .size = 1};
     String_Array folders = str_split(tmp_str, path_delim);
     size_t i;
     for (i = 0; i < folders.size; i++)
     {
-        load_external_from_folder(folders.arr[i]);
+        if (is_dir(folders.arr[i].cstr))
+            load_external_from_folder(folders.arr[i]);
+        else
+            load_external_from_file(folders.arr[i].cstr);
     }
     str_arr_free(folders);
 }
