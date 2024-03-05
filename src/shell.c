@@ -15,9 +15,9 @@ void shell_loop(void)
     load_builtins();
     load_external_commands();
     char buf[2] = " ";
-    String space_delim = (String){.cstr = buf, .size = 1};
     char buf1[2] = "|";
-    String pipe_delim = (String){.cstr = buf1, .size = 1};
+    String space_delim = STR(buf);
+    String pipe_delim = STR(buf1);
     struct internal_cmd *cmd_list = get_internal_cmd_list();
     while (1)
     {

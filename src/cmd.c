@@ -177,7 +177,7 @@ void load_external_commands(void)
 #else
     char delim[2] = ":";
 #endif
-    String path_delim = {.cstr = delim, .size = 1};
+    String path_delim = STR(delim);
     String_Array folders = str_split(tmp_str, path_delim);
     size_t i;
     for (i = 0; i < folders.size; i++)

@@ -8,6 +8,8 @@ typedef struct
     unsigned long long size;
 } String;
 
+#define STR(cstr)  ((String){cstr, sizeof(cstr)-1})
+
 /* returns -1 if no chars of c is in str and the first occurance index of any char of c if it is */
 signed long long str_contains_char(String str, char c);
 
