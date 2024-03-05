@@ -22,6 +22,7 @@ After changing the code, call 'make clean' then 'make' to rebuild the objs and t
 
 I'm currently only using the address sanitizer and -g to debug. Please let me know what other flags I should add while compiling or what other programs I can use to debug my code (aside from gdb).
 
+
 # Notes
 Not sure whether or not I should store the external programs found in the path or if I should just call osys whenever the shell doesn't recognize a command.
 
@@ -84,10 +85,15 @@ The colors don't work in some terminals. I am not yet sure how I can check if a 
 
 # Todo
 ### All Versions
-    1. Get login working
-    2. Get mixed input and output from caputure_system_call working.
+    1. Get login working (credentials.h/c)
+    2. Get mixed input and output from caputure_system_call working. (cmd.c)
+    3. getenv is deprecated (cmd.c)
 ### Unix
     1. Implement load_external_commands()
     2. Debug and Fix b_ls
 ### Windows
-    1. 
+    1.
+
+# Debug Macros
+Comment out any of these macros and rebuild to disable these features.
+    LOAD_EXTENALS_DEBUG - If enabled, it will cause all of the programs in the path to be printed when they are added.
