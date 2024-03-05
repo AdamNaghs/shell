@@ -224,8 +224,7 @@ struct cmd_return b_osys1(String_Array arr)
 }
 
 struct cmd_return b_osys(String_Array arr) {
-    char tmp_char[1] = "";
-    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(tmp_char), };
+    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(NULL), };
 
     String_Array tmp_arr = {.arr = arr.arr + 1, .size = arr.size - 1};
     String cmd = str_arr_join(tmp_arr, ' ');
@@ -238,8 +237,7 @@ struct cmd_return b_osys(String_Array arr) {
 
 struct cmd_return b_help(String_Array arr)
 {
-    char tmp_char[1] = "";
-    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(tmp_char), };
+    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(NULL), };
     char help_buf[1000] =
         BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n"
         BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n"

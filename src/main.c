@@ -19,8 +19,8 @@ int main()
     printf("%s\n",str.cstr);
     str_arr_free(a);
     */
-    for (int i = 0; i < 10; i++)
-        test_creds();
+    // for (int i = 0; i < 10; i++)
+    //     test_creds();
     shell_loop();
     return 0;
 }

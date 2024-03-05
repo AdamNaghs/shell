@@ -13,7 +13,7 @@ void shell_loop(void)
     bind_signals();
     attempt_login_loop();
     load_builtins();
-    //load_external_commands();
+    load_external_commands();
     char buf[2] = " ";
     String space_delim = (String){.cstr = buf, .size = 1};
     char buf1[2] = "|";
@@ -26,7 +26,7 @@ void shell_loop(void)
     */
     while (1)
     {
-        struct cmd_return ret = {.func_return = 0, .str = {.cstr = NULL, .size = 0},.success = false};
+        struct cmd_return ret = {.success = false,.func_return = 0, .str = {.cstr = NULL, .size = 0}};
         printf(BLU "asn@tmpUser> " CRESET);
         String a = input('\n', 0);
         if (a.size == 0)

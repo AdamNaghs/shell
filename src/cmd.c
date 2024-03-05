@@ -14,7 +14,12 @@ struct internal_cmd *cmd_arr;
 #endif
 void capture_system_call(struct cmd_return *ret, String command)
 {
-    FILE *pipe = popen(command.cstr, "r");
+    String new_cmd = str_new(command.cstr);
+    // static char non_blocking[7] = " 2>&1 ";
+    // static String tmp_str = {.cstr = non_blocking, .size = 7};
+    // str_append(&new_cmd,tmp_str);
+    FILE *pipe = popen(new_cmd.cstr, "r");
+    str_free(new_cmd);
     if (!pipe)
     {
         // Handle popen failure
@@ -51,7 +56,7 @@ void add_internal_cmd(struct internal_cmd cmd)
     if (cmd_arr_len >= cmd_arr_cap)
     {
         cmd_arr_cap *= 2;
-        struct internal_cmd *tmp = (struct internal_cmd *)realloc(cmd_arr, cmd_arr_cap);
+        struct internal_cmd *tmp = (struct internal_cmd *)realloc(cmd_arr, cmd_arr_cap * sizeof(struct internal_cmd));
         if (!tmp)
         {
             perror(RED "'add_internal_cmd' could not realloc cmd_arr.\n");
@@ -76,7 +81,7 @@ size_t get_internal_cmd_list_size(void)
 struct cmd_return facade_internal_cmd(String_Array cmd)
 {
     String str = str_arr_join(cmd, ' ');
-    struct cmd_return ret;
+    struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(NULL)};
     capture_system_call(&ret, str);
     str_free(str);
     return ret;
@@ -103,12 +108,16 @@ void load_externals_from_folder(String *str)
     hFind = FindFirstFile(str->cstr, &findFileData);
     if (hFind == INVALID_HANDLE_VALUE)
     {
+#ifdef LOAD_EXTERNALS_DEBUG
         printf(RED "Unable to open directory '%s'\nFailed to load external commands.\n" CRESET, str->cstr);
+#endif /* LOAD_EXTERNALS_DEBUG */
         return;
     }
     else
     {
+#ifdef LOAD_EXTERNALS_DEBUG
         printf("Found dir '%s'\n", str->cstr);
+#endif /* LOAD_EXTERNALS_DEBUG */
     }
     do
     {
@@ -118,16 +127,35 @@ void load_externals_from_folder(String *str)
         }
         else
         {
-            add_internal_cmd(internal_cmd_new(str_new(findFileData.cFileName), facade_internal_cmd));
-            printf("Added command '%s'\n", findFileData.cFileName);
+            String cmd = str_new(findFileData.cFileName);
+#ifdef _WIN32
+            char tmp[5] = ".exe";
+#else
+            char tmp[5] = ".app";
+#endif
+            String exec = str_new(tmp);
+            signed long long idx = str_contains_str(cmd, exec);
+            if (idx != -1)
+            {
+                cmd.size = idx;
+                cmd.cstr[idx] = '\0';
+            }
+            add_internal_cmd(internal_cmd_new(cmd, facade_internal_cmd));
+#ifdef LOAD_EXTERNALS_DEBUG
+            printf("Added command '%s'\n", cmd.cstr);
+#endif /* LOAD_EXTERNALS_DEBUG */
+            str_free(exec);
         }
     } while (FindNextFile(hFind, &findFileData) != 0);
 }
 
+/* not really necessary, does the same thing as osys but less stable */
 void load_external_commands(void)
 {
     char *path = getenv("PATH");
+#ifdef LOAD_EXTERNALS_DEBUG
     printf("Loading files in path: '%s'\n", path);
+#endif
     String tmp_str = {.cstr = path, .size = strlen(path)};
     char delim[2] = ";";
     String path_delim = {.cstr = delim, .size = 1};
@@ -138,6 +166,8 @@ void load_external_commands(void)
     }
 }
 
-#else
-
-#endif
+#else /* _WIN32 */
+void load_external_commands(void)
+{
+}
+#endif /* _WIN32 */

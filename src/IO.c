@@ -71,7 +71,6 @@ String input(char enter_char, size_t max_size)
     {
         ret.cstr[ret.size++] = c;
     }
-    ret.cstr[ret.size] = '\0';
 
     ret.cstr = (char *)realloc(ret.cstr, ret.size + 1);
     if (!ret.cstr)
@@ -79,6 +78,7 @@ String input(char enter_char, size_t max_size)
         perror(RED "'input' could not realloc ret.cstr.\n" CRESET);
         exit(1);
     }
+    ret.cstr[ret.size] = '\0';
     return ret;
 }
 

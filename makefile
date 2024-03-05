@@ -1,10 +1,10 @@
-CC = gcc
+CC = clang
 CFILES = main.c IO.c string.c shell.c signal.c credentials.c cmd.c builtins.c
-CFLAGS = -Wall -Werror -g 
+CFLAGS = -Wall -g -fsanitize=address
 LFLAGS = 
 SRCFOLDER = src\\
 OBJFOLDER = obj\\
-OUTNAME = main
+OUTNAME = main.exe
 OBJS = $(CFILES:%.c=$(OBJFOLDER)%.o)
 RM = del
 
