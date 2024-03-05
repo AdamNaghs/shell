@@ -81,8 +81,7 @@ The colors don't work in some terminals. I am not yet sure how I can check if a 
 # Known Issues
 
 1.  osys and external commands do not mix stdin, stdout, and stderr while running a process.
-2.  test_creds in has a memory overwrite according to the clang address sanitizer
-
+2.  osys and external commands sometimes stop, or appear to, perhaps becuase of the lack of file stream mixing.
 # Todo
 ### All Versions
     1. Get login working (credentials.h/c)
@@ -92,7 +91,8 @@ The colors don't work in some terminals. I am not yet sure how I can check if a 
     1. Implement load_external_commands()
     2. Debug and Fix b_ls
 ### Windows
-    1.
+    1. Find out if _dupenv_s is unix compatible
+    2. Find ansi C and crossplatform way to replace getenv
 
 # Debug Macros
 Comment out any of these macros and rebuild to disable these features.
