@@ -123,6 +123,8 @@ struct cmd_return b_ls(String_Array arr)
     {
         d = opendir(arr.arr[1].cstr);
     }
+    if (!d)
+        return ret;
     while (NULL != ((dir = readdir(d))))
     {
         String tmp_str = str_new(dir->d_name);
