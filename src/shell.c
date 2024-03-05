@@ -35,14 +35,19 @@ void shell_loop(void)
             continue;
         }
         paste_vars('$', &a);
-        String_Array commands = str_split(a, pipe_delim);
-        str_free(a);
+        //String_Array commands = str_split(a, pipe_delim);
+        String_Array commands;
+        STR_ARRAY_STACK_ALLOC(commands,str_count(a,pipe_delim));
+        str_split_as_view(&commands,a,pipe_delim);
+        
 
         size_t i = 0, cmd = 0;
         bool ran = false;
         for (; cmd < commands.size; cmd++)
         {
-            String_Array args = str_split(commands.arr[cmd], space_delim);
+            String_Array args;// = str_split(commands.arr[cmd], space_delim);
+            STR_ARRAY_STACK_ALLOC(args,str_count(a,space_delim));
+            str_split_as_view(&args,commands.arr[cmd],space_delim);
             if (!args.size)
                 break;
             for (; i < get_internal_cmd_list_size(); i++)
@@ -69,7 +74,7 @@ void shell_loop(void)
                 }
             }
         break_find_cmd_loop:
-            str_arr_free(args);
+            //str_arr_free(args);
         }
         if (!ran)
         {
@@ -79,7 +84,8 @@ void shell_loop(void)
         {
             printf("%s\n", ret.str.cstr);
         }
-        str_arr_free(commands);
+        //str_arr_free(commands);
+        str_free(a);
         if (ret.str.cstr)
             str_free(ret.str);
     }

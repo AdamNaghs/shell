@@ -84,6 +84,57 @@ String input(char enter_char, size_t max_size)
     return ret;
 }
 
+
+void str_arr_free(String_Array arr)
+{
+    if (!arr.arr)
+        return;
+    size_t i;
+    for (i = 0; i < arr.size; i++)
+    {
+        if (arr.arr[i].cstr)
+            str_free(arr.arr[i]);
+    }
+    free(arr.arr);
+}
+
+String str_arr_join(String_Array arr, char seperator)
+{
+    /* determine length */
+    size_t i, tmp = 0, len = 0;
+    for (i = 0; i < arr.size; i++)
+    {
+        len += arr.arr[i].size + 1; /* +1 for seperator and at the end it will account for the \0 */
+    }
+    String ret = {.cstr = (char *)malloc(len * sizeof(char) + 1), .size = len - 1};
+    for (i = 0; i < arr.size; i++)
+    {
+        memcpy(ret.cstr + tmp, arr.arr[i].cstr, arr.arr[i].size);
+        tmp += arr.arr[i].size;
+        ret.cstr[tmp] = seperator;
+        tmp++;
+    }
+    ret.cstr[tmp] = '\0';
+    return ret;
+}
+
+String_Array str_arr_add(String_Array arr, String str)
+{
+    String_Array ret = {.arr = (String *)malloc(sizeof(String) * arr.size + 1), .size = arr.size + 1};
+    size_t i = 0;
+    for (; i < arr.size; i++)
+    {
+        ret.arr[i] = str_new(arr.arr[i].cstr);
+    }
+    ret.arr[arr.size] = str_new(str.cstr);
+    return ret;
+}
+
+void str_arr_replace(String_Array arr, size_t idx, String new_str)
+{
+    str_free(arr.arr[idx]);
+    arr.arr[idx] = str_new(new_str.cstr);
+}
 String_Array str_split(String str, String delim)
 {
     String_Array ret = {.arr = (String *)malloc(100 * sizeof(String)), .size = 100};
@@ -154,54 +205,68 @@ String_Array str_split(String str, String delim)
     }
     return ret;
 }
-
-void str_arr_free(String_Array arr)
+/* create a str array which uses str the memroy of str 
+    The returned string array doesn't need to be freed but the str does.
+*/
+void str_split_as_view(String_Array* _arr_, String _str_, String _delim_)
 {
-    if (!arr.arr)
-        return;
-    size_t i;
-    for (i = 0; i < arr.size; i++)
-    {
-        if (arr.arr[i].cstr)
-            str_free(arr.arr[i]);
-    }
-    free(arr.arr);
-}
+    size_t word_start = 0, delim_idx, i, j, found = 0;
 
-String str_arr_join(String_Array arr, char seperator)
-{
-    /* determine length */
-    size_t i, tmp = 0, len = 0;
-    for (i = 0; i < arr.size; i++)
+    /* Skip leading delimiters */
+    while (word_start < _str_.size && strchr(_delim_.cstr, _str_.cstr[word_start]) != NULL)
     {
-        len += arr.arr[i].size + 1; /* +1 for seperator and at the end it will account for the \0 */
+        word_start++;
     }
-    String ret = {.cstr = (char *)malloc(len * sizeof(char) + 1), .size = len - 1};
-    for (i = 0; i < arr.size; i++)
-    {
-        memcpy(ret.cstr + tmp, arr.arr[i].cstr, arr.arr[i].size);
-        tmp += arr.arr[i].size;
-        ret.cstr[tmp] = seperator;
-        tmp++;
-    }
-    ret.cstr[tmp] = '\0';
-    return ret;
-}
 
-String_Array str_arr_add(String_Array arr, String str)
-{
-    String_Array ret = {.arr = (String *)malloc(sizeof(String) * arr.size + 1), .size = arr.size + 1};
-    size_t i = 0;
-    for (; i < arr.size; i++)
+    for (i = word_start; i < _str_.size; i++)
     {
-        ret.arr[i] = str_new(arr.arr[i].cstr);
-    }
-    ret.arr[arr.size] = str_new(str.cstr);
-    return ret;
-}
+        bool is_delim = false;
+        for (j = 0; j < _delim_.size; j++)
+        {
+            if (_str_.cstr[i] == _delim_.cstr[j] || i == _str_.size - 1)
+            {
+                is_delim = true;
+                delim_idx = i;
+                if (i == _str_.size - 1)
+                    delim_idx++;
+                break;
+            }
+        }
 
-void str_arr_replace(String_Array arr, size_t idx, String new_str)
-{
-    str_free(arr.arr[idx]);
-    arr.arr[idx] = str_new(new_str.cstr);
+        if (is_delim && word_start != delim_idx)
+        {
+            size_t substring_len = delim_idx - word_start;
+            char* substring = (char*)malloc((substring_len + 1) * sizeof(char));
+            if (!substring)
+            {
+                perror(RED "str_split_as_view: malloc failed\n" CRESET);
+                exit(1);
+            }
+            memcpy(substring, _str_.cstr + word_start, substring_len);
+            substring[substring_len] = '\0';
+
+            if (found >= _arr_->size)
+            {
+                perror(RED "Provided String_Array is not large enough to contain input.\n" CRESET);
+                exit(1);
+            }
+
+            _arr_->arr[found].cstr = substring;
+            _arr_->arr[found].size = substring_len;
+            found++;
+
+            word_start = ++delim_idx;
+        }
+    }
+
+    /* Skip trailing delimiters for the last element in the array */
+    if (found > 0)
+    {
+        size_t last_idx = found - 1;
+        while (_arr_->arr[last_idx].size > 0 && strchr(_delim_.cstr, _arr_->arr[last_idx].cstr[_arr_->arr[last_idx].size - 1]) != NULL)
+        {
+            _arr_->arr[last_idx].size--;
+        }
+        _arr_->arr[last_idx].cstr[_arr_->arr[last_idx].size] = '\0';
+    }
 }
