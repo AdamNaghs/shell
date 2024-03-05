@@ -3,6 +3,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <errno.h>
+/* currently unused in windows implementation of the shell */
 bool is_dir(char *filename)
 {
     DWORD file_attr = GetFileAttributes(filename);
