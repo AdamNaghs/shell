@@ -76,3 +76,8 @@ I don't want to have any dependancies besides the libc and my own headers so I w
 
 # Colored output
 The colors don't work in some terminals. I am not yet sure how I can check if a terminal has them enabled yet to handle replacing all the colors to something else.
+
+# Known Issues
+
+1.  osys and external commands do not mix stdin, stdout, and stderr while running a process.
+2.  test_creds in has a memory overwrite according to the clang address sanitizer
