@@ -1,6 +1,7 @@
 #include "../include/string.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 void str_free(String str)
 {
     free(str.cstr);

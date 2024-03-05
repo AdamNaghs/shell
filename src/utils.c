@@ -1,16 +1,38 @@
 #include "../include/utils.h"
 #include <stdbool.h>
 #ifdef _WIN32
-bool is_dir(char* filename)
+#include <windows.h>
+#include <errno.h>
+bool is_dir(char *filename)
 {
-
+    DWORD file_attr = GetFileAttributes(filename);
+    if (file_attr == INVALID_FILE_ATTRIBUTES)
+    {
+        return false;
+    }
+    if (file_attr & FILE_ATTRIBUTE_DIRECTORY)
+        return true;
+    return false;
 }
+FILE* FOPEN(char *path,char* mode)
+{
+    FILE* f = (FILE*) malloc(sizeof(FILE));
+    if (0 != fopen_s(&f,path,mode))
+        exit(1);
+
+    return f;
+}
+
 #else
 #include <sys/stat.h>
-bool is_dir(char* filename)
+bool is_dir(char *filename)
 {
     struct stat file_stat;
     stat(filename, &file_stat);
     return S_ISDIR(file_stat.st_mode);
+}
+int MKDIR(char *path)
+{
+    return mkdir(path, 777);
 }
 #endif
