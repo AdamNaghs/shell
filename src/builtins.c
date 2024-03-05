@@ -1,6 +1,6 @@
 #include "../include/builtins.h" /* load_builtins*/
 #include "../include/cmd.h"      /* get_internal_cmd_list, size, add*/
-#include <stdlib.h>
+#include <stdlib.h> /* getenv, malloc, realloc, free */
 #include <string.h>
 #ifdef _WIN32
 #include <direct.h>
@@ -163,29 +163,6 @@ struct cmd_return b_echo(String_Array arr)
     str_append(&ret.str, tmp);
     str_free(tmp);
     return ret;
-}
-#ifndef popen
-#define popen _popen
-#endif
-#ifndef pclose
-#define pclose _pclose
-#endif
-void capture_system_call(struct cmd_return* ret,String command)
-{
-    FILE *pipe = popen(command.cstr, "r");
-    if (!pipe) {
-        // Handle popen failure
-        ret->success = false;
-        ret->func_return = 1;
-    } else {
-        char buffer[128];
-        while (fgets(buffer, sizeof(buffer), pipe) != NULL) {
-            String buffer_str = str_new(buffer);
-            str_append(&ret->str, buffer_str);
-            str_free(buffer_str);
-        }
-        ret->func_return = pclose(pipe);
-    }
 }
 
 #define RM_BUF 4096

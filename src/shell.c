@@ -6,20 +6,6 @@
 #include "../include/credentials.h"
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
-
-
-#define MAX_LINE_WIDTH 1000
-
-#ifndef popen
-#define popen _popen
-#endif
-#ifndef pclose
-#define pclose _pclose
-#endif
-#ifndef strdup
-#define strdup _strdup
-#endif
 
 
 void shell_loop(void)
@@ -27,14 +13,17 @@ void shell_loop(void)
     bind_signals();
     attempt_login_loop();
     load_builtins();
+    load_external_commands();
     char buf[2] = " ";
-    String delim = (String){.cstr = buf, .size = 1};
-    struct internal_cmd* cmd_list = get_internal_cmd_list();
+    String space_delim = (String){.cstr = buf, .size = 1};
+    char buf1[2] = "|";
+    String pipe_delim = (String){.cstr = buf1, .size = 1};
+    struct internal_cmd *cmd_list = get_internal_cmd_list();
 
-/*
-    const char* osys_char_ptr = "osys";
-    add_internal_cmd(internal_cmd_new(str_new(osys_char_ptr),outer_sys_call));
-*/
+    /*
+        const char* osys_char_ptr = "osys";
+        add_internal_cmd(internal_cmd_new(str_new(osys_char_ptr),outer_sys_call));
+    */
     struct cmd_return ret;
     while (1)
     {
@@ -42,28 +31,49 @@ void shell_loop(void)
         String a = input('\n', 0);
         if (a.size == 0)
             continue;
-        String_Array arr = str_split(a,delim);
-        size_t i = 0;
+        String_Array commands = str_split(a, pipe_delim);
+
+        size_t i = 0, cmd = 0;
         bool ran = false;
-        for (; i < get_internal_cmd_list_size(); i++)
+        for (; cmd < commands.size; cmd++)
         {
-            if (0 == strcmp(arr.arr[0].cstr, cmd_list[i].name.cstr))
+            String_Array args = str_split(commands.arr[cmd], space_delim);
+            for (; i < get_internal_cmd_list_size(); i++)
             {
-                ret = cmd_list[i].func(arr);
-                ran = true;
-                break;
+                if (0 == strcmp(args.arr[0].cstr, cmd_list[i].name.cstr))
+                {
+                    if (cmd == 0)
+                    {
+                        ret = cmd_list[i].func(args);
+                    }
+                    else
+                    {
+                        String tmp = str_new(commands.arr[cmd].cstr);
+                        str_append(&tmp,space_delim);
+                        str_append(&tmp,ret.str);
+                        String_Array piped_command = str_split(tmp,space_delim);
+                        str_free(ret.str);
+                        ret = cmd_list[i].func(piped_command);
+                        str_arr_free(piped_command);
+                        str_free(tmp);
+                    }
+                    ran = true;
+                    goto break_find_cmd_loop;
+                }
             }
+            break_find_cmd_loop:
+            str_arr_free(args);
         }
         str_free(a);
         if (!ran)
         {
-            printf("Could not find command '%s'.\n",arr.arr[0].cstr);
+            printf("Could not find command '%s'.\n", commands.arr[0].cstr);
         }
-        else 
+        else
         {
-            printf("%s\n",ret.str.cstr);
+            printf("%s\n", ret.str.cstr);
             str_free(ret.str);
         }
-        str_arr_free(arr);
+        str_arr_free(commands);
     }
 }

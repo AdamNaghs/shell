@@ -6,9 +6,9 @@
 
 #define MAX_STR 10000
 
-static FILE* input_file = NULL;
+static FILE *input_file = NULL;
 
-void set_input_file(FILE* fd)
+void set_input_file(FILE *fd)
 {
     if (!fd)
     {
@@ -86,7 +86,12 @@ String_Array str_split(String str, String delim)
 {
     String_Array ret = {.arr = (String *)malloc(100 * sizeof(String)), .size = 100};
     size_t word_start = 0, delim_idx, i, j, found = 0;
-    for (i = 0; i < str.size; i++)
+    /* Skip leading delimiters */
+    while (word_start < str.size && strchr(delim.cstr, str.cstr[word_start]) != NULL)
+    {
+        word_start++;
+    }
+    for (i = word_start; i < str.size; i++)
     {
         bool is_delim = false;
         for (j = 0; j < delim.size; j++)
@@ -120,6 +125,17 @@ String_Array str_split(String str, String delim)
             ret.arr[found++] = new_str;
         }
     }
+
+    /* Skip trailing delimiters for the last element in the array */
+    if (found > 0)
+    {
+        size_t last_idx = found - 1;
+        while (ret.arr[last_idx].size > 0 && strchr(delim.cstr, ret.arr[last_idx].cstr[ret.arr[last_idx].size - 1]) != NULL)
+        {
+            ret.arr[last_idx].size--;
+        }
+        ret.arr[last_idx].cstr[ret.arr[last_idx].size] = '\0';
+    }
     ret.size = found;
     ret.arr = (String *)realloc(ret.arr, sizeof(String) * ret.size);
     if (!ret.arr)
@@ -132,7 +148,8 @@ String_Array str_split(String str, String delim)
 
 void str_arr_free(String_Array arr)
 {
-    if (!arr.arr) return;
+    if (!arr.arr)
+        return;
     size_t i;
     for (i = 0; i < arr.size; i++)
     {
@@ -174,7 +191,7 @@ String_Array str_arr_add(String_Array arr, String str)
     return ret;
 }
 
-void str_arr_replace(String_Array arr, size_t idx,String new_str)
+void str_arr_replace(String_Array arr, size_t idx, String new_str)
 {
     str_free(arr.arr[idx]);
     arr.arr[idx] = str_new(new_str.cstr);

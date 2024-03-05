@@ -26,4 +26,8 @@ struct internal_cmd* get_internal_cmd_list(void);
 
 size_t get_internal_cmd_list_size(void);
 
+void load_external_commands(void);
+
+void capture_system_call(struct cmd_return* ret,String command);
+
 #endif /* SHELL_CMD_H */
