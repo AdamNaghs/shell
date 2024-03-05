@@ -208,26 +208,26 @@ String_Array str_split(String str, String delim)
 /* create a str array which uses str the memroy of str 
     The returned string array doesn't need to be freed but the str does.
 */
-void str_split_as_view(String_Array* _arr_, String _str_, String _delim_)
+void str_split_as_view(String_Array* arr, String str, String delim)
 {
     size_t word_start = 0, delim_idx, i, j, found = 0;
 
     /* Skip leading delimiters */
-    while (word_start < _str_.size && strchr(_delim_.cstr, _str_.cstr[word_start]) != NULL)
+    while (word_start < str.size && strchr(delim.cstr, str.cstr[word_start]) != NULL)
     {
         word_start++;
     }
 
-    for (i = word_start; i < _str_.size; i++)
+    for (i = word_start; i < str.size; i++)
     {
         bool is_delim = false;
-        for (j = 0; j < _delim_.size; j++)
+        for (j = 0; j < delim.size; j++)
         {
-            if (_str_.cstr[i] == _delim_.cstr[j] || i == _str_.size - 1)
+            if (str.cstr[i] == delim.cstr[j] || i == str.size - 1)
             {
                 is_delim = true;
                 delim_idx = i;
-                if (i == _str_.size - 1)
+                if (i == str.size - 1)
                     delim_idx++;
                 break;
             }
@@ -235,33 +235,33 @@ void str_split_as_view(String_Array* _arr_, String _str_, String _delim_)
 
         if (is_delim && word_start != delim_idx)
         {
-            if (found >= _arr_->size)
+            if (found >= arr->size)
             {
                 perror(RED "Provided String_Array is not large enough to contain input.\n" CRESET);
                 exit(1);
             }
 
-            _str_.cstr[delim_idx] = '\0'; // Place null terminator at the delimiter index
-            _arr_->arr[found] = (String){.cstr = _str_.cstr + word_start, .size = delim_idx - word_start};
+            str.cstr[delim_idx] = '\0'; // Place null terminator at the delimiter index
+            arr->arr[found] = (String){.cstr = str.cstr + word_start, .size = delim_idx - word_start};
 
             // Remove leading delimiters for the first substring
             if (found == 0)
             {
-                while (_arr_->arr[found].size > 0 && strchr(_delim_.cstr, _arr_->arr[found].cstr[0]) != NULL)
+                while (arr->arr[found].size > 0 && strchr(delim.cstr, arr->arr[found].cstr[0]) != NULL)
                 {
-                    _arr_->arr[found].cstr++;
-                    _arr_->arr[found].size--;
+                    arr->arr[found].cstr++;
+                    arr->arr[found].size--;
                 }
             }
 
             // Remove trailing delimiters for all substrings and add null terminator
-            size_t end_idx = _arr_->arr[found].cstr - _str_.cstr + _arr_->arr[found].size;
-            while (end_idx > 0 && strchr(_delim_.cstr, _str_.cstr[end_idx - 1]) != NULL)
+            size_t end_idx = arr->arr[found].cstr - str.cstr + arr->arr[found].size;
+            while (end_idx > 0 && strchr(delim.cstr, str.cstr[end_idx - 1]) != NULL)
             {
                 end_idx--;
             }
-            _arr_->arr[found].size = end_idx - (_arr_->arr[found].cstr - _str_.cstr);
-            _str_.cstr[end_idx] = '\0';
+            arr->arr[found].size = end_idx - (arr->arr[found].cstr - str.cstr);
+            str.cstr[end_idx] = '\0';
 
             found++;
             word_start = delim_idx + 1; // Move past the delimiter
@@ -272,19 +272,19 @@ void str_split_as_view(String_Array* _arr_, String _str_, String _delim_)
     if (found > 0)
     {
         size_t last_idx = found - 1;
-        size_t last_char_idx = _arr_->arr[last_idx].cstr - _str_.cstr + _arr_->arr[last_idx].size;
+        size_t last_char_idx = arr->arr[last_idx].cstr - str.cstr + arr->arr[last_idx].size;
 
-        while (last_char_idx < _str_.size && strchr(_delim_.cstr, _str_.cstr[last_char_idx]) != NULL)
+        while (last_char_idx < str.size && strchr(delim.cstr, str.cstr[last_char_idx]) != NULL)
         {
             last_char_idx++;
         }
 
-        _arr_->arr[last_idx].size = last_char_idx - (_arr_->arr[last_idx].cstr - _str_.cstr);
+        arr->arr[last_idx].size = last_char_idx - (arr->arr[last_idx].cstr - str.cstr);
 
         /* Add null terminator after skipping trailing delimiters */
-        if (_arr_->arr[last_idx].size > 0)
+        if (arr->arr[last_idx].size > 0)
         {
-            _str_.cstr[_arr_->arr[last_idx].cstr - _str_.cstr + _arr_->arr[last_idx].size] = '\0';
+            str.cstr[arr->arr[last_idx].cstr - str.cstr + arr->arr[last_idx].size] = '\0';
         }
     }
 }
