@@ -18,32 +18,6 @@ void set_input_file(FILE *fd)
     input_file = fd;
 }
 
-void print(String str, FILE *ostream)
-{
-    if (!ostream)
-    {
-        perror(RED "'print' given NULL ostream.\n" CRESET);
-        exit(1);
-    }
-    size_t i;
-    for (i = 0; i < str.size; i++)
-        putc(str.cstr[i], ostream);
-    fflush(ostream);
-}
-
-void println(String str, FILE *ostream)
-{
-    if (!ostream)
-    {
-        perror(RED "'print' given NULL ostream.\n" CRESET);
-        exit(1);
-    }
-    size_t i;
-    for (i = 0; i < str.size; i++)
-        putc(str.cstr[i], ostream);
-    putc('\n', ostream);
-    fflush(ostream);
-}
 
 String input(char enter_char, size_t max_size)
 {

@@ -27,11 +27,6 @@ void set_input_file(FILE *fd);
     provide 0 for max_size if you do not care how long the input is */
 String input(char ret_char, size_t max_size);
 
-/* prints string literal or pre-formatted strings */
-void print(String str, FILE *ostream);
-
-void print_ln(String str, FILE *ostream);
-
 /* delim is the array of seperators */
 String_Array str_split(String str, String delim);
 
