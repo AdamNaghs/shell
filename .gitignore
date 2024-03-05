@@ -14,3 +14,4 @@ obj/signal.o
 obj/string.o
 obj/utils.o
 obj/var.o
+obj/string_array.o
