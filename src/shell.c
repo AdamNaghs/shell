@@ -19,11 +19,6 @@ void shell_loop(void)
     char buf1[2] = "|";
     String pipe_delim = (String){.cstr = buf1, .size = 1};
     struct internal_cmd *cmd_list = get_internal_cmd_list();
-
-    /*
-        const char* osys_char_ptr = "osys";
-        add_internal_cmd(internal_cmd_new(str_new(osys_char_ptr),outer_sys_call));
-    */
     while (1)
     {
         struct cmd_return ret = {.success = false,.func_return = 0, .str = {.cstr = NULL, .size = 0}};

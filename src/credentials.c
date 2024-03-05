@@ -30,6 +30,7 @@ String generate_hash(String str)
     {
         ret.cstr[i] =( str_hash(str) % (i + 1)) + 1;
     }
+    ret.cstr[ret.size] = '\0';
     return ret;
 }
 
