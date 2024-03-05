@@ -12,7 +12,7 @@ void set_input_file(FILE *fd)
 {
     if (!fd)
     {
-        printf(RED "'fd' is null.\n" CRESET);
+        perror(RED "'fd' is null.\n" CRESET);
         exit(1);
     }
     input_file = fd;

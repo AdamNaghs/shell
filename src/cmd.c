@@ -164,7 +164,7 @@ void load_external_from_folder(String str)
 
         if (stat(path, &file_stats) == -1)
         {
-            printf(RED"Stat failed.\n"CRESET);
+            perror(RED"Stat failed.\n"CRESET);
             continue;
         }
         if (!S_ISDIR(file_stats.st_mode))
