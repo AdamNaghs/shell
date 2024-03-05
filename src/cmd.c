@@ -159,7 +159,8 @@ void load_external_commands(void)
     char delim[2] = ";";
     String path_delim = {.cstr = delim, .size = 1};
     String_Array folders = str_split(tmp_str, path_delim);
-    for (size_t i = 0; i < folders.size; i++)
+    size_t i;
+    for (i = 0; i < folders.size; i++)
     {
         load_external_from_folder(&folders.arr[i]);
     }

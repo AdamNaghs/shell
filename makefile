@@ -1,6 +1,6 @@
 CC = clang
 CFILES = main.c IO.c string.c shell.c signal.c credentials.c cmd.c builtins.c
-CFLAGS = -Wall -g -fsanitize=address
+CFLAGS = -Wall -g -fsanitize=address -std=c99 -pedantic
 LFLAGS = 
 SRCFOLDER = src\\
 OBJFOLDER = obj\\

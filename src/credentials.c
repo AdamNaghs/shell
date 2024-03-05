@@ -59,7 +59,8 @@ size_t str_hash(String string)
     const int m = 1e9 + 9;
     long long hash_value = 0;
     long long p_pow = 1;
-    for (size_t i = 0; i < len; i++)
+    size_t i;
+    for (i = 0; i < len; i++)
     {
         char c = str[i];
         hash_value = (hash_value + (c - 'a' + 1) * p_pow) % m;
@@ -72,7 +73,7 @@ size_t str_hash(String string)
 /* String get_password(void) */
 
 /* returns -1 on fail and 0 on success */
-void attempt_login_loop()
+void attempt_login_loop(void)
 {
     return;
 }
