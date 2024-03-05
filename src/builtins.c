@@ -110,6 +110,8 @@ struct cmd_return b_ls(String_Array arr)
 #include <dirent.h> /* opendir, readdir, closedir, */
 struct cmd_return b_ls(String_Array arr)
 {
+    char new_line_char[2] = "\n";
+    String new_line_str = {.cstr = new_line_char, .size = 1};
     char tmp[1] = "";
     struct cmd_return ret = DEFAULT_CMD_RETURN;
     char buf[LS_BUF];
@@ -130,8 +132,8 @@ struct cmd_return b_ls(String_Array arr)
     }
     while (NULL != ((dir = readdir(d))))
     {
-        printf("%s\n", dir->d_name);
         String tmp_str = str_new(dir->d_name);
+        str_append(&tmp_str,new_line_str);
         str_append(&ret.str, tmp_str);
         str_free(tmp_str);
     }
@@ -140,6 +142,7 @@ struct cmd_return b_ls(String_Array arr)
         closedir(d);
     }
     ret.success = true;
+    /*ret.str.cstr[ret.str.size--] = '\0';*/
     return ret;
 }
 #endif
@@ -189,8 +192,11 @@ struct cmd_return b_exit(String_Array arr)
         .func_return = 0,
         .str = str_new(tmp_char),
     };
-
-    free(get_internal_cmd_list());
+    struct internal_cmd* list = get_internal_cmd_list();
+    size_t i = 0;
+    for (; i < get_internal_cmd_list_size();i++)
+        str_free(list[i].name);
+    free(list);
     printf(GRN "Exitting...\n" CRESET);
     exit(1);
     return ret;
