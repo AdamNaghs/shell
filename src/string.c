@@ -7,7 +7,6 @@ void str_free(String str)
     if (!str.cstr)
         return;
     free(str.cstr);
-    str.cstr = NULL;
 }
 
 char *mystrdup(char *str, unsigned long long *ret_size)
