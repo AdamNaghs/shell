@@ -10,28 +10,35 @@
 #include <stdlib.h>
 #include <string.h>
 
+static int prelude_ran = 0;
 void shell_prelude(void)
 {
-    static int ran = 0;
-    if (ran) return;
+    if (prelude_ran) return;
     bind_signals();
     attempt_login_loop();
     load_builtins();
     load_external_commands();
-    ran++;
+    prelude_ran++;
 }
 #define CWD_BUF 4096
 
-static bool run = true;
+static bool shell_run = true;
 
 void shell_stop(void)
 {
-    run = false;
+    shell_run = false;
+    prelude_ran = 0;
+    free_all_vars();
+    struct internal_cmd* list = get_internal_cmd_list();
+    size_t i;
+    for (i = 0; i < get_internal_cmd_list_size(); i++)
+    {
+        str_free(list[i].name);
+    }
 }
 
 void shell_loop_step(bool print_input)
 {
-    shell_prelude();
     static char buf[2] = " ";
     static char buf1[2] = "|";
     String space_delim = STR(buf);
@@ -113,7 +120,7 @@ void shell_loop_step(bool print_input)
 void shell_loop_test()
 {
     shell_prelude();
-    while (run && !at_eof())
+    while (shell_run && !at_eof())
     {
         shell_loop_step(true);
     }
@@ -124,7 +131,7 @@ void shell_loop_test()
 void shell_loop(void)
 {
     shell_prelude();
-    while (run)
+    while (shell_run)
     {
         shell_loop_step(false);
     }

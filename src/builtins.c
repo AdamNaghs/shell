@@ -190,14 +190,8 @@ struct cmd_return b_exit(String_Array arr)
         .func_return = 0,
         .str = str_new(tmp_char),
     };
-    struct internal_cmd *list = get_internal_cmd_list();
-    size_t i = 0;
-    for (; i < get_internal_cmd_list_size(); i++)
-        str_free(list[i].name);
-    free(list);
-    free_all_vars();
-    str_append(&ret.str,STR(GRN "\nExitting...\n" CRESET));
     shell_stop();
+    str_append(&ret.str,STR(GRN "\nExitting...\n" CRESET));
     return ret;
 }
 

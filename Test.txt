@@ -1,3 +1,4 @@
+exit
 cd Test_Dir
 #osys dir | echo
 ls
