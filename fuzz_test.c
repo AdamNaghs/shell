@@ -23,7 +23,7 @@ int main(void)
         memcpy(src, buf, len);
         src[len] = 0;
         String str = str_new(src);
-        shell_loop_manual_step(str, false, false, false);
+        shell_loop_manual_step(&str, false, false, false);
         str_free(str);
     }
 }
