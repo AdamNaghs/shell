@@ -4,6 +4,10 @@
 #include "../include/colors.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+
+
+
 size_t cmd_arr_cap = 10;
 size_t cmd_arr_len = 0;
 struct internal_cmd *cmd_arr;
@@ -23,9 +27,7 @@ void capture_system_call(struct cmd_return *ret, String command)
     char buffer[CPT_SYS_CALL_BUF];
     while (fgets(buffer, sizeof(buffer), pipe) != NULL)
     {
-        String buffer_str = str_new(buffer);
-        str_append(&ret->str, buffer_str);
-        str_free(buffer_str);
+        str_append(&ret->str, STR(buffer));
     }
     ret->func_return = PCLOSE(pipe);
 }
@@ -88,7 +90,6 @@ struct cmd_return facade_internal_cmd(String_Array cmd)
     str_free(str);
     return ret;
 }
-
 void load_external_from_file(char *filename)
 {
     String cmd = str_new(filename);
@@ -184,7 +185,7 @@ void load_external_commands(void)
 #ifdef LOAD_EXTERNALS_DEBUG
     printf("Loading files in path: '%s'\n", path);
 #endif
-    String tmp_str = {.cstr = path, .size = strlen(path)};
+    String tmp_str = STR(path);
 #ifdef _WIN32
     char delim[2] = ";";
 #else
