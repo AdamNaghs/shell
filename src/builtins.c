@@ -8,6 +8,9 @@
 #include <string.h>
 #include <stdbool.h>
 
+static bool ran_load_builtins = false;
+
+
 struct cmd_return b_mkdir(String_Array arr)
 {
     struct cmd_return ret = DEFAULT_CMD_RETURN;
@@ -190,6 +193,7 @@ struct cmd_return b_exit(String_Array arr)
         .func_return = 0,
         .str = str_new(tmp_char),
     };
+    ran_load_builtins = false;
     shell_stop();
     str_append(&ret.str,STR(GRN "\nExitting...\n" CRESET));
     return ret;
@@ -255,11 +259,9 @@ struct cmd_return b_touch(String_Array arr)
     }
     return ret;
 }
-
 void load_builtins(void)
 {
-    static bool ran = false;
-    if (ran)
+    if (ran_load_builtins)
         return;
     char str_echo[5] = "echo";
     add_internal_cmd(internal_cmd_new(str_new(str_echo), b_echo));
@@ -296,5 +298,5 @@ void load_builtins(void)
 
     char str_rmdir[6] = "rmdir";
     add_internal_cmd(internal_cmd_new(str_new(str_rmdir), b_rmdir));
-    ran = true;
+    ran_load_builtins = true;
 }
