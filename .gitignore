@@ -27,3 +27,5 @@ asn
 tmp.txt
 gmon.out
 AFL Fuzzing
+AFL Fuzzing\str_new_results
+AFL Fuzzing\str_split_results
