@@ -25,6 +25,11 @@ After changing the code, call 'make clean' then 'make' to rebuild the objs and t
 
 I'm currently only using the address sanitizer and -g to debug. Please let me know what other flags I should add while compiling or what other programs I can use to debug my code (aside from gdb).
 
+# Debugging
+You can change the input file using set_input_file(FILE*) and then call shell_loop_test() to test the shell on the input of that file.
+
+If you want to reset the global values like the shell variables and commands you can call shell_stop() which will stop the shell and free everything. Then call shell_loop or shell_loop_test to reinitilize the shell.
+
 # Notes
 Not sure whether or not I should store the external programs found in the path or if I should just call osys whenever the shell doesn't recognize a command.
 
