@@ -27,7 +27,8 @@ void shell_prelude(void)
 
 void shell_stop(void)
 {
-    ran_load_builtins = 0;
+    int* builins_loaded = are_builtins_loaded();
+    *builins_loaded = 0;
     shell_run = false;
     prelude_ran = 0;
     free_all_vars();
@@ -42,7 +43,6 @@ void shell_reset(void)
 }
 
 #define CWD_BUF 4096
-
 void shell_loop_step(bool print_input)
 {
     shell_prelude();
@@ -55,7 +55,7 @@ void shell_loop_step(bool print_input)
     char *c = GETCWD(cwd_buf, CWD_BUF);
     if (!c)
     {
-        perror(RED "Could not get current working directory.\n");
+        perror(RED "asn: Could not get current working directory.\n");
         exit(1);
     }
     printf(BLU "asn" CRESET "@" CYN "%s> " CRESET, cwd_buf);
@@ -112,10 +112,20 @@ void shell_loop_step(bool print_input)
             }
             ran = true;
         }
+        else
+        {
+            /*  
+                This should probably stay commented out so the user knows
+                if they are using a shell or external command
+            */
+            //ret = facade_internal_cmd(args);
+            //ran = true;
+            //printf("asn: Ran file found in path.\n");
+        }
         str_arr_free(args);
     }
     if (!ran)
-        printf("Could not find command '%s'.\n", commands.arr[0].cstr);
+        printf("asn: Could not find command '%s'.\n", commands.arr[0].cstr);
     else
         printf("%s\n", ret.str.cstr);
     str_arr_free(commands);

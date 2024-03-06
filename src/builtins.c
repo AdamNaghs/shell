@@ -6,7 +6,14 @@
 #include "../include/shell.h"    /* shell_stop*/
 #include <stdlib.h>              /* getenv, malloc, realloc, free */
 #include <string.h>
-#include <stdbool.h>
+#include <time.h>
+
+int ran_load_builtins;
+
+int* are_builtins_loaded(void)
+{
+    return &ran_load_builtins;
+}
 
 struct cmd_return b_mkdir(String_Array arr)
 {
@@ -37,7 +44,7 @@ struct cmd_return b_cd(String_Array arr)
         str.cstr[str.size--] = '\0'; /* remove extra ' ' at end */
     if (-1 == CHDIR(str.cstr))
     {
-        printf(RED "Could not open directory " BHRED "'%s'\n" CRESET, str.cstr);
+        printf(RED "asn: Could not open directory " BHRED "'%s'\n" CRESET, str.cstr);
     }
     str_free(str);
     ret.success = true;
@@ -70,17 +77,20 @@ struct cmd_return b_ls(String_Array arr)
     HANDLE hFind = INVALID_HANDLE_VALUE;
 
     char searchPath[LS_BUF];
+    String tmp_str = str_arr_join((String_Array){arr.arr + 1,arr.size - 1},' ');
+    if (tmp_str.size && tmp_str.cstr[tmp_str.size-1] == ' ')
+        tmp_str.cstr[--tmp_str.size] = '\0';
     if (arr.size == 1) /* Use the current directory if no arguments are provided */
         snprintf(searchPath, LS_BUF, ".\\*");
     else /* Use the provided directory path */
-        snprintf(searchPath, LS_BUF, "%s\\*", arr.arr[1].cstr);
-
+        snprintf(searchPath, LS_BUF, "%s\\*", tmp_str.cstr);
+    str_free(tmp_str);
     /* Find the first file in the directory */
     hFind = FindFirstFile(searchPath, &findFileData);
 
     if (hFind == INVALID_HANDLE_VALUE)
     {
-        printf("Unable to open directory '%s'\n", searchPath);
+        printf("asn: Unable to open directory '%s'\n", searchPath);
         ret.func_return = 1;
         return ret;
     }
@@ -192,7 +202,7 @@ struct cmd_return b_exit(String_Array arr)
         .str = str_new(tmp_char),
     };
     shell_stop();
-    str_append(&ret.str, STR(GRN "\nExitting...\n" CRESET));
+    str_append(&ret.str, STR(GRN "\nExitting asn...\n" CRESET));
     return ret;
 }
 
@@ -247,7 +257,7 @@ struct cmd_return b_touch(String_Array arr)
         if (!f)
         {
             char tmp[4096];
-            sprintf(tmp, RED "Failed to create file '%s'.\n" CRESET, arr.arr[i].cstr);
+            sprintf(tmp, RED "asn: Failed to create file '%s'.\n" CRESET, arr.arr[i].cstr);
             String tmp_str = {tmp, 4096};
             str_append(&ret.str, tmp_str);
             continue;
@@ -260,13 +270,14 @@ struct cmd_return b_touch(String_Array arr)
 struct cmd_return b_reset(String_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
-    str_append(&ret.str, STR("\nResetting shell.\n"));
+    str_append(&ret.str, STR("\nResetting asn.\n"));
     shell_reset();
     return ret;
 }
 
 struct cmd_return b_asn(String_Array arr)
 {
+    clock_t start = clock();
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     size_t i;
     FILE *default_file = get_input_file();
@@ -275,7 +286,7 @@ struct cmd_return b_asn(String_Array arr)
         FILE *fd = FOPEN(arr.arr[i].cstr, "r");
         if (!fd)
         {
-            str_append(&ret.str, STR("'asn' could not open file.\n"));
+            str_append(&ret.str, STR("asn: Could not open file.\n"));
             ret.func_return = 1;
             ret.success = false;
             return ret;
@@ -286,8 +297,10 @@ struct cmd_return b_asn(String_Array arr)
     }
     shell_reset();
     set_input_file(default_file);
+    printf("Test File(s) Runtime: %lums",clock()-start);
     return ret;
 }
+
 
 void load_builtins(void)
 {
