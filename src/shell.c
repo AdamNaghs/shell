@@ -13,6 +13,8 @@
 static bool prelude_ran = 0;
 static bool shell_run = true;
 
+#define STR_ARRAY_VIEWS
+
 void shell_prelude(void)
 {
     if (prelude_ran)
@@ -28,6 +30,7 @@ void shell_prelude(void)
 void shell_stop(void)
 {
     int *builins_loaded = are_builtins_loaded();
+    if (!(*builins_loaded)) return;
     *builins_loaded = 0;
     shell_run = false;
     prelude_ran = 0;
@@ -80,12 +83,10 @@ void shell_loop_manual_step(String inp, bool print_input, bool print_output, boo
     {
         if (print_output)
             printf("\n");
-        // str_free(a);
         return;
     }
     if (0 == read_var(a))
     {
-        // str_free(a);
         return;
     }
     paste_vars('$', &a);
@@ -118,16 +119,23 @@ void shell_loop_manual_step(String inp, bool print_input, bool print_output, boo
             }
             else
             {
-                String tmp = str_new(commands.arr[cmd].cstr);
+                String tmp = str_new(NULL);
+                str_append(&tmp,commands.arr[cmd]);
                 str_append(&tmp, space_delim);
                 str_append(&tmp, ret.str);
-                String_Array piped_command_return = str_split(tmp, space_delim);
-                // STR_ARRAY_STACK_ALLOC(piped_command_return, str_count(tmp, space_delim));
-                // str_split_as_view(&piped_command_return, tmp, space_delim);
+                String_Array piped_command_return;
+#ifdef STR_ARRAY_VIEWS
+                STR_ARRAY_STACK_ALLOC(piped_command_return, str_count(tmp, space_delim));
+                str_split_as_view(&piped_command_return, tmp, space_delim);
+#else
+                piped_command_return = str_split(tmp, space_delim);
+#endif
                 str_free(ret.str);
                 ret = int_cmd->func(piped_command_return);
-                str_free(tmp);
+#ifndef STR_ARRAY_VIEWS
                 str_arr_free(piped_command_return);
+#endif
+                str_free(tmp);
             }
             ran = true;
         }
@@ -167,7 +175,7 @@ void shell_loop_test()
     shell_prelude();
     while (shell_run && !at_eof())
     {
-        shell_loop_step(true,true);
+        shell_loop_step(true, true);
     }
 }
 
@@ -176,6 +184,6 @@ void shell_loop(void)
     shell_prelude();
     while (shell_run)
     {
-        shell_loop_step(true,true);
+        shell_loop_step(true, false);
     }
 }

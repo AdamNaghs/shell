@@ -278,26 +278,35 @@ struct cmd_return b_reset(String_Array arr)
 
 struct cmd_return b_asn(String_Array arr)
 {
-    clock_t start = clock();
+    // clock_t start = clock();
     struct cmd_return ret = CMD_RETURN_SUCCESS;
+    char mode[2] = "r";
     size_t i;
-    FILE *default_file = get_input_file();
     for (i = 1; i < arr.size; i++)
     {
-        FILE *fd = FOPEN(arr.arr[i].cstr, "r");
+        String tmp_str = str_new_n(arr.arr[i].cstr, arr.arr[i].size);
+        FILE *fd = FOPEN(tmp_str.cstr, mode);
+        str_free(tmp_str);
         if (!fd)
         {
             str_append(&ret.str, STR("asn: Could not open file.\n"));
             ret.func_return = 1;
             ret.success = false;
+            set_input_file(stdin);
             return ret;
         }
         set_input_file(fd);
         shell_loop_test();
-        FCLOSE(fd);
+        if (0 != FCLOSE(fd))
+        {
+            str_append(&ret.str, STR("asn: Could not close file.\n"));
+            ret.func_return = 1;
+            ret.success = false;
+            set_input_file(stdin);
+            return ret;
+        }
     }
-    shell_reset();
-    set_input_file(default_file);
+    set_input_file(stdin);
     // printf("Test File(s) Runtime: %lums",clock()-start);
     return ret;
 }

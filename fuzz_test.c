@@ -2,6 +2,7 @@
     |  afl-clang-fast -g -fsanitize=address,undefined fuzz_test.c 
     |  afl-fuzz -i inputs/ -o results ./a.out*/
 #include "include/string_array.h"
+#include "include/shell.h"
 #include "include/string.h"
 #include "include/IO.h"
 #include "include/shell.h"
@@ -22,7 +23,7 @@ int main(void)
         memcpy(src, buf, len);
         src[len] = 0;
         String str = str_new(src);
-        shell_loop_manual_step(str, false, false);
+        shell_loop_manual_step(str, false, false, false);
         str_free(str);
     }
 }

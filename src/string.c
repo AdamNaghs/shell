@@ -53,6 +53,30 @@ String str_new(char *str)
     return ret;
 }
 
+char *mystrdup_n(char *str, unsigned long long ret_size)
+{
+    char *ret = (char *)malloc(ret_size * sizeof(char) + 1);
+    size_t i = 0;
+    while (i < ret_size && str[i] != '\0')
+    {
+        ret[i] = str[i];
+        i++;
+    }
+    ret[ret_size] = '\0';
+    return ret;
+}
+String str_new_n(char *str, size_t size)
+{
+    if (!str)
+    {
+        return str_new(NULL);
+    }
+    String ret;
+    ret.cstr = mystrdup_n(str, size);
+    ret.size = size;
+    return ret;
+}
+
 signed long long str_contains_char(String str, char c)
 {
     size_t i;
@@ -135,7 +159,13 @@ void str_append(String *dest, String end)
         exit(1);
     }
     dest->cstr = tmp;
-
+    if (!end.cstr)
+        return;
+    if (!dest->cstr)
+    {
+        *dest = str_new(end.cstr);
+        return;
+    }
     if (memcpy(dest->cstr + offset, end.cstr, end.size) == NULL)
     {
         perror("Failed to memcpy 'end' to 'dest'.\n");

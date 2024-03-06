@@ -45,6 +45,7 @@ int main(void)
     */
     test_str_split();
     test_shell_loop();
+    test_shell_loop();
     shell_loop();
     return 0;
 }

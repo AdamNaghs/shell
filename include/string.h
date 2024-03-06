@@ -18,6 +18,8 @@ signed long long str_contains_str(String str, String c);
 
 String str_new(char* str);
 
+String str_new_n(char *str, size_t size);
+
 void str_append(String* dest, String end);
 
 void str_free(String str);
