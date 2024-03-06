@@ -16,6 +16,13 @@ void set_input_file(FILE *fd)
     input_file = fd;
 }
 
+FILE* get_input_file(void)
+{
+    if (!input_file)
+        return stdout;
+    return input_file;
+}
+
 static char c;
 
 bool at_eof(void)

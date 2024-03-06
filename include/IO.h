@@ -10,6 +10,8 @@
 */
 void set_input_file(FILE *fd);
 
+FILE* get_input_file(void);
+
 bool at_eof(void);
 /* ret_char is the char that once pressed returns the string.
     provide 0 for max_size if you do not care how long the input is */
