@@ -34,6 +34,13 @@ void shell_stop(void)
     free_all_commands();
 }
 
+void shell_reset(void)
+{
+    if (prelude_ran)
+        shell_stop();
+    shell_prelude();
+}
+
 #define CWD_BUF 4096
 
 void shell_loop_step(bool print_input)
