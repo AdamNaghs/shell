@@ -12,5 +12,5 @@ void shell_reset(void);
 
 void shell_loop_step(bool print_output, bool print_input);
 
-void shell_loop_manual_step(String inp, bool print_input, bool print_output, bool print_error);
+void shell_loop_manual_step(String* inp, bool print_input, bool print_output, bool print_error);
 #endif /* SHELL_H */

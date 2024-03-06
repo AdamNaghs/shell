@@ -30,7 +30,8 @@ void shell_prelude(void)
 void shell_stop(void)
 {
     int *builins_loaded = are_builtins_loaded();
-    if (!(*builins_loaded)) return;
+    if (!(*builins_loaded))
+        return;
     *builins_loaded = 0;
     shell_run = false;
     prelude_ran = 0;
@@ -57,14 +58,16 @@ void shell_loop_step(bool print_output, bool print_input)
             perror(RED "asn: Could not get current working directory.\n" CRESET);
             exit(1);
         }
+        if (get_input_file() != stdin)
+            printf("\n");
         printf(BLU "asn" CRESET "@" CYN "%s> " CRESET, cwd_buf);
     }
     String inp = input('\n', 0);
 
-    shell_loop_manual_step(inp, print_input, print_output, true);
+    shell_loop_manual_step(&inp, print_input, print_output, true);
     str_free(inp);
 }
-void shell_loop_manual_step(String inp, bool print_input, bool print_output, bool print_error)
+void shell_loop_manual_step(String* inp, bool print_input, bool print_output, bool print_error)
 {
     shell_prelude();
     static char buf[2] = " ";
@@ -72,30 +75,29 @@ void shell_loop_manual_step(String inp, bool print_input, bool print_output, boo
     String space_delim = STR(buf);
     String pipe_delim = STR(buf1);
 
-    String a = inp;
-    str_remove_trailing_whitespace(&a);
+    str_remove_trailing_whitespace(inp);
     struct cmd_return ret = {.success = false, .func_return = 0, .str = {.cstr = NULL, .size = 0}};
     if (print_input)
     {
-        printf("%s", a.cstr);
+        printf("%s", inp->cstr);
     }
-    if (a.size == 0 || -1 != str_contains_char(a, '#'))
+    if (inp->size == 0 || -1 != str_contains_char(*inp, '#'))
     {
         if (print_output)
             printf("\n");
         return;
     }
-    if (0 == read_var(a))
+    if (0 == read_var(*inp))
     {
         return;
     }
-    paste_vars('$', &a);
+    paste_vars('$', inp);
     String_Array commands;
 #ifdef STR_ARRAY_VIEWS
-    STR_ARRAY_STACK_ALLOC(commands, str_count(a, pipe_delim));
-    str_split_as_view(&commands, a, pipe_delim);
+    STR_ARRAY_STACK_ALLOC(commands, str_count(*inp, pipe_delim));
+    str_split_as_view(&commands, *inp, pipe_delim);
 #else
-    commands = str_split(a, pipe_delim);
+    commands = str_split(*inp, pipe_delim);
 #endif
     size_t cmd;
     bool ran = false;
@@ -120,7 +122,7 @@ void shell_loop_manual_step(String inp, bool print_input, bool print_output, boo
             else
             {
                 String tmp = str_new(NULL);
-                str_append(&tmp,commands.arr[cmd]);
+                str_append(&tmp, commands.arr[cmd]);
                 str_append(&tmp, space_delim);
                 str_append(&tmp, ret.str);
                 String_Array piped_command_return;
@@ -158,7 +160,11 @@ void shell_loop_manual_step(String inp, bool print_input, bool print_output, boo
         if (!ran)
         {
             if (print_error)
+            {
+                if (get_input_file() != stdin)
+                    printf("\n");
                 printf("asn: Could not find command '%s'.\n", commands.arr[0].cstr);
+            }
         }
         else
             printf("\n%s\n", ret.str.cstr);
@@ -170,7 +176,7 @@ void shell_loop_manual_step(String inp, bool print_input, bool print_output, boo
         str_free(ret.str);
 }
 
-void shell_loop_test()
+void shell_loop_test(void)
 {
     shell_prelude();
     while (shell_run && !at_eof())
