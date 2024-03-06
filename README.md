@@ -42,18 +42,21 @@ I do not yet support other similar characters i.e.  **;** , **>**, etc.
 
 So far ASN supports a few simple builtin commands
 
-    help - Prints this message to stdout.
-    exit - Exits program.
-    echo - Prints message.
-    osys - Outer system/shell call.
+    help  - Prints this message to stdout.
+    exit  - Exits program.
+    echo  - Prints message.
     clear - Wipes terminal.
-    cd - Change directory.
-    ls - List files in current directory.
-    pwd - Print working directory.
-    mkdir  - Creates new direction with provided path.
-    rm - Removes files or directories.
+    cd    - Change directory.
+    ls    - List files in current directory.
+    pwd   - Print working directory.
+    rm    - Removes files or directories.
     touch - Creates files.
-    asn - asn shell, used to run file containing commands.
+    mkdir - Creates new direction with provided path.
+    rmdir - Removes directories
+    asn   - asn shell, used to run file containing commands.
+    osys  - Outer system/shell call.
+    time  - Prints runtime of its arguments or time since UNIX epoch.
+    reset - Resets commands & variables.
 
 
 Some commands like 'rm' and 'clear' just use the system function to call 'del' or 'rm' depending on if you're using windows or not. I need to fix this, but for now its just a simple solution.
