@@ -10,7 +10,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-static int prelude_ran = 0;
+static bool prelude_ran = 0;
+static bool shell_run = true;
+
 void shell_prelude(void)
 {
     if (prelude_ran) return;
@@ -18,11 +20,9 @@ void shell_prelude(void)
     attempt_login_loop();
     load_builtins();
     load_external_commands();
-    prelude_ran++;
+    prelude_ran = true;
+    shell_run = true;
 }
-#define CWD_BUF 4096
-
-static bool shell_run = true;
 
 void shell_stop(void)
 {
@@ -36,6 +36,8 @@ void shell_stop(void)
         str_free(list[i].name);
     }
 }
+
+#define CWD_BUF 4096
 
 void shell_loop_step(bool print_input)
 {
