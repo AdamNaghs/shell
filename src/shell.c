@@ -48,27 +48,39 @@ void shell_reset(void)
 }
 
 #define CWD_BUF 4096
+void shell_print_line_flair(void)
+{
+    char cwd_buf[CWD_BUF];
+    char *c = GETCWD(cwd_buf, CWD_BUF);
+    if (!c)
+    {
+        perror(RED "asn: Could not get current working directory.\n" CRESET);
+        exit(1);
+    }
+    if (get_input_file() != stdin)
+        printf("\n");
+    printf(BLU "asn" CRESET "@" CYN "%s> " CRESET, cwd_buf);
+}
+
 void shell_loop_step(bool print_output, bool print_input)
 {
     if (print_output)
     {
-        char cwd_buf[CWD_BUF];
-        char *c = GETCWD(cwd_buf, CWD_BUF);
-        if (!c)
-        {
-            perror(RED "asn: Could not get current working directory.\n" CRESET);
-            exit(1);
-        }
-        if (get_input_file() != stdin)
-            printf("\n");
-        printf(BLU "asn" CRESET "@" CYN "%s> " CRESET, cwd_buf);
+        shell_print_line_flair();
     }
     String inp = input('\n', 0);
-
-    shell_loop_manual_step(&inp, print_input, print_output, true);
+    String_Array arr = str_split(inp, STR(";"));
+    size_t i;
+    for (i = 0; i < arr.size; i++)
+    {
+        shell_print_line_flair();
+        printf("%s\n",arr.arr[i].cstr);
+        shell_loop_manual_step(&arr.arr[i], print_input, print_output, true);
+    }
     str_free(inp);
+    str_arr_free(arr);
 }
-void shell_loop_manual_step(String* inp, bool print_input, bool print_output, bool print_error)
+void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bool print_error)
 {
     shell_prelude();
     static char buf[2] = " ";

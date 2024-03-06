@@ -1,7 +1,8 @@
+    ls
 t=0
 $t
 reset
-exit
+#exit
 time ls
 time mkdir Test_Dir
 time cd Test_Dir

@@ -34,6 +34,8 @@ If you want to reset the global values like the shell variables and commands you
 Not sure whether or not I should store the external programs found in the path or if I should just call osys whenever the shell doesn't recognize a command.
 
 I think another project I may do is a terminal written in a graphics library and then I'll try integrating my shell.
+
+I want to improve the way that I tokenize a string to better support a scripting language. If I write a tokenizer, it will be meant for a line based scripted langauge similar to python but without indentation.
 ## Pipes '|'
 I implemented pipes in a cheaty way. I'm just passing the result string of a command that is being piped
 to the command that it is being piped to as the first argument.
