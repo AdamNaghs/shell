@@ -19,14 +19,14 @@ bool is_dir(char *filename)
 }
 FILE *FOPEN(char *path, char *mode)
 {
-    FILE *f = (FILE *)malloc(sizeof(FILE));
-    if (0 != fopen_s(&f, path, mode))
+    /*FILE *f = (FILE *)malloc(sizeof(FILE));
+    if (-1 == fopen_s(&f, path, mode))
     {
         perror(RED"'FOPEN' could not open file.\n"CRESET);
         exit(1);
-    }
+    }*/
 
-    return f;
+    return fopen(path,mode);
 }
 #define MAX_ENV 16384
 char env_buf[16384];

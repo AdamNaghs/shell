@@ -7,4 +7,8 @@ void shell_loop(void);
 void shell_loop_test(void);
 
 void shell_stop(void);
+
+void shell_reset(void);
+
+void shell_loop_step(bool print_input);
 #endif /* SHELL_H */

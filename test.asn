@@ -1,10 +1,11 @@
-cd Test_Dir
-#osys dir | echo
 ls
 mkdir Test_Dir
+cd Test_Dir
 touch Test_File
 mkdir Test_Dir1
 rm Test_File
 rm Test_Dir1
 cd ../
-exit
+rm Test_Dir
+reset
+ls

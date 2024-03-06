@@ -38,6 +38,17 @@ struct internal_cmd internal_cmd_new(String str, internal_cmd_func func)
     };
 }
 
+void free_all_commands(void)
+{
+    struct internal_cmd *list = get_internal_cmd_list();
+    size_t i;
+    for (i = 0; i < get_internal_cmd_list_size(); i++)
+    {
+        str_free(list[i].name);
+    }
+    cmd_arr_len = 0;
+}
+
 void add_internal_cmd(struct internal_cmd cmd)
 {
     if (cmd_arr_len == 0)
@@ -192,13 +203,12 @@ void load_external_commands(void)
     str_arr_free(folders);
 }
 
-
-struct internal_cmd * find_internal_cmd(String name)
+struct internal_cmd *find_internal_cmd(String name)
 {
     size_t i;
-    for (i = 0; i <cmd_arr_len; i++)
+    for (i = 0; i < cmd_arr_len; i++)
     {
-        if (str_equal(name,cmd_arr[i].name))
+        if (str_equal(name, cmd_arr[i].name))
         {
             return &cmd_arr[i];
         }

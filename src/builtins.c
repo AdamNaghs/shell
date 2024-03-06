@@ -3,7 +3,7 @@
 #include "../include/builtins.h" /* load_builtins*/
 #include "../include/cmd.h"      /* get_internal_cmd_list, size, add*/
 #include "../include/utils.h"    /* is_dir */
-#include "../include/shell.h"   /* shell_stop*/
+#include "../include/shell.h"    /* shell_stop*/
 #include <stdlib.h>              /* getenv, malloc, realloc, free */
 #include <string.h>
 #include <stdbool.h>
@@ -86,6 +86,7 @@ struct cmd_return b_ls(String_Array arr)
     }
     char new_line_char[2] = "\n";
     String new_line_str = {.cstr = new_line_char, .size = 1};
+    str_append(&ret.str, new_line_str);
     do
     {
         String tmp_str = str_new(findFileData.cFileName);
@@ -191,7 +192,7 @@ struct cmd_return b_exit(String_Array arr)
         .str = str_new(tmp_char),
     };
     shell_stop();
-    str_append(&ret.str,STR(GRN "\nExitting...\n" CRESET));
+    str_append(&ret.str, STR(GRN "\nExitting...\n" CRESET));
     return ret;
 }
 
@@ -228,7 +229,7 @@ struct cmd_return b_help(String_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     char help_buf[1000] =
-        BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n" BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n" BHCYN "rm" CRESET "\t - Removes files.\n" BHCYN "rmdir" CRESET "\t - Removes directories.\n" BHCYN "touch" CRESET "\t - Creates files.\n";
+        BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n" BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n" BHCYN "rm" CRESET "\t - Removes files.\n" BHCYN "rmdir" CRESET "\t - Removes directories.\n" BHCYN "touch" CRESET "\t - Creates files.\n" BHCYN "reset" CRESET "\t - Resets commands & variables.\n" BHCYN "asn" CRESET "\t - asn shell, used to run file containing commands.\n";
     String tmp_str = str_new(help_buf);
     str_append(&ret.str, tmp_str);
     str_free(tmp_str);
@@ -256,11 +257,43 @@ struct cmd_return b_touch(String_Array arr)
     return ret;
 }
 
+struct cmd_return b_reset(String_Array arr)
+{
+    struct cmd_return ret = CMD_RETURN_SUCCESS;
+    str_append(&ret.str, STR("\nResetting shell.\n"));
+    shell_reset();
+    return ret;
+}
+
+struct cmd_return b_asn(String_Array arr)
+{
+    struct cmd_return ret = CMD_RETURN_SUCCESS;
+    size_t i;
+    FILE *default_file = get_input_file();
+    for (i = 1; i < arr.size; i++)
+    {
+        FILE *fd = FOPEN(arr.arr[i].cstr, "r");
+        if (!fd)
+        {
+            str_append(&ret.str, STR("'asn' could not open file.\n"));
+            ret.func_return = 1;
+            ret.success = false;
+            return ret;
+        }
+        set_input_file(fd);
+        shell_loop_test();
+        FCLOSE(fd);
+    }
+    shell_reset();
+    set_input_file(default_file);
+    return ret;
+}
+
 void load_builtins(void)
 {
-    static bool ran = false;
-    if (ran)
+    if (ran_load_builtins)
         return;
+    ran_load_builtins = 1;
     char str_echo[5] = "echo";
     add_internal_cmd(internal_cmd_new(str_new(str_echo), b_echo));
 
@@ -296,5 +329,10 @@ void load_builtins(void)
 
     char str_rmdir[6] = "rmdir";
     add_internal_cmd(internal_cmd_new(str_new(str_rmdir), b_rmdir));
-    ran = true;
+
+    char str_reset[6] = "reset";
+    add_internal_cmd(internal_cmd_new(str_new(str_reset), b_reset));
+
+    char str_asn[6] = "asn";
+    add_internal_cmd(internal_cmd_new(str_new(str_asn), b_asn));
 }

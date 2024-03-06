@@ -19,11 +19,7 @@ void str_arr_free(String_Array arr)
 String str_arr_join(String_Array arr, char seperator)
 {
     /* determine length */
-    size_t i = 0, len = 0;
-    for (i = 0; i < arr.size; i++)
-    {
-        len += arr.arr[i].size + 1; /* +1 for seperator and at the end it will account for the \0 */
-    }
+    size_t i = 0;
     String ret = str_new(NULL);
     char sep[2] = { seperator, '\0'};
     for (i = 0; i < arr.size; i++)
@@ -31,7 +27,6 @@ String str_arr_join(String_Array arr, char seperator)
         str_append(&ret, arr.arr[i]);
         str_append(&ret, STR(sep));
     }
-    ret.cstr[ret.size] = '\0';
     return ret;
 }
 

@@ -34,6 +34,10 @@ If you want to reset the global values like the shell variables and commands you
 Not sure whether or not I should store the external programs found in the path or if I should just call osys whenever the shell doesn't recognize a command.
 
 I think another project I may do is a terminal written in a graphics library and then I'll try integrating my shell.
+## Pipes '|'
+I implemented pipes in a cheaty way. I'm just passing the result string of a command that is being piped
+to the command that it is being piped to as the first argument.
+I do not yet support other similar characters i.e.  **;** , **>**, etc.
 # Commands
 
 So far ASN supports a few simple builtin commands
@@ -49,6 +53,7 @@ So far ASN supports a few simple builtin commands
     mkdir  - Creates new direction with provided path.
     rm - Removes files or directories.
     touch - Creates files.
+    asn - asn shell, used to run file containing commands.
 
 
 Some commands like 'rm' and 'clear' just use the system function to call 'del' or 'rm' depending on if you're using windows or not. I need to fix this, but for now its just a simple solution.
