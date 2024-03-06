@@ -25,10 +25,11 @@ String str_arr_join(String_Array arr, char seperator)
         len += arr.arr[i].size + 1; /* +1 for seperator and at the end it will account for the \0 */
     }
     String ret = str_new(NULL);
+    char sep[2] = { seperator, '\0'};
     for (i = 0; i < arr.size; i++)
     {
         str_append(&ret, arr.arr[i]);
-        str_append(&ret, STR(&seperator));
+        str_append(&ret, STR(sep));
     }
     ret.cstr[ret.size] = '\0';
     return ret;

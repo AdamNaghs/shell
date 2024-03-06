@@ -1,7 +1,7 @@
+cd Test_Dir
 #osys dir | echo
 ls
 mkdir Test_Dir
-cd Test_Dir
 touch Test_File
 mkdir Test_Dir1
 rm Test_File
