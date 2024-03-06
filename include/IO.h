@@ -4,7 +4,6 @@
 #include "colors.h"
 #include <stdio.h> /* FILE */
 
-
 /* TODO
     Get this working, right now we are using getchar
     which only gets stdin.
@@ -16,7 +15,4 @@ bool at_eof(void);
     provide 0 for max_size if you do not care how long the input is */
 String input(char ret_char, size_t max_size);
 
-
-
 #endif /* SHELL_IO */
-
