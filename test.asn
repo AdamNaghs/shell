@@ -6,6 +6,6 @@ mkdir Test_Dir1
 rm Test_File
 rm Test_Dir1
 cd ../
+ls
 rm Test_Dir
-reset
 ls
