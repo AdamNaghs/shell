@@ -68,7 +68,7 @@ struct cmd_return b_ls(String_Array arr)
     struct cmd_return ret = DEFAULT_CMD_RETURN;
     WIN32_FIND_DATA findFileData;
     HANDLE hFind = INVALID_HANDLE_VALUE;
-
+    
     char searchPath[LS_BUF];
     if (arr.size == 1) /* Use the current directory if no arguments are provided */
         snprintf(searchPath, LS_BUF, ".\\*");
@@ -86,6 +86,7 @@ struct cmd_return b_ls(String_Array arr)
     }
     char new_line_char[2] = "\n";
     String new_line_str = {.cstr = new_line_char, .size = 1};
+    str_append(&ret.str,new_line_str);
     do
     {
         String tmp_str = str_new(findFileData.cFileName);
@@ -262,7 +263,7 @@ struct cmd_return b_touch(String_Array arr)
 struct cmd_return b_reset(String_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
-    str_append(&ret.str,STR("Resetting shell.\n"));
+    str_append(&ret.str,STR("\nResetting shell.\n"));
     shell_reset();
     return ret;
 }
