@@ -26,3 +26,4 @@ shell_results/default
 asn
 tmp.txt
 gmon.out
+AFL Fuzzing
