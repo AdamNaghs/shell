@@ -23,15 +23,16 @@ void shell_prelude(void)
     attempt_login_loop();
     load_builtins();
     load_external_commands();
+    init_var_arr();
     prelude_ran = true;
     shell_run = true;
 }
 
 void shell_stop(void)
 {
-    int *builins_loaded = are_builtins_loaded();
-    if (!(*builins_loaded))
+    if (!prelude_ran)
         return;
+    int *builins_loaded = are_builtins_loaded();
     *builins_loaded = 0;
     shell_run = false;
     prelude_ran = 0;

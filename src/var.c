@@ -112,7 +112,7 @@ void free_all_vars(void)
     }
     free(var_arr);
     size = 0;
-    cap = 0;
+    cap = 10;
     ran = 0;
 }
 

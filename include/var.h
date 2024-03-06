@@ -8,6 +8,7 @@ typedef struct
     String value;
 } Variable;
 
+void init_var_arr(void);
 /* return 0 if it read a variable and -1 if it did not, manages variables in an internal array */
 int read_var(String inp);
 
