@@ -1,0 +1,444 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  Ts/call  Ts/call  name    
+ 40.00      0.02     0.02                             __sanitizer::internal_mmap(void*, unsigned long, int, int, int, unsigned long long)
+ 20.00      0.03     0.01                             format_get_value_size(char, char const*, bool)
+ 20.00      0.04     0.01                             __sanitizer::RunMallocHooks(void const*, unsigned long)
+ 20.00      0.05     0.01                             __asan_region_is_poisoned
+  0.00      0.05     0.00    20683     0.00     0.00  str_new
+  0.00      0.05     0.00    20657     0.00     0.00  mystrdup
+  0.00      0.05     0.00    20000     0.00     0.00  set_input_file
+  0.00      0.05     0.00    10432     0.00     0.00  str_free
+  0.00      0.05     0.00    10317     0.00     0.00  add_internal_cmd
+  0.00      0.05     0.00    10317     0.00     0.00  internal_cmd_new
+  0.00      0.05     0.00    10302     0.00     0.00  load_external_from_file
+  0.00      0.05     0.00    10302     0.00     0.00  str_contains_str
+  0.00      0.05     0.00    10012     0.00     0.00  at_eof
+  0.00      0.05     0.00    10012     0.00     0.00  shell_prelude
+  0.00      0.05     0.00    10000     0.00     0.00  shell_loop_test
+  0.00      0.05     0.00    10000     0.00     0.00  test_shell_loop
+  0.00      0.05     0.00      227     0.00     0.00  str_equal
+  0.00      0.05     0.00       96     0.00     0.00  str_append
+  0.00      0.05     0.00       57     0.00     0.00  is_dir
+  0.00      0.05     0.00       52     0.00     0.00  load_external_from_folder
+  0.00      0.05     0.00       47     0.00     0.00  cstr_len
+  0.00      0.05     0.00       33     0.00     0.00  str_contains_char
+  0.00      0.05     0.00       22     0.00     0.00  str_count
+  0.00      0.05     0.00       22     0.00     0.00  str_split_as_view
+  0.00      0.05     0.00       21     0.00     0.00  find_internal_cmd
+  0.00      0.05     0.00       14     0.00     0.00  str_remove_trailing_whitespace
+  0.00      0.05     0.00       12     0.00     0.00  input
+  0.00      0.05     0.00       12     0.00     0.00  shell_loop_manual_step
+  0.00      0.05     0.00       12     0.00     0.00  shell_loop_step
+  0.00      0.05     0.00       11     0.00     0.00  paste_vars
+  0.00      0.05     0.00       11     0.00     0.00  read_var
+  0.00      0.05     0.00       10     0.00     0.00  b_time
+  0.00      0.05     0.00        5     0.00     0.00  str_arr_join
+  0.00      0.05     0.00        4     0.00     0.00  str_arr_free
+  0.00      0.05     0.00        4     0.00     0.00  str_split
+  0.00      0.05     0.00        3     0.00     0.00  b_ls
+  0.00      0.05     0.00        3     0.00     0.00  b_rm
+  0.00      0.05     0.00        2     0.00     0.00  MKDIR
+  0.00      0.05     0.00        2     0.00     0.00  b_cd
+  0.00      0.05     0.00        2     0.00     0.00  b_mkdir
+  0.00      0.05     0.00        1     0.00     0.00  attempt_login_loop
+  0.00      0.05     0.00        1     0.00     0.00  b_touch
+  0.00      0.05     0.00        1     0.00     0.00  bind_signals
+  0.00      0.05     0.00        1     0.00     0.00  load_builtins
+  0.00      0.05     0.00        1     0.00     0.00  load_external_commands
+  0.00      0.05     0.00        1     0.00     0.00  test_str_split
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+Copyright (C) 2012-2022 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 4 byte(s) for 20.00% of 0.05 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]     40.0    0.02    0.00                 __sanitizer::internal_mmap(void*, unsigned long, int, int, int, unsigned long long) [1]
+-----------------------------------------------
+                                                 <spontaneous>
+[2]     20.0    0.01    0.00                 format_get_value_size(char, char const*, bool) [2]
+-----------------------------------------------
+                                                 <spontaneous>
+[3]     20.0    0.01    0.00                 __sanitizer::RunMallocHooks(void const*, unsigned long) [3]
+-----------------------------------------------
+                                                 <spontaneous>
+[4]     20.0    0.01    0.00                 __asan_region_is_poisoned [4]
+-----------------------------------------------
+                0.00    0.00       1/20683       b_touch [42]
+                0.00    0.00       2/20683       b_mkdir [40]
+                0.00    0.00       2/20683       b_cd [39]
+                0.00    0.00       3/20683       b_rm [37]
+                0.00    0.00       5/20683       str_arr_join [33]
+                0.00    0.00      10/20683       b_time [32]
+                0.00    0.00      15/20683       load_builtins [44]
+                0.00    0.00      41/20683       b_ls [36]
+                0.00    0.00   20604/20683       load_external_from_file [11]
+[5]      0.0    0.00    0.00   20683         str_new [5]
+                0.00    0.00   20657/20657       mystrdup [6]
+-----------------------------------------------
+                0.00    0.00   20657/20657       str_new [5]
+[6]      0.0    0.00    0.00   20657         mystrdup [6]
+-----------------------------------------------
+                0.00    0.00   20000/20000       test_shell_loop [16]
+[7]      0.0    0.00    0.00   20000         set_input_file [7]
+-----------------------------------------------
+                0.00    0.00       2/10432       b_cd [39]
+                0.00    0.00       3/10432       b_rm [37]
+                0.00    0.00      10/10432       b_time [32]
+                0.00    0.00      11/10432       shell_loop_manual_step [28]
+                0.00    0.00      12/10432       shell_loop_step [29]
+                0.00    0.00      38/10432       b_ls [36]
+                0.00    0.00      54/10432       str_arr_free [34]
+                0.00    0.00   10302/10432       load_external_from_file [11]
+[8]      0.0    0.00    0.00   10432         str_free [8]
+-----------------------------------------------
+                0.00    0.00      15/10317       load_builtins [44]
+                0.00    0.00   10302/10317       load_external_from_file [11]
+[9]      0.0    0.00    0.00   10317         add_internal_cmd [9]
+-----------------------------------------------
+                0.00    0.00      15/10317       load_builtins [44]
+                0.00    0.00   10302/10317       load_external_from_file [11]
+[10]     0.0    0.00    0.00   10317         internal_cmd_new [10]
+-----------------------------------------------
+                0.00    0.00       2/10302       load_external_commands [45]
+                0.00    0.00   10300/10302       load_external_from_folder [20]
+[11]     0.0    0.00    0.00   10302         load_external_from_file [11]
+                0.00    0.00   20604/20683       str_new [5]
+                0.00    0.00   10302/10302       str_contains_str [12]
+                0.00    0.00   10302/10317       internal_cmd_new [10]
+                0.00    0.00   10302/10317       add_internal_cmd [9]
+                0.00    0.00   10302/10432       str_free [8]
+-----------------------------------------------
+                0.00    0.00   10302/10302       load_external_from_file [11]
+[12]     0.0    0.00    0.00   10302         str_contains_str [12]
+-----------------------------------------------
+                0.00    0.00   10012/10012       shell_loop_test [15]
+[13]     0.0    0.00    0.00   10012         at_eof [13]
+-----------------------------------------------
+                0.00    0.00      12/10012       shell_loop_manual_step [28]
+                0.00    0.00   10000/10012       shell_loop_test [15]
+[14]     0.0    0.00    0.00   10012         shell_prelude [14]
+                0.00    0.00       1/1           attempt_login_loop [41]
+                0.00    0.00       1/1           bind_signals [43]
+                0.00    0.00       1/1           load_external_commands [45]
+                0.00    0.00       1/1           load_builtins [44]
+-----------------------------------------------
+                0.00    0.00   10000/10000       test_shell_loop [16]
+[15]     0.0    0.00    0.00   10000         shell_loop_test [15]
+                0.00    0.00   10012/10012       at_eof [13]
+                0.00    0.00   10000/10012       shell_prelude [14]
+                0.00    0.00      12/12          shell_loop_step [29]
+-----------------------------------------------
+                0.00    0.00   10000/10000       main [231]
+[16]     0.0    0.00    0.00   10000         test_shell_loop [16]
+                0.00    0.00   20000/20000       set_input_file [7]
+                0.00    0.00   10000/10000       shell_loop_test [15]
+-----------------------------------------------
+                0.00    0.00     227/227         find_internal_cmd [25]
+[17]     0.0    0.00    0.00     227         str_equal [17]
+-----------------------------------------------
+                0.00    0.00      10/96          b_time [32]
+                0.00    0.00      10/96          str_arr_join [33]
+                0.00    0.00      76/96          b_ls [36]
+[18]     0.0    0.00    0.00      96         str_append [18]
+-----------------------------------------------
+                0.00    0.00       3/57          b_rm [37]
+                0.00    0.00      54/57          load_external_commands [45]
+[19]     0.0    0.00    0.00      57         is_dir [19]
+-----------------------------------------------
+                0.00    0.00      52/52          load_external_commands [45]
+[20]     0.0    0.00    0.00      52         load_external_from_folder [20]
+                0.00    0.00   10300/10302       load_external_from_file [11]
+-----------------------------------------------
+                0.00    0.00       2/47          load_external_commands [45]
+                0.00    0.00       5/47          str_arr_join [33]
+                0.00    0.00       6/47          test_str_split [46]
+                0.00    0.00      10/47          b_time [32]
+                0.00    0.00      24/47          shell_loop_manual_step [28]
+[21]     0.0    0.00    0.00      47         cstr_len [21]
+-----------------------------------------------
+                0.00    0.00      11/33          shell_loop_manual_step [28]
+                0.00    0.00      11/33          read_var [31]
+                0.00    0.00      11/33          paste_vars [30]
+[22]     0.0    0.00    0.00      33         str_contains_char [22]
+-----------------------------------------------
+                0.00    0.00      22/22          shell_loop_manual_step [28]
+[23]     0.0    0.00    0.00      22         str_count [23]
+-----------------------------------------------
+                0.00    0.00      22/22          shell_loop_manual_step [28]
+[24]     0.0    0.00    0.00      22         str_split_as_view [24]
+-----------------------------------------------
+                0.00    0.00      10/21          b_time [32]
+                0.00    0.00      11/21          shell_loop_manual_step [28]
+[25]     0.0    0.00    0.00      21         find_internal_cmd [25]
+                0.00    0.00     227/227         str_equal [17]
+-----------------------------------------------
+                0.00    0.00       2/14          b_cd [39]
+                0.00    0.00      12/14          shell_loop_manual_step [28]
+[26]     0.0    0.00    0.00      14         str_remove_trailing_whitespace [26]
+-----------------------------------------------
+                0.00    0.00      12/12          shell_loop_step [29]
+[27]     0.0    0.00    0.00      12         input [27]
+-----------------------------------------------
+                0.00    0.00      12/12          shell_loop_step [29]
+[28]     0.0    0.00    0.00      12         shell_loop_manual_step [28]
+                0.00    0.00      24/47          cstr_len [21]
+                0.00    0.00      22/22          str_count [23]
+                0.00    0.00      22/22          str_split_as_view [24]
+                0.00    0.00      12/10012       shell_prelude [14]
+                0.00    0.00      12/14          str_remove_trailing_whitespace [26]
+                0.00    0.00      11/33          str_contains_char [22]
+                0.00    0.00      11/11          read_var [31]
+                0.00    0.00      11/11          paste_vars [30]
+                0.00    0.00      11/21          find_internal_cmd [25]
+                0.00    0.00      11/10432       str_free [8]
+                0.00    0.00      10/10          b_time [32]
+                0.00    0.00       1/2           b_cd [39]
+-----------------------------------------------
+                0.00    0.00      12/12          shell_loop_test [15]
+[29]     0.0    0.00    0.00      12         shell_loop_step [29]
+                0.00    0.00      12/12          input [27]
+                0.00    0.00      12/12          shell_loop_manual_step [28]
+                0.00    0.00      12/10432       str_free [8]
+-----------------------------------------------
+                0.00    0.00      11/11          shell_loop_manual_step [28]
+[30]     0.0    0.00    0.00      11         paste_vars [30]
+                0.00    0.00      11/33          str_contains_char [22]
+-----------------------------------------------
+                0.00    0.00      11/11          shell_loop_manual_step [28]
+[31]     0.0    0.00    0.00      11         read_var [31]
+                0.00    0.00      11/33          str_contains_char [22]
+-----------------------------------------------
+                0.00    0.00      10/10          shell_loop_manual_step [28]
+[32]     0.0    0.00    0.00      10         b_time [32]
+                0.00    0.00      10/20683       str_new [5]
+                0.00    0.00      10/21          find_internal_cmd [25]
+                0.00    0.00      10/10432       str_free [8]
+                0.00    0.00      10/47          cstr_len [21]
+                0.00    0.00      10/96          str_append [18]
+                0.00    0.00       3/3           b_ls [36]
+                0.00    0.00       3/3           b_rm [37]
+                0.00    0.00       2/2           b_mkdir [40]
+                0.00    0.00       1/1           b_touch [42]
+                0.00    0.00       1/2           b_cd [39]
+-----------------------------------------------
+                0.00    0.00       2/5           b_cd [39]
+                0.00    0.00       3/5           b_rm [37]
+[33]     0.0    0.00    0.00       5         str_arr_join [33]
+                0.00    0.00      10/96          str_append [18]
+                0.00    0.00       5/20683       str_new [5]
+                0.00    0.00       5/47          cstr_len [21]
+-----------------------------------------------
+                0.00    0.00       1/4           load_external_commands [45]
+                0.00    0.00       3/4           test_str_split [46]
+[34]     0.0    0.00    0.00       4         str_arr_free [34]
+                0.00    0.00      54/10432       str_free [8]
+-----------------------------------------------
+                0.00    0.00       1/4           load_external_commands [45]
+                0.00    0.00       3/4           test_str_split [46]
+[35]     0.0    0.00    0.00       4         str_split [35]
+-----------------------------------------------
+                0.00    0.00       3/3           b_time [32]
+[36]     0.0    0.00    0.00       3         b_ls [36]
+                0.00    0.00      76/96          str_append [18]
+                0.00    0.00      41/20683       str_new [5]
+                0.00    0.00      38/10432       str_free [8]
+-----------------------------------------------
+                0.00    0.00       3/3           b_time [32]
+[37]     0.0    0.00    0.00       3         b_rm [37]
+                0.00    0.00       3/20683       str_new [5]
+                0.00    0.00       3/5           str_arr_join [33]
+                0.00    0.00       3/57          is_dir [19]
+                0.00    0.00       3/10432       str_free [8]
+-----------------------------------------------
+                0.00    0.00       2/2           b_mkdir [40]
+[38]     0.0    0.00    0.00       2         MKDIR [38]
+-----------------------------------------------
+                0.00    0.00       1/2           shell_loop_manual_step [28]
+                0.00    0.00       1/2           b_time [32]
+[39]     0.0    0.00    0.00       2         b_cd [39]
+                0.00    0.00       2/20683       str_new [5]
+                0.00    0.00       2/5           str_arr_join [33]
+                0.00    0.00       2/14          str_remove_trailing_whitespace [26]
+                0.00    0.00       2/10432       str_free [8]
+-----------------------------------------------
+                0.00    0.00       2/2           b_time [32]
+[40]     0.0    0.00    0.00       2         b_mkdir [40]
+                0.00    0.00       2/20683       str_new [5]
+                0.00    0.00       2/2           MKDIR [38]
+-----------------------------------------------
+                0.00    0.00       1/1           shell_prelude [14]
+[41]     0.0    0.00    0.00       1         attempt_login_loop [41]
+-----------------------------------------------
+                0.00    0.00       1/1           b_time [32]
+[42]     0.0    0.00    0.00       1         b_touch [42]
+                0.00    0.00       1/20683       str_new [5]
+-----------------------------------------------
+                0.00    0.00       1/1           shell_prelude [14]
+[43]     0.0    0.00    0.00       1         bind_signals [43]
+-----------------------------------------------
+                0.00    0.00       1/1           shell_prelude [14]
+[44]     0.0    0.00    0.00       1         load_builtins [44]
+                0.00    0.00      15/20683       str_new [5]
+                0.00    0.00      15/10317       internal_cmd_new [10]
+                0.00    0.00      15/10317       add_internal_cmd [9]
+-----------------------------------------------
+                0.00    0.00       1/1           shell_prelude [14]
+[45]     0.0    0.00    0.00       1         load_external_commands [45]
+                0.00    0.00      54/57          is_dir [19]
+                0.00    0.00      52/52          load_external_from_folder [20]
+                0.00    0.00       2/47          cstr_len [21]
+                0.00    0.00       2/10302       load_external_from_file [11]
+                0.00    0.00       1/4           str_split [35]
+                0.00    0.00       1/4           str_arr_free [34]
+-----------------------------------------------
+                0.00    0.00       1/1           main [231]
+[46]     0.0    0.00    0.00       1         test_str_split [46]
+                0.00    0.00       6/47          cstr_len [21]
+                0.00    0.00       3/4           str_split [35]
+                0.00    0.00       3/4           str_arr_free [34]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function is in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+Copyright (C) 2012-2022 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+Index by function name
+
+  [38] MKDIR                  [25] find_internal_cmd      [18] str_append
+   [2] format_get_value_size(char, char const*, bool) [27] input [34] str_arr_free
+   [1] __sanitizer::internal_mmap(void*, unsigned long, int, int, int, unsigned long long) [10] internal_cmd_new [33] str_arr_join
+   [3] __sanitizer::RunMallocHooks(void const*, unsigned long) [19] is_dir [22] str_contains_char
+   [4] __asan_region_is_poisoned [44] load_builtins       [12] str_contains_str
+   [9] add_internal_cmd       [45] load_external_commands [23] str_count
+  [13] at_eof                 [11] load_external_from_file [17] str_equal
+  [41] attempt_login_loop     [20] load_external_from_folder [8] str_free
+  [39] b_cd                    [6] mystrdup                [5] str_new
+  [36] b_ls                   [30] paste_vars             [26] str_remove_trailing_whitespace
+  [40] b_mkdir                [31] read_var               [35] str_split
+  [37] b_rm                    [7] set_input_file         [24] str_split_as_view
+  [32] b_time                 [28] shell_loop_manual_step [16] test_shell_loop
+  [42] b_touch                [29] shell_loop_step        [46] test_str_split
+  [43] bind_signals           [15] shell_loop_test
+  [21] cstr_len               [14] shell_prelude
