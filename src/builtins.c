@@ -3,6 +3,7 @@
 #include "../include/builtins.h" /* load_builtins*/
 #include "../include/cmd.h"      /* get_internal_cmd_list, size, add*/
 #include "../include/utils.h"    /* is_dir */
+#include "../include/shell.h"   /* shell_stop*/
 #include <stdlib.h>              /* getenv, malloc, realloc, free */
 #include <string.h>
 #include <stdbool.h>
@@ -195,8 +196,8 @@ struct cmd_return b_exit(String_Array arr)
         str_free(list[i].name);
     free(list);
     free_all_vars();
-    printf(GRN "Exitting...\n" CRESET);
-    exit(1);
+    str_append(&ret.str,STR(GRN "\nExitting...\n" CRESET));
+    shell_stop();
     return ret;
 }
 

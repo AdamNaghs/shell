@@ -3,16 +3,18 @@
 #include "../include/shell.h"
 #include "../include/credentials.h"
 #include "../include/utils.h"
+#include <time.h>
 void test_shell_loop(void)
 {
+    clock_t start = clock();
     char mode[2] = "r";
     char path[9] = "Test.txt";
     FILE *f = FOPEN(path, mode);
     set_input_file(f);
-    while (!at_eof())
-        shell_loop_step(true);
+    shell_loop_test();
     set_input_file(stdin);
     FCLOSE(f);
+    printf("\nTest File Runtime: %lums\n",clock()-start);
 }
 
 int main(void)

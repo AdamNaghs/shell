@@ -6,6 +6,7 @@
 #include "../include/credentials.h"
 #include "../include/var.h"
 #include "../include/utils.h"
+#include "../include/IO.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -20,6 +21,13 @@ void shell_prelude(void)
     ran++;
 }
 #define CWD_BUF 4096
+
+static bool run = true;
+
+void shell_stop(void)
+{
+    run = false;
+}
 
 void shell_loop_step(bool print_input)
 {
@@ -102,10 +110,20 @@ void shell_loop_step(bool print_input)
         str_free(ret.str);
 }
 
+void shell_loop_test()
+{
+    shell_prelude();
+    while (run && !at_eof())
+    {
+        shell_loop_step(true);
+    }
+}
+
+
 void shell_loop(void)
 {
     shell_prelude();
-    while (1)
+    while (run)
     {
         shell_loop_step(false);
     }
