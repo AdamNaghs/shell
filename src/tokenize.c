@@ -20,56 +20,6 @@ void tok_arr_add(Token_Array *ta, size_t *ta_cap, Token tok)
     ta->arr[ta->size++] = tok;
 }
 
-Token_Array tokenize1(String line)
-{
-    size_t cap = 10;
-    Token_Array ret = {.arr = (Token *)malloc(cap * sizeof(Token)), .size = 0};
-
-    size_t start_idx = 0;  // Start index of a token
-    bool in_token = false; // Are we currently in a token
-
-    for (size_t i = 0; i <= line.size; i++)
-    {
-        if (isspace(line.cstr[i]) || ispunct(line.cstr[i]) || i == line.size)
-        {
-            if (in_token)
-            {
-                // End of the current token
-                size_t token_length = i - start_idx;
-                String s = str_new_n(line.cstr + start_idx, token_length);
-
-                Token t = {.str = s, .type = STRING}; // Assuming WORD is a token type
-                tok_arr_add(&ret, &cap, t);
-
-                in_token = false;
-            }
-
-            if (ispunct(line.cstr[i]))
-            {
-                // It's a punctuation character
-                char tmp[2] = {line.cstr[i], '\0'};
-                Token t = {.str = str_new(tmp), .type = PUNCT};
-                tok_arr_add(&ret, &cap, t);
-            }
-        }
-        else if (!in_token)
-        {
-            // Start of a new token
-            start_idx = i;
-            in_token = true;
-        }
-    }
-
-    return ret;
-}
-
-#include <ctype.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-
-// Assuming Token, Token_Array, and other relevant structures and enums are defined
-
 Token_Array tokenize(String line)
 {
     size_t cap = 10;
