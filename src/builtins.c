@@ -300,13 +300,15 @@ struct cmd_return b_asn(String_Array arr)
     // printf("Test File(s) Runtime: %lums",clock()-start);
     return ret;
 }
+#define TIME_BUF 256
+
 struct cmd_return b_time(String_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     if (arr.size <= 1)
     {
-        char buf[256];
-        snprintf(buf, 256, "%lld\n", time(NULL));
+        char buf[TIME_BUF];
+        snprintf(buf, TIME_BUF, "%lld\n", time(NULL));
         str_append(&ret.str, STR(buf));
         return ret;
     }
@@ -322,8 +324,8 @@ struct cmd_return b_time(String_Array arr)
     }
     str_free(ret.str);
     ret = cmd->func(tmp_arr);
-    char buf[256];
-    snprintf(buf, 256, "\n'%s' ran in: %ldms", tmp_arr.arr[0].cstr, clock() - start);
+    char buf[TIME_BUF];
+    snprintf(buf, TIME_BUF, "\n'%s' ran in: %ldms", tmp_arr.arr[0].cstr, clock() - start);
     str_append(&ret.str, STR(buf));
     return ret;
 }
