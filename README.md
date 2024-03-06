@@ -34,6 +34,10 @@ If you want to reset the global values like the shell variables and commands you
 Not sure whether or not I should store the external programs found in the path or if I should just call osys whenever the shell doesn't recognize a command.
 
 I think another project I may do is a terminal written in a graphics library and then I'll try integrating my shell.
+## Pipes '|'
+I implemented pipes in a cheaty way. I'm just passing the result string of a command that is being piped
+to the command that it is being piped to as the first argument.
+I do not yet support other similar characters i.e.  **;** , **>**, etc.
 # Commands
 
 So far ASN supports a few simple builtin commands
