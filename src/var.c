@@ -120,7 +120,8 @@ void free_all_vars(void)
 void paste_vars(char prefix, String *string)
 {
     signed long long idx = str_contains_char(*string, prefix);
-    if (idx == -1 || (unsigned long long)idx + 1 >= string->size || !isalpha(string->cstr[idx + 1])) {
+    if (idx == -1 || (unsigned long long)idx + 1 >= string->size || !isalpha(string->cstr[idx + 1]))
+    {
         /* Either no prefix found, or the next character after the prefix is not a letter*/
         return;
     }
@@ -155,8 +156,10 @@ void paste_vars(char prefix, String *string)
         str_append(&ret, (String){.cstr = string->cstr + end_idx, .size = string->size - end_idx});
     }
 
-    str_free(*string);
+    String temp = *string;
     *string = ret;
+    ret = temp;
+    str_free(ret);
 
     /* Check if there are more variables to replace */
     paste_vars(prefix, string);

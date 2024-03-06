@@ -21,3 +21,7 @@ asn.lib
 asn.pdb
 a.out
 str_split_results/default
+str_new_results/default
+shell_results/default
+asn
+tmp.txt

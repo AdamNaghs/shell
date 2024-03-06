@@ -4,7 +4,7 @@
 
 #define MAX_STR 10000
 
-static FILE *input_file = NULL;
+FILE *input_file = NULL;
 
 void set_input_file(FILE *fd)
 {

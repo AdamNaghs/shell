@@ -49,6 +49,7 @@ void free_all_commands(void)
         str_free(list[i].name);
     }
     cmd_arr_len = 0;
+    free(list);
 }
 
 void add_internal_cmd(struct internal_cmd cmd)

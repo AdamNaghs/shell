@@ -4,7 +4,10 @@
 #include <stdio.h>
 void str_free(String str)
 {
+    if (!str.cstr)
+        return;
     free(str.cstr);
+    str.cstr = NULL;
 }
 
 char *mystrdup(char *str, unsigned long long *ret_size)
@@ -50,6 +53,30 @@ String str_new(char *str)
     }
     String ret;
     ret.cstr = mystrdup(str, &ret.size);
+    return ret;
+}
+
+char *mystrdup_n(char *str, unsigned long long ret_size)
+{
+    char *ret = (char *)malloc(ret_size * sizeof(char) + 1);
+    size_t i = 0;
+    while (i < ret_size && str[i] != '\0')
+    {
+        ret[i] = str[i];
+        i++;
+    }
+    ret[ret_size] = '\0';
+    return ret;
+}
+String str_new_n(char *str, size_t size)
+{
+    if (!str)
+    {
+        return str_new(NULL);
+    }
+    String ret;
+    ret.cstr = mystrdup_n(str, size);
+    ret.size = size;
     return ret;
 }
 
@@ -135,7 +162,13 @@ void str_append(String *dest, String end)
         exit(1);
     }
     dest->cstr = tmp;
-
+    if (!end.cstr)
+        return;
+    if (!dest->cstr)
+    {
+        *dest = str_new(end.cstr);
+        return;
+    }
     if (memcpy(dest->cstr + offset, end.cstr, end.size) == NULL)
     {
         perror("Failed to memcpy 'end' to 'dest'.\n");
@@ -147,6 +180,8 @@ void str_append(String *dest, String end)
 
 bool str_equal(String a, String b)
 {
+    if (!(a.cstr && b.cstr))
+        return false;
     return a.size == b.size && !memcmp(a.cstr, b.cstr, a.size);
 }
 
@@ -194,11 +229,29 @@ void str_replace_all(String *str, char find, char replace)
     }
 }
 
-size_t cstr_len(char* str)
+size_t cstr_len(char *str)
 {
     size_t i;
     for (i = 0; str[i] != '\0'; i++)
     {
     }
     return i;
+}
+
+void str_remove_trailing_whitespace(String *str)
+{
+    if (!str->size)
+        return;
+    size_t i = str->size - 1;
+    for (; i >= 0; i--)
+    {
+        char *c = &str->cstr[i];
+        if (*c == ' ' || *c == '\t' || *c == '\n' || *c == '\r')
+        {
+            *c = '\0';
+            str->size--;
+        }
+        else
+            break;
+    }
 }

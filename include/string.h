@@ -18,6 +18,8 @@ signed long long str_contains_str(String str, String c);
 
 String str_new(char* str);
 
+String str_new_n(char *str, size_t size);
+
 void str_append(String* dest, String end);
 
 void str_free(String str);
@@ -28,6 +30,8 @@ size_t cstr_len(char* str);
 
 /* count occurences of delim */
 size_t str_count(String str, String delim);
+
+void str_remove_trailing_whitespace(String* str);
 
 void str_replace_all(String* str, char find, char replace);
 
