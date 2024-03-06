@@ -1,4 +1,5 @@
 #include "../include/utils.h"
+#include "../include/colors.h"
 #include <stdbool.h>
 #ifdef _WIN32
 #include <windows.h>
@@ -16,17 +17,20 @@ bool is_dir(char *filename)
         return true;
     return false;
 }
-FILE* FOPEN(char *path,char* mode)
+FILE *FOPEN(char *path, char *mode)
 {
-    FILE* f = (FILE*) malloc(sizeof(FILE));
-    if (0 != fopen_s(&f,path,mode))
+    FILE *f = (FILE *)malloc(sizeof(FILE));
+    if (0 != fopen_s(&f, path, mode))
+    {
+        perror(RED"'FOPEN' could not open file.\n"CRESET);
         exit(1);
+    }
 
     return f;
 }
 #define MAX_ENV 16384
 char env_buf[16384];
-char* GETENV(char* path)
+char *GETENV(char *path)
 {
     /*size_t size = MAX_ENV;
     _dupenv_s(&env_buf,&size,path);

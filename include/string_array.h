@@ -21,6 +21,7 @@ String_Array str_split(String str, String delim);
 
 /* create a str array which uses str the memroy of str
     The returned string array doesn't need to be freed but the str does.
+    Views don't play well with str_arr_join
 */
 void str_split_as_view(String_Array* arr, String str,String delim);
 

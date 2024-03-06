@@ -89,7 +89,7 @@ signed long long str_contains_str(String str, String c)
     return -1;
 }
 
-void str_append(String *dest, String end)
+void str_append1(String *dest, String end)
 {
     if (!dest)
     {
@@ -113,9 +113,41 @@ void str_append(String *dest, String end)
     dest->cstr[dest->size] = '\0';
 }
 
-bool str_equal(String a,String b)
+void str_append(String *dest, String end)
 {
-    return a.size == b.size && !memcmp(a.cstr,b.cstr,a.size);
+    if (!dest)
+    {
+        perror("'str_append' given NULL 'dest'.\n");
+        exit(1);
+    }
+    if (end.size == 0 || end.cstr == NULL)
+    {
+        // Nothing to append
+        return;
+    }
+
+    size_t offset = dest->size;
+    dest->size += end.size;
+    char *tmp = (char *)realloc(dest->cstr, dest->size + 1); // +1 for the null terminator
+    if (!tmp)
+    {
+        perror("Could not realloc 'dest' string in 'str_append'.\n");
+        exit(1);
+    }
+    dest->cstr = tmp;
+
+    if (memcpy(dest->cstr + offset, end.cstr, end.size) == NULL)
+    {
+        perror("Failed to memcpy 'end' to 'dest'.\n");
+        exit(1);
+    }
+
+    dest->cstr[dest->size] = '\0';
+}
+
+bool str_equal(String a, String b)
+{
+    return a.size == b.size && !memcmp(a.cstr, b.cstr, a.size);
 }
 
 size_t str_count(String str, String delim)
@@ -148,4 +180,16 @@ size_t str_count(String str, String delim)
         }
     }
     return found;
+}
+
+void str_replace_all(String *str, char find, char replace)
+{
+    size_t i;
+    for (i = 0; i < str->size; i++)
+    {
+        if (str->cstr[i] == find)
+        {
+            str->cstr[i] = replace;
+        }
+    }
 }

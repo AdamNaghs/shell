@@ -19,20 +19,19 @@ void str_arr_free(String_Array arr)
 String str_arr_join(String_Array arr, char seperator)
 {
     /* determine length */
-    size_t i, tmp = 0, len = 0;
+    size_t i = 0, len = 0;
     for (i = 0; i < arr.size; i++)
     {
         len += arr.arr[i].size + 1; /* +1 for seperator and at the end it will account for the \0 */
     }
-    String ret = {.cstr = (char *)malloc(len * sizeof(char) + 1), .size = len - 1};
+    String ret = str_new(NULL);
+    char sep[2] = { seperator, '\0'};
     for (i = 0; i < arr.size; i++)
     {
-        memcpy(ret.cstr + tmp, arr.arr[i].cstr, arr.arr[i].size);
-        tmp += arr.arr[i].size;
-        ret.cstr[tmp] = seperator;
-        tmp++;
+        str_append(&ret, arr.arr[i]);
+        str_append(&ret, STR(sep));
     }
-    ret.cstr[tmp] = '\0';
+    ret.cstr[ret.size] = '\0';
     return ret;
 }
 
@@ -83,10 +82,10 @@ String_Array str_split(String str, String delim)
             memcpy(new_str.cstr, str.cstr + word_start, new_str.size);
             new_str.cstr[new_str.size] = '\0';
             word_start = ++delim_idx;
-             if (found >= ret.size)
+            if (found >= ret.size)
             {
                 ret.size *= 2;
-                String* tmp = (String *)realloc(ret.arr, ret.size * sizeof(String));
+                String *tmp = (String *)realloc(ret.arr, ret.size * sizeof(String));
                 if (!tmp)
                 {
                     perror(RED "'str_split' could not realloc ret.arr 0.\n" CRESET);
@@ -123,10 +122,10 @@ String_Array str_split(String str, String delim)
     }
     return ret;
 }
-/* create a str array which uses str the memroy of str 
+/* create a str array which uses str the memroy of str
     The returned string array doesn't need to be freed but the str does.
 */
-void str_split_as_view(String_Array* arr, String str, String delim)
+void str_split_as_view(String_Array *arr, String str, String delim)
 {
     size_t word_start = 0, delim_idx, i, j, found = 0;
 
@@ -180,6 +179,7 @@ void str_split_as_view(String_Array* arr, String str, String delim)
             }
             arr->arr[found].size = end_idx - (arr->arr[found].cstr - str.cstr);
             str.cstr[end_idx] = '\0';
+            str.size = end_idx;
 
             found++;
             word_start = delim_idx + 1; // Move past the delimiter
@@ -190,19 +190,19 @@ void str_split_as_view(String_Array* arr, String str, String delim)
     if (found > 0)
     {
         size_t last_idx = found - 1;
-        size_t last_char_idx = arr->arr[last_idx].cstr - str.cstr + arr->arr[last_idx].size;
+        String *last_string = &arr->arr[last_idx];
 
-        while (last_char_idx < str.size && strchr(delim.cstr, str.cstr[last_char_idx]) != NULL)
+        // Move backwards from the end of the last substring until you find a non-delimiter
+        size_t actual_end_idx = last_string->cstr - str.cstr + last_string->size;
+        while (actual_end_idx > 0 && strchr(delim.cstr, str.cstr[actual_end_idx - 1]) != NULL)
         {
-            last_char_idx++;
+            actual_end_idx--;
         }
 
-        arr->arr[last_idx].size = last_char_idx - (arr->arr[last_idx].cstr - str.cstr);
+        // Update the size of the last substring
+        last_string->size = actual_end_idx - (last_string->cstr - str.cstr);
 
-        /* Add null terminator after skipping trailing delimiters */
-        if (arr->arr[last_idx].size > 0)
-        {
-            str.cstr[arr->arr[last_idx].cstr - str.cstr + arr->arr[last_idx].size] = '\0';
-        }
+        // Add null terminator
+        str.cstr[actual_end_idx] = '\0';
     }
 }
