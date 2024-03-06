@@ -16,3 +16,8 @@ obj/utils.o
 obj/var.o
 obj/string_array.o
 asn.exe
+asn.exp
+asn.lib
+asn.pdb
+a.out
+str_split_results/default

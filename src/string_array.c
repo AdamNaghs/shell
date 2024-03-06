@@ -15,6 +15,7 @@ void str_arr_free(String_Array arr)
             str_free(arr.arr[i]);
     }
     free(arr.arr);
+    arr.arr = NULL;
 }
 
 String str_arr_join(String_Array arr, char seperator)
@@ -50,7 +51,14 @@ void str_arr_replace(String_Array arr, size_t idx, String new_str)
 }
 String_Array str_split(String str, String delim)
 {
-    String_Array ret = {.arr = (String *)malloc(100 * sizeof(String)), .size = 100};
+    String_Array ret;
+    if (str.size == 0 || str.cstr[0] == '\0')
+    {
+        ret = (String_Array){.arr = (String *)malloc(sizeof(String)), .size = 1};
+        ret.arr[0] = str_new(NULL);
+        return ret;
+    }
+    ret = (String_Array){.arr = (String *)malloc(100 * sizeof(String)), .size = 100};
     size_t word_start = 0, delim_idx, i, j, found = 0;
     /* Skip leading delimiters */
     while (word_start < str.size && strchr(delim.cstr, str.cstr[word_start]) != NULL)
@@ -106,8 +114,6 @@ String_Array str_split(String str, String delim)
     ret.size = found;
     if (!ret.size)
     {
-        if (ret.arr)
-            free(ret.arr);
         return ret;
     }
     ret.arr = (String *)realloc(ret.arr, sizeof(String) * ret.size);
