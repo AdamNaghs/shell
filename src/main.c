@@ -8,7 +8,7 @@ void test_shell_loop(void)
 {
     clock_t start = clock();
     char mode[2] = "r";
-    char path[9] = "test.asn";
+    char path[49] = "C:\\Users\\adamn\\Dropbox\\src\\c code\\shell\\test.asn";
     FILE *f = FOPEN(path, mode);
     set_input_file(f);
     shell_loop_test();

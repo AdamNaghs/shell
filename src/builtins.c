@@ -239,7 +239,9 @@ struct cmd_return b_help(String_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     char help_buf[1000] =
-        BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n" BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n" BHCYN "rm" CRESET "\t - Removes files.\n" BHCYN "rmdir" CRESET "\t - Removes directories.\n" BHCYN "touch" CRESET "\t - Creates files.\n" BHCYN "reset" CRESET "\t - Resets commands & variables.\n" BHCYN "asn" CRESET "\t - asn shell, used to run file containing commands.\n";
+        BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n" BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n" BHCYN "rm" CRESET "\t - Removes files.\n" BHCYN "rmdir" CRESET "\t - Removes directories.\n" BHCYN "touch" CRESET "\t - Creates files.\n" BHCYN "reset" CRESET "\t - Resets commands & variables.\n" 
+        BHCYN "asn" CRESET "\t - asn shell, used to run file containing commands.\n"
+        BHCYN "time" CRESET "\t - Prints runtime of its arguments or time since UNIX epoch.\n";
     String tmp_str = str_new(help_buf);
     str_append(&ret.str, tmp_str);
     str_free(tmp_str);
@@ -297,9 +299,37 @@ struct cmd_return b_asn(String_Array arr)
     }
     shell_reset();
     set_input_file(default_file);
-    printf("Test File(s) Runtime: %lums",clock()-start);
+    //printf("Test File(s) Runtime: %lums",clock()-start);
     return ret;
 }
+struct cmd_return b_time(String_Array arr)
+{
+    struct cmd_return ret = CMD_RETURN_SUCCESS;
+    if (arr.size <= 1)
+    {
+        char buf[256];
+        snprintf(buf,256,"%lld\n",time(NULL));
+        str_append(&ret.str,STR(buf));
+        return ret;
+    }
+    clock_t start = clock();
+    String_Array tmp_arr = {.arr = arr.arr + 1,.size = arr.size - 1};
+    struct internal_cmd* cmd = find_internal_cmd(tmp_arr.arr[0]);
+    if (!cmd)
+    {
+        str_append(&ret.str,STR("asn: time: Could not find command.\n"));
+        ret.func_return = 1;
+        ret.success = false;
+        return ret;
+    }
+    str_free(ret.str);
+    ret = cmd->func(tmp_arr);
+    char buf[256];
+    snprintf(buf,256,"\n'%s' ran in: %ldms",tmp_arr.arr[0].cstr,clock() - start);
+    str_append(&ret.str,STR(buf));
+    return ret;
+}
+
 
 
 void load_builtins(void)
@@ -346,6 +376,9 @@ void load_builtins(void)
     char str_reset[6] = "reset";
     add_internal_cmd(internal_cmd_new(str_new(str_reset), b_reset));
 
-    char str_asn[6] = "asn";
+    char str_asn[4] = "asn";
     add_internal_cmd(internal_cmd_new(str_new(str_asn), b_asn));
+
+    char str_time[5] = "time";
+    add_internal_cmd(internal_cmd_new(str_new(str_time), b_time));
 }
