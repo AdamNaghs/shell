@@ -193,3 +193,12 @@ void str_replace_all(String *str, char find, char replace)
         }
     }
 }
+
+size_t cstr_len(char* str)
+{
+    size_t i;
+    for (i = 0; str[i] != '\0'; i++)
+    {
+    }
+    return i;
+}
