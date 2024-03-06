@@ -7,15 +7,16 @@
 #include "../include/tokenize.h"
 #include <time.h>
 #include <stdlib.h>
+
+#ifdef _WIN32
+char path[49] = "C:\\Users\\adamn\\Dropbox\\src\\c code\\shell\\test.asn";
+#else
+char path[53] = "/mnt/c/Users/adamn/Dropbox/src/c code/shell/test.asn";
+#endif
 void test_shell_loop(void)
 {
     clock_t start = clock();
     char mode[2] = "r";
-#ifdef _WIN32
-    char path[49] = "C:\\Users\\adamn\\Dropbox\\src\\c code\\shell\\test.asn";
-#else
-    char path[53] = "/mnt/c/Users/adamn/Dropbox/src/c code/shell/test.asn";
-#endif
     FILE *f = FOPEN(path, mode);
     set_input_file(f);
     shell_loop_test();
@@ -40,15 +41,22 @@ void test_str_split(void)
 
 void test_tokenize(void)
 {
-    Token_Array ta = tokenize(STR("if arg1 arg2: \"2 3\"\n\r\t "));
-    size_t i = 0;
-    for (; i < ta.size; i++)
+    FILE *fd = FOPEN(path, "r");
+    FILE *tmp_file = get_input_file();
+    set_input_file(fd);
+    while (!at_eof())
     {
-        printf("%s ",ta.arr[i].str.cstr);
+        String s = input('\n', 0);
+        Token_Array ta = tokenize(s);
+        size_t i = 0;
+        for (; i < ta.size; i++)
+            printf("%s ", ta.arr[i].str.cstr);
+        printf("\nSize: %d\n", ta.size);
+        free_token_array(ta);
+        str_free(s);
     }
-    printf("\nSize: %d\n",ta.size);
-    free_token_array(ta);
-    exit(1);
+    set_input_file(tmp_file);
+    exit(0);
 }
 
 int main(void)
@@ -60,7 +68,7 @@ int main(void)
     // test_str_split();
     // for (size_t i = 0; i < 10000; i++)
     //     test_shell_loop();
-    test_tokenize();
+    // test_tokenize();k
     test_shell_loop();
     shell_loop();
     return 0;

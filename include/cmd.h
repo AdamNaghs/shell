@@ -2,10 +2,11 @@
 #define SHELL_CMD_H
 #include <stdbool.h>
 #include "string_array.h"
+#include "tokenize.h"
 
 //#define LOAD_EXTERNALS_DEBUG 
 
-typedef struct cmd_return (*internal_cmd_func)(String_Array);
+typedef struct cmd_return (*internal_cmd_func)(Token_Array);
 
 struct internal_cmd
 {
@@ -37,10 +38,10 @@ size_t get_internal_cmd_list_size(void);
 
 void load_external_commands(void);
 
-struct cmd_return facade_internal_cmd(String_Array cmd);
+struct cmd_return facade_internal_cmd(Token_Array cmd);
 
 void free_all_commands(void);
 
-void capture_system_call(struct cmd_return *ret, String command);
+void capture_system_call(struct cmd_return *ret, Token_Array command);
 
 #endif /* SHELL_CMD_H */

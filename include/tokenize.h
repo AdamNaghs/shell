@@ -45,4 +45,7 @@ void free_token_array(Token_Array);
 
 bool has_minimum_tokens(Token_Type* expected, size_t expected_size, Token_Array given);
 
+/* heap allocated str */
+String token_array_to_str(Token_Array ta, char sep);
+
 #endif /* SHELL_TOKENIZE */

@@ -13,7 +13,6 @@
 static bool prelude_ran = 0;
 static bool shell_run = true;
 
-#define STR_ARRAY_VIEWS
 
 void shell_prelude(void)
 {
@@ -73,8 +72,9 @@ void shell_loop_step(bool print_output, bool print_input)
     size_t i;
     for (i = 0; i < arr.size; i++)
     {
-        shell_print_line_flair();
-        printf("%s\n",arr.arr[i].cstr);
+        if (print_output)
+            shell_print_line_flair();
+        printf("%s\n", arr.arr[i].cstr);
         shell_loop_manual_step(&arr.arr[i], print_input, print_output, true);
     }
     str_free(inp);
@@ -88,7 +88,6 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
     String space_delim = STR(buf);
     String pipe_delim = STR(buf1);
 
-    str_remove_trailing_whitespace(inp);
     struct cmd_return ret = {.success = false, .func_return = 0, .str = {.cstr = NULL, .size = 0}};
     if (print_input)
     {
@@ -106,26 +105,17 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
     }
     paste_vars('$', inp);
     String_Array commands;
-#ifdef STR_ARRAY_VIEWS
-    STR_ARRAY_STACK_ALLOC(commands, str_count(*inp, pipe_delim));
-    str_split_as_view(&commands, *inp, pipe_delim);
-#else
+
     commands = str_split(*inp, pipe_delim);
-#endif
     size_t cmd;
     bool ran = false;
     for (cmd = 0; cmd < commands.size; cmd++)
     {
-        String_Array args;
-#ifdef STR_ARRAY_VIEWS
-        STR_ARRAY_STACK_ALLOC(args, str_count(commands.arr[cmd], space_delim));
-        str_split_as_view(&args, commands.arr[cmd], space_delim);
-#else
-        args = str_split(commands.arr[cmd], space_delim);
-#endif
+        Token_Array args;
+        args = tokenize(commands.arr[cmd]);
         if (!args.size)
             break;
-        struct internal_cmd *int_cmd = find_internal_cmd(args.arr[0]);
+        struct internal_cmd *int_cmd = find_internal_cmd(args.arr[0].str);
         if (int_cmd)
         {
             if (cmd == 0)
@@ -138,18 +128,11 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
                 str_append(&tmp, commands.arr[cmd]);
                 str_append(&tmp, space_delim);
                 str_append(&tmp, ret.str);
-                String_Array piped_command_return;
-#ifdef STR_ARRAY_VIEWS
-                STR_ARRAY_STACK_ALLOC(piped_command_return, str_count(tmp, space_delim));
-                str_split_as_view(&piped_command_return, tmp, space_delim);
-#else
-                piped_command_return = str_split(tmp, space_delim);
-#endif
+                Token_Array piped_command_return;
+                piped_command_return = tokenize(tmp);
                 str_free(ret.str);
                 ret = int_cmd->func(piped_command_return);
-#ifndef STR_ARRAY_VIEWS
-                str_arr_free(piped_command_return);
-#endif
+                free_token_array(piped_command_return);
                 str_free(tmp);
             }
             ran = true;
@@ -164,9 +147,7 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
             // ran = true;
             // printf("asn: Ran file found in path.\n");
         }
-#ifndef STR_ARRAY_VIEWS
-        str_arr_free(args);
-#endif
+        free_token_array(args);
     }
     if (print_output)
     {

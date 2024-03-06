@@ -4,6 +4,7 @@
 #include "../include/cmd.h"      /* get_internal_cmd_list, size, add*/
 #include "../include/utils.h"    /* is_dir */
 #include "../include/shell.h"    /* shell_stop*/
+#include "../include/tokenize.h"
 #include <stdlib.h>              /* getenv, malloc, realloc, free */
 #include <string.h>
 #include <time.h>
@@ -15,7 +16,7 @@ int *are_builtins_loaded(void)
     return &ran_load_builtins;
 }
 
-struct cmd_return b_mkdir(String_Array arr)
+struct cmd_return b_mkdir(Token_Array arr)
 {
     struct cmd_return ret = DEFAULT_CMD_RETURN;
     if (arr.size <= 1)
@@ -24,14 +25,14 @@ struct cmd_return b_mkdir(String_Array arr)
         ret.func_return = 1;
         return ret;
     }
-    String path = arr.arr[1];
+    String path = arr.arr[1].str;
     MKDIR(path.cstr);
     return ret;
 }
 
 #define PWD_BUF 4096
 
-struct cmd_return b_cd(String_Array arr)
+struct cmd_return b_cd(Token_Array arr)
 {
     struct cmd_return ret = DEFAULT_CMD_RETURN;
     if (arr.size == 1)
@@ -39,8 +40,7 @@ struct cmd_return b_cd(String_Array arr)
         ret.func_return = 1;
         return ret;
     }
-    String str = str_arr_join((String_Array){arr.arr + 1, arr.size - 1}, ' ');
-    str_remove_trailing_whitespace(&str);
+    String str = token_array_to_str(arr,' ');
     if (str.size)
         str.cstr[str.size--] = '\0'; /* remove extra ' ' at end */
     if (-1 == CHDIR(str.cstr))
@@ -51,8 +51,8 @@ struct cmd_return b_cd(String_Array arr)
     ret.success = true;
     return ret;
 }
-
-struct cmd_return b_pwd(String_Array arr)
+/* unused param */
+struct cmd_return b_pwd(Token_Array arr)
 {
     struct cmd_return ret = DEFAULT_CMD_RETURN;
     char buf[PWD_BUF];
@@ -61,9 +61,7 @@ struct cmd_return b_pwd(String_Array arr)
         ret.func_return = 1;
         return ret;
     }
-    String tmp_str = str_new(buf);
-    str_append(&ret.str, tmp_str);
-    str_free(tmp_str);
+    str_append(&ret.str, STR(buf));
     ret.success = true;
     return ret;
 }
@@ -71,14 +69,14 @@ struct cmd_return b_pwd(String_Array arr)
 #define LS_BUF 4096
 #ifdef _WIN32
 #include <windows.h>
-struct cmd_return b_ls(String_Array arr)
+struct cmd_return b_ls(Token_Array arr)
 {
     struct cmd_return ret = DEFAULT_CMD_RETURN;
     WIN32_FIND_DATA findFileData;
     HANDLE hFind = INVALID_HANDLE_VALUE;
 
     char searchPath[LS_BUF];
-    String tmp_str = str_arr_join((String_Array){arr.arr + 1, arr.size - 1}, ' ');
+    String tmp_str =token_array_to_str(arr,' ');
     if (tmp_str.size && tmp_str.cstr[tmp_str.size - 1] == ' ')
         tmp_str.cstr[--tmp_str.size] = '\0';
     if (arr.size == 1) /* Use the current directory if no arguments are provided */
@@ -100,7 +98,7 @@ struct cmd_return b_ls(String_Array arr)
     str_append(&ret.str, new_line_str);
     do
     {
-        String tmp_str = str_new(findFileData.cFileName);
+        tmp_str = str_new(findFileData.cFileName);
         str_append(&tmp_str, new_line_str);
         str_append(&ret.str, tmp_str);
         str_free(tmp_str);
@@ -157,27 +155,26 @@ struct cmd_return b_ls(String_Array arr)
 #endif
 
 /* cstdlib */
-struct cmd_return b_echo(String_Array arr)
+struct cmd_return b_echo(Token_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
 
-    if (arr.size == 1)
+    if (arr.size <= 1)
     {
         return ret;
     }
-    String_Array new_arr = {.arr = arr.arr + 1, .size = arr.size - 1};
-    String tmp = str_arr_join(new_arr, ' ');
+    String tmp = token_array_to_str(arr, ' ');
     str_append(&ret.str, tmp);
     str_free(tmp);
     return ret;
 }
 
 #define RM_BUF 4096
-struct cmd_return b_rm(String_Array arr)
+struct cmd_return b_rm(Token_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
 
-    String args = str_arr_join((String_Array){arr.arr + 1, arr.size - 1}, ' ');
+    String args = token_array_to_str(arr, ' ');
     if (is_dir(args.cstr))
     {
         ret.func_return = RMDIR(args.cstr);
@@ -190,11 +187,12 @@ struct cmd_return b_rm(String_Array arr)
     return ret;
 }
 
-struct cmd_return b_rmdir(String_Array arr)
+struct cmd_return b_rmdir(Token_Array arr)
 {
     return b_rm(arr);
 }
-struct cmd_return b_exit(String_Array arr)
+/* unused param */
+struct cmd_return b_exit(Token_Array arr)
 {
     char tmp_char[1] = "";
     struct cmd_return ret = {
@@ -206,8 +204,8 @@ struct cmd_return b_exit(String_Array arr)
     str_append(&ret.str, STR(GRN "\nExitting asn...\n" CRESET));
     return ret;
 }
-
-struct cmd_return b_clear(String_Array arr)
+/* unused param */
+struct cmd_return b_clear(Token_Array arr)
 {
     char tmp_char[1] = "";
     struct cmd_return ret = {
@@ -224,19 +222,14 @@ struct cmd_return b_clear(String_Array arr)
     return ret;
 }
 
-struct cmd_return b_osys(String_Array arr)
+struct cmd_return b_osys(Token_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
-
-    String_Array tmp_arr = {.arr = arr.arr + 1, .size = arr.size - 1};
-    String cmd = str_arr_join(tmp_arr, ' ');
-
-    capture_system_call(&ret, cmd);
-    str_free(cmd);
+    capture_system_call(&ret, arr);
     return ret;
 }
-
-struct cmd_return b_help(String_Array arr)
+/* unused param */
+struct cmd_return b_help(Token_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     char help_buf[1000] =
@@ -247,18 +240,18 @@ struct cmd_return b_help(String_Array arr)
     return ret;
 }
 
-struct cmd_return b_touch(String_Array arr)
+struct cmd_return b_touch(Token_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     static char open_mode[2] = "a";
     size_t i = 1;
     for (; i < arr.size; i++)
     {
-        FILE *f = FOPEN(arr.arr[i].cstr, open_mode);
+        FILE *f = FOPEN(arr.arr[i].str.cstr, open_mode);
         if (!f)
         {
             char tmp[4096];
-            sprintf(tmp, RED "asn: Failed to create file '%s'.\n" CRESET, arr.arr[i].cstr);
+            sprintf(tmp, RED "asn: Failed to create file '%s'.\n" CRESET, arr.arr[i].str.cstr);
             String tmp_str = {tmp, 4096};
             str_append(&ret.str, tmp_str);
             continue;
@@ -268,7 +261,7 @@ struct cmd_return b_touch(String_Array arr)
     return ret;
 }
 
-struct cmd_return b_reset(String_Array arr)
+struct cmd_return b_reset(Token_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     str_append(&ret.str, STR("\nResetting asn.\n"));
@@ -276,7 +269,7 @@ struct cmd_return b_reset(String_Array arr)
     return ret;
 }
 
-struct cmd_return b_asn(String_Array arr)
+struct cmd_return b_asn(Token_Array arr)
 {
     // clock_t start = clock();
     struct cmd_return ret = CMD_RETURN_SUCCESS;
@@ -285,9 +278,7 @@ struct cmd_return b_asn(String_Array arr)
     FILE* def_file = get_input_file();
     for (i = 1; i < arr.size; i++)
     {
-        String tmp_str = str_new_n(arr.arr[i].cstr, arr.arr[i].size);
-        FILE *fd = FOPEN(tmp_str.cstr, mode);
-        str_free(tmp_str);
+        FILE *fd = FOPEN(arr.arr[i].str.cstr, mode);
         if (!fd)
         {
             str_append(&ret.str, STR("asn: Could not open file.\n"));
@@ -313,7 +304,7 @@ struct cmd_return b_asn(String_Array arr)
 }
 #define TIME_BUF 256
 
-struct cmd_return b_time(String_Array arr)
+struct cmd_return b_time(Token_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     if (arr.size <= 1)
@@ -324,8 +315,8 @@ struct cmd_return b_time(String_Array arr)
         return ret;
     }
     clock_t start = clock();
-    String_Array tmp_arr = {.arr = arr.arr + 1, .size = arr.size - 1};
-    struct internal_cmd *cmd = find_internal_cmd(tmp_arr.arr[0]);
+    Token_Array tmp_arr = {.arr = arr.arr + 1, .size = arr.size - 1};
+    struct internal_cmd *cmd = find_internal_cmd(tmp_arr.arr[0].str);
     if (!cmd)
     {
         str_append(&ret.str, STR("asn: time: Could not find command.\n"));
@@ -333,10 +324,9 @@ struct cmd_return b_time(String_Array arr)
         ret.success = false;
         return ret;
     }
-    str_free(ret.str);
     ret = cmd->func(tmp_arr);
     char buf[TIME_BUF];
-    snprintf(buf, TIME_BUF, "\n'%s' ran in: %ldms", tmp_arr.arr[0].cstr, clock() - start);
+    snprintf(buf, TIME_BUF, "\n'%s' ran in: %ldms", tmp_arr.arr[0].str.cstr, clock() - start);
     str_append(&ret.str, STR(buf));
     return ret;
 }
