@@ -127,7 +127,7 @@ void shell_loop_step(bool print_input)
     if (!ran)
         printf("asn: Could not find command '%s'.\n", commands.arr[0].cstr);
     else
-        printf("%s\n", ret.str.cstr);
+        printf("\n%s\n", ret.str.cstr);
     str_arr_free(commands);
     if (ret.str.cstr)
         str_free(ret.str);
