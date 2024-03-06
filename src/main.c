@@ -10,7 +10,11 @@ void test_shell_loop(void)
 {
     clock_t start = clock();
     char mode[2] = "r";
+    #ifdef _WIN32
     char path[49] = "C:\\Users\\adamn\\Dropbox\\src\\c code\\shell\\test.asn";
+    #else
+    char path[9] = "test.asn";
+    #endif
     FILE *f = FOPEN(path, mode);
     set_input_file(f);
     shell_loop_test();
@@ -31,10 +35,9 @@ void test_str_split(void)
     String case2 = STR(" ");
     arr = str_split(case2, STR(" "));
     str_arr_free(arr);
-    exit(0);
 }
 
-int main(void)
+int main1(void)
 {
     /*
     for (int i = 0; i < 10; i++)

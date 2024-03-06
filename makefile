@@ -38,3 +38,7 @@ clean:
 	$(RM) $(OUTNAME).exp
 	$(RM) $(OUTNAME).lib
 	$(RM) $(OUTNAME).pdb
+
+fuzz:
+	afl-clang-fast -g -fsanitize=address,undefined fuzz_test.c $(OBJS)
+	

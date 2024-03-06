@@ -1,10 +1,13 @@
 /* Using WSL Ubuntu 
     |  afl-clang-fast -g -fsanitize=address,undefined fuzz_test.c 
     |  afl-fuzz -i inputs/ -o results ./a.out*/
-#include "src/string_array.c"
-#include "src/string.c"
-#include "src/IO.c"
+#include "include/string_array.h"
+#include "include/string.h"
+#include "include/IO.h"
+#include "include/shell.h"
 #include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 
 __AFL_FUZZ_INIT();
 
@@ -18,7 +21,8 @@ int main(void)
         src = realloc(src, len+1);
         memcpy(src, buf, len);
         src[len] = 0;
-        String_Array a = str_split(STR(src), STR(" "));
-        str_arr_free(a);
+        String str = str_new(src);
+        shell_loop_manual_step(str, false, false);
+        str_free(str);
     }
 }

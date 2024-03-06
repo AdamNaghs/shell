@@ -27,7 +27,7 @@ void shell_prelude(void)
 
 void shell_stop(void)
 {
-    int* builins_loaded = are_builtins_loaded();
+    int *builins_loaded = are_builtins_loaded();
     *builins_loaded = 0;
     shell_run = false;
     prelude_ran = 0;
@@ -43,7 +43,13 @@ void shell_reset(void)
 }
 
 #define CWD_BUF 4096
-void shell_loop_step(bool print_input)
+void shell_loop_step(bool print)
+{
+    String inp = input('\n',0);
+    shell_loop_manual_step(inp,print,print);
+    str_free(inp);
+}
+void shell_loop_manual_step(String inp, bool print_input, bool print_output)
 {
     shell_prelude();
     static char buf[2] = " ";
@@ -58,8 +64,9 @@ void shell_loop_step(bool print_input)
         perror(RED "asn: Could not get current working directory.\n");
         exit(1);
     }
-    printf(BLU "asn" CRESET "@" CYN "%s> " CRESET, cwd_buf);
-    String a = input('\n', 0);
+    if (print_input)
+        printf(BLU "asn" CRESET "@" CYN "%s> " CRESET, cwd_buf);
+    String a = inp;
     if (print_input)
     {
         printf("%s", a.cstr);
@@ -114,24 +121,26 @@ void shell_loop_step(bool print_input)
         }
         else
         {
-            /*  
+            /*
                 This should probably stay commented out so the user knows
                 if they are using a shell or external command
             */
-            //ret = facade_internal_cmd(args);
-            //ran = true;
-            //printf("asn: Ran file found in path.\n");
+            // ret = facade_internal_cmd(args);
+            // ran = true;
+            // printf("asn: Ran file found in path.\n");
         }
         str_arr_free(args);
     }
-    if (!ran)
-        printf("asn: Could not find command '%s'.\n", commands.arr[0].cstr);
-    else
-        printf("\n%s\n", ret.str.cstr);
+    if (print_output)
+    {
+        if (!ran)
+            printf("asn: Could not find command '%s'.\n", commands.arr[0].cstr);
+        else
+            printf("\n%s\n", ret.str.cstr);
+    }
     str_arr_free(commands);
     if (ret.str.cstr)
         str_free(ret.str);
-    str_free(a);
 }
 
 void shell_loop_test()
