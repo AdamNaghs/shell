@@ -1,4 +1,3 @@
-exit
 cd Test_Dir
 #osys dir | echo
 ls
@@ -8,3 +7,4 @@ mkdir Test_Dir1
 rm Test_File
 rm Test_Dir1
 cd ../
+exit
