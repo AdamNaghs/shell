@@ -26,6 +26,5 @@ shell_results/default
 asn
 tmp.txt
 gmon.out
-AFL Fuzzing
-AFL Fuzzing\str_new_results
-AFL Fuzzing\str_split_results
+AFL Fuzzing/str_new_results
+AFL Fuzzing/str_split_results
