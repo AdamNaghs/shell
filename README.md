@@ -49,6 +49,7 @@ So far ASN supports a few simple builtin commands
     mkdir  - Creates new direction with provided path.
     rm - Removes files or directories.
     touch - Creates files.
+    asn - asn shell, used to run file containing commands.
 
 
 Some commands like 'rm' and 'clear' just use the system function to call 'del' or 'rm' depending on if you're using windows or not. I need to fix this, but for now its just a simple solution.
