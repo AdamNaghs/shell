@@ -50,8 +50,9 @@ void shell_loop_step(bool print_input)
     {
         printf("%s",a.cstr);
     }
-    if (a.size == 0)
+    if (a.size == 0 || -1 != str_contains_char(a,'#'))
     {
+        printf("\n");
         str_free(a);
         return;
     }
@@ -61,18 +62,18 @@ void shell_loop_step(bool print_input)
         return;
     }
     paste_vars('$', &a);
-    // String_Array commands = str_split(a, pipe_delim);
-    String_Array commands;
-    STR_ARRAY_STACK_ALLOC(commands, str_count(a, pipe_delim));
-    str_split_as_view(&commands, a, pipe_delim);
+     String_Array commands = str_split(a, pipe_delim);
+    //String_Array commands;
+    //STR_ARRAY_STACK_ALLOC(commands, str_count(a, pipe_delim));
+    //str_split_as_view(&commands, a, pipe_delim);
 
     size_t cmd;
     bool ran = false;
     for (cmd = 0; cmd < commands.size; cmd++)
     {
-        String_Array args; // = str_split(commands.arr[cmd], space_delim);
-        STR_ARRAY_STACK_ALLOC(args, str_count(commands.arr[cmd], space_delim));
-        str_split_as_view(&args, commands.arr[cmd], space_delim);
+        String_Array args = str_split(commands.arr[cmd], space_delim);
+        //STR_ARRAY_STACK_ALLOC(args, str_count(commands.arr[cmd], space_delim));
+        //str_split_as_view(&args, commands.arr[cmd], space_delim);
         if (!args.size)
             break;
         struct internal_cmd *int_cmd = find_internal_cmd(args.arr[0]);
@@ -87,27 +88,26 @@ void shell_loop_step(bool print_input)
                 String tmp = str_new(commands.arr[cmd].cstr);
                 str_append(&tmp, space_delim);
                 str_append(&tmp, ret.str);
-                String_Array piped_command_return; // = str_split(tmp, space_delim);
-                STR_ARRAY_STACK_ALLOC(piped_command_return, str_count(tmp, space_delim));
-                str_split_as_view(&piped_command_return, tmp, space_delim);
+                String_Array piped_command_return = str_split(tmp, space_delim);
+                //STR_ARRAY_STACK_ALLOC(piped_command_return, str_count(tmp, space_delim));
+                //str_split_as_view(&piped_command_return, tmp, space_delim);
                 str_free(ret.str);
                 ret = int_cmd->func(piped_command_return);
                 str_free(tmp);
-                // str_arr_free(piped_command_return);
+                str_arr_free(piped_command_return);
             }
             ran = true;
-            break;
         }
-        // str_arr_free(args);
+        str_arr_free(args);
     }
     if (!ran)
         printf("Could not find command '%s'.\n", commands.arr[0].cstr);
     else
         printf("%s\n", ret.str.cstr);
-    // str_arr_free(commands);
-    str_free(a);
+    str_arr_free(commands);
     if (ret.str.cstr)
         str_free(ret.str);
+    str_free(a);
 }
 
 void shell_loop_test()
@@ -117,6 +117,7 @@ void shell_loop_test()
     {
         shell_loop_step(true);
     }
+    printf("\n");
 }
 
 

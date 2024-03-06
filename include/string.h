@@ -27,4 +27,6 @@ bool str_equal(String,String);
 /* count occurences of delim */
 size_t str_count(String str, String delim);
 
+void str_replace_all(String* str, char find, char replace);
+
 #endif /* SHELL_STR */

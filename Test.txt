@@ -1,3 +1,4 @@
+#osys dir | echo
 ls
 mkdir Test_Dir
 cd Test_Dir
