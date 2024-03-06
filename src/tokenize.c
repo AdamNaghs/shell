@@ -4,6 +4,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+
+bool has_minimum_tokens(Token_Type* expected, size_t expected_size, Token_Array given)
+{
+    return false;
+}
+
 void tok_arr_add(Token_Array *ta, size_t *ta_cap, Token tok)
 {
     if (ta->size >= *ta_cap)

@@ -3,12 +3,12 @@
 #include "string.h"
 #include "string_array.h"
 
-enum token_type
+typedef enum token_type
 {
     NONE,
     STRING,
     PUNCT,
-};
+}Token_Type;
 
 typedef struct token
 {
@@ -42,5 +42,7 @@ typedef struct token_array
 Token_Array tokenize(String line);
 
 void free_token_array(Token_Array);
+
+bool has_minimum_tokens(Token_Type* expected, size_t expected_size, Token_Array given);
 
 #endif /* SHELL_TOKENIZE */
