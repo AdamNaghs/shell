@@ -6,7 +6,14 @@
 #include "../include/shell.h"    /* shell_stop*/
 #include <stdlib.h>              /* getenv, malloc, realloc, free */
 #include <string.h>
-#include <stdbool.h>
+#include <time.h>
+
+int ran_load_builtins;
+
+int *are_builtins_loaded(void)
+{
+    return &ran_load_builtins;
+}
 
 struct cmd_return b_mkdir(String_Array arr)
 {
@@ -37,7 +44,7 @@ struct cmd_return b_cd(String_Array arr)
         str.cstr[str.size--] = '\0'; /* remove extra ' ' at end */
     if (-1 == CHDIR(str.cstr))
     {
-        printf(RED "Could not open directory " BHRED "'%s'\n" CRESET, str.cstr);
+        printf(RED "asn: Could not open directory " BHRED "'%s'\n" CRESET, str.cstr);
     }
     str_free(str);
     ret.success = true;
@@ -70,17 +77,20 @@ struct cmd_return b_ls(String_Array arr)
     HANDLE hFind = INVALID_HANDLE_VALUE;
 
     char searchPath[LS_BUF];
+    String tmp_str = str_arr_join((String_Array){arr.arr + 1, arr.size - 1}, ' ');
+    if (tmp_str.size && tmp_str.cstr[tmp_str.size - 1] == ' ')
+        tmp_str.cstr[--tmp_str.size] = '\0';
     if (arr.size == 1) /* Use the current directory if no arguments are provided */
         snprintf(searchPath, LS_BUF, ".\\*");
     else /* Use the provided directory path */
-        snprintf(searchPath, LS_BUF, "%s\\*", arr.arr[1].cstr);
-
+        snprintf(searchPath, LS_BUF, "%s\\*", tmp_str.cstr);
+    str_free(tmp_str);
     /* Find the first file in the directory */
     hFind = FindFirstFile(searchPath, &findFileData);
 
     if (hFind == INVALID_HANDLE_VALUE)
     {
-        printf("Unable to open directory '%s'\n", searchPath);
+        printf("asn: Unable to open directory '%s'\n", searchPath);
         ret.func_return = 1;
         return ret;
     }
@@ -192,7 +202,7 @@ struct cmd_return b_exit(String_Array arr)
         .str = str_new(tmp_char),
     };
     shell_stop();
-    str_append(&ret.str, STR(GRN "\nExitting...\n" CRESET));
+    str_append(&ret.str, STR(GRN "\nExitting asn...\n" CRESET));
     return ret;
 }
 
@@ -229,7 +239,7 @@ struct cmd_return b_help(String_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     char help_buf[1000] =
-        BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n" BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n" BHCYN "rm" CRESET "\t - Removes files.\n" BHCYN "rmdir" CRESET "\t - Removes directories.\n" BHCYN "touch" CRESET "\t - Creates files.\n" BHCYN "reset" CRESET "\t - Resets commands & variables.\n" BHCYN "asn" CRESET "\t - asn shell, used to run file containing commands.\n";
+        BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n" BHCYN "rm" CRESET "\t - Removes files.\n" BHCYN "touch" CRESET "\t - Creates files.\n" BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n" BHCYN "rmdir" CRESET "\t - Removes directories.\n" BHCYN "asn" CRESET "\t - asn shell, used to run file containing commands.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "time" CRESET "\t - Prints runtime of its arguments or time since UNIX epoch.\n" BHCYN "reset" CRESET "\t - Resets commands & variables.\n";
     String tmp_str = str_new(help_buf);
     str_append(&ret.str, tmp_str);
     str_free(tmp_str);
@@ -247,7 +257,7 @@ struct cmd_return b_touch(String_Array arr)
         if (!f)
         {
             char tmp[4096];
-            sprintf(tmp, RED "Failed to create file '%s'.\n" CRESET, arr.arr[i].cstr);
+            sprintf(tmp, RED "asn: Failed to create file '%s'.\n" CRESET, arr.arr[i].cstr);
             String tmp_str = {tmp, 4096};
             str_append(&ret.str, tmp_str);
             continue;
@@ -260,13 +270,14 @@ struct cmd_return b_touch(String_Array arr)
 struct cmd_return b_reset(String_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
-    str_append(&ret.str, STR("\nResetting shell.\n"));
+    str_append(&ret.str, STR("\nResetting asn.\n"));
     shell_reset();
     return ret;
 }
 
 struct cmd_return b_asn(String_Array arr)
 {
+    clock_t start = clock();
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     size_t i;
     FILE *default_file = get_input_file();
@@ -275,7 +286,7 @@ struct cmd_return b_asn(String_Array arr)
         FILE *fd = FOPEN(arr.arr[i].cstr, "r");
         if (!fd)
         {
-            str_append(&ret.str, STR("'asn' could not open file.\n"));
+            str_append(&ret.str, STR("asn: Could not open file.\n"));
             ret.func_return = 1;
             ret.success = false;
             return ret;
@@ -286,6 +297,36 @@ struct cmd_return b_asn(String_Array arr)
     }
     shell_reset();
     set_input_file(default_file);
+    // printf("Test File(s) Runtime: %lums",clock()-start);
+    return ret;
+}
+#define TIME_BUF 256
+
+struct cmd_return b_time(String_Array arr)
+{
+    struct cmd_return ret = CMD_RETURN_SUCCESS;
+    if (arr.size <= 1)
+    {
+        char buf[TIME_BUF];
+        snprintf(buf, TIME_BUF, "%lld\n", time(NULL));
+        str_append(&ret.str, STR(buf));
+        return ret;
+    }
+    clock_t start = clock();
+    String_Array tmp_arr = {.arr = arr.arr + 1, .size = arr.size - 1};
+    struct internal_cmd *cmd = find_internal_cmd(tmp_arr.arr[0]);
+    if (!cmd)
+    {
+        str_append(&ret.str, STR("asn: time: Could not find command.\n"));
+        ret.func_return = 1;
+        ret.success = false;
+        return ret;
+    }
+    str_free(ret.str);
+    ret = cmd->func(tmp_arr);
+    char buf[TIME_BUF];
+    snprintf(buf, TIME_BUF, "\n'%s' ran in: %ldms", tmp_arr.arr[0].cstr, clock() - start);
+    str_append(&ret.str, STR(buf));
     return ret;
 }
 
@@ -333,6 +374,9 @@ void load_builtins(void)
     char str_reset[6] = "reset";
     add_internal_cmd(internal_cmd_new(str_new(str_reset), b_reset));
 
-    char str_asn[6] = "asn";
+    char str_asn[4] = "asn";
     add_internal_cmd(internal_cmd_new(str_new(str_asn), b_asn));
+
+    char str_time[5] = "time";
+    add_internal_cmd(internal_cmd_new(str_new(str_time), b_time));
 }

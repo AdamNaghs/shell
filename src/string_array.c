@@ -2,6 +2,7 @@
 #include "../include/colors.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 void str_arr_free(String_Array arr)
 {

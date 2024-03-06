@@ -2,13 +2,13 @@
 #include "../include/IO.h"
 #include <signal.h>
 #include <stdlib.h>
-
+#include "../include/shell.h"
 
 
 void sigint_handler(int a)
 {
-    printf("Exited" BLU " asn" CRESET ".\nCode %d\n",a);
-    exit(0);
+    printf("SigInt" BLU " asn" CRESET ".\nCode %d\n",a);
+    shell_stop();
 }
 
 void bind_signals(void)

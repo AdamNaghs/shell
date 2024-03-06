@@ -20,6 +20,8 @@ struct cmd_return
     String str;
 };
 
+#define DEFAULT_CMD_FUNC facade_internal_cmd
+
 #define DEFAULT_CMD_RETURN ((struct cmd_return){false, 1, str_new(NULL)})
 #define CMD_RETURN_SUCCESS ((struct cmd_return){true, 0, str_new(NULL)})
 
@@ -34,6 +36,8 @@ struct internal_cmd *get_internal_cmd_list(void);
 size_t get_internal_cmd_list_size(void);
 
 void load_external_commands(void);
+
+struct cmd_return facade_internal_cmd(String_Array cmd);
 
 void free_all_commands(void);
 
