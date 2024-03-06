@@ -191,3 +191,17 @@ void load_external_commands(void)
     }
     str_arr_free(folders);
 }
+
+
+struct internal_cmd * find_internal_cmd(String name)
+{
+    size_t i;
+    for (i = 0; i <cmd_arr_len; i++)
+    {
+        if (str_equal(name,cmd_arr[i].name))
+        {
+            return &cmd_arr[i];
+        }
+    }
+    return NULL;
+}

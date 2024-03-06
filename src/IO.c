@@ -16,6 +16,12 @@ void set_input_file(FILE *fd)
     input_file = fd;
 }
 
+static char c;
+
+bool at_eof(void)
+{
+    return c == EOF;
+}
 
 String input(char enter_char, size_t max_size)
 {
@@ -38,7 +44,7 @@ String input(char enter_char, size_t max_size)
         perror(RED "'input' could not malloc ret.cstr.\n" CRESET);
         exit(1);
     }
-    char c;
+    c = ' ';
     while ((c = fgetc(input_file)) != enter_char && ret.size < max_size)
     {
         if (c == EOF || c == '\0')

@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include "string_array.h"
 
-#define LOAD_EXTERNALS_DEBUG 
+//#define LOAD_EXTERNALS_DEBUG 
 
 typedef struct cmd_return (*internal_cmd_func)(String_Array);
 
@@ -26,6 +26,8 @@ struct cmd_return
 struct internal_cmd internal_cmd_new(String, internal_cmd_func);
 
 void add_internal_cmd(struct internal_cmd);
+
+struct internal_cmd * find_internal_cmd(String name);
 
 struct internal_cmd *get_internal_cmd_list(void);
 

@@ -6,6 +6,8 @@
 #ifndef COLORS_H
 #define COLORS_H
 
+//#define COLORS_ENABLED
+
 #ifdef COLORS_ENABLED
 
 /*Regular text*/
