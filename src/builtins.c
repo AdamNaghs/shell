@@ -8,9 +8,6 @@
 #include <string.h>
 #include <stdbool.h>
 
-ran_load_builtins = false;
-
-
 struct cmd_return b_mkdir(String_Array arr)
 {
     struct cmd_return ret = DEFAULT_CMD_RETURN;
@@ -262,6 +259,7 @@ void load_builtins(void)
 {
     if (ran_load_builtins)
         return;
+    ran_load_builtins = 1;
     char str_echo[5] = "echo";
     add_internal_cmd(internal_cmd_new(str_new(str_echo), b_echo));
 
@@ -297,5 +295,4 @@ void load_builtins(void)
 
     char str_rmdir[6] = "rmdir";
     add_internal_cmd(internal_cmd_new(str_new(str_rmdir), b_rmdir));
-    ran_load_builtins = true;
 }
