@@ -28,3 +28,4 @@ tmp.txt
 gmon.out
 AFL Fuzzing/str_new_results
 AFL Fuzzing/str_split_results
+obj/tokenize.o

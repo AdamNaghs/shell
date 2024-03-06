@@ -4,6 +4,7 @@
 #include "../include/credentials.h"
 #include "../include/utils.h"
 #include "../include/string_array.h"
+#include "../include/tokenize.h"
 #include <time.h>
 #include <stdlib.h>
 void test_shell_loop(void)
@@ -37,6 +38,19 @@ void test_str_split(void)
     str_arr_free(arr);
 }
 
+void test_tokenize(void)
+{
+    Token_Array ta = tokenize(STR("if arg1 arg2: \"2 3\"\n\r\t "));
+    size_t i = 0;
+    for (; i < ta.size; i++)
+    {
+        printf("%s ",ta.arr[i].str.cstr);
+    }
+    printf("\nSize: %d\n",ta.size);
+    free_token_array(ta);
+    exit(1);
+}
+
 int main(void)
 {
     /*
@@ -46,6 +60,7 @@ int main(void)
     // test_str_split();
     // for (size_t i = 0; i < 10000; i++)
     //     test_shell_loop();
+    test_tokenize();
     test_shell_loop();
     shell_loop();
     return 0;
