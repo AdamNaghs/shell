@@ -147,6 +147,8 @@ void str_append(String *dest, String end)
 
 bool str_equal(String a, String b)
 {
+    if (!(a.cstr && b.cstr))
+        return false;
     return a.size == b.size && !memcmp(a.cstr, b.cstr, a.size);
 }
 
@@ -194,11 +196,29 @@ void str_replace_all(String *str, char find, char replace)
     }
 }
 
-size_t cstr_len(char* str)
+size_t cstr_len(char *str)
 {
     size_t i;
     for (i = 0; str[i] != '\0'; i++)
     {
     }
     return i;
+}
+
+void str_remove_trailing_whitespace(String *str)
+{
+    if (!str->size)
+        return;
+    size_t i = str->size - 1;
+    for (; i >= 0; i--)
+    {
+        char *c = &str->cstr[i];
+        if (*c == ' ' || *c == '\t' || *c == '\n' || *c == '\r')
+        {
+            *c = '\0';
+            str->size--;
+        }
+        else
+            break;
+    }
 }

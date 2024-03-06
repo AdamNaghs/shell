@@ -13,7 +13,7 @@ void test_shell_loop(void)
     #ifdef _WIN32
     char path[49] = "C:\\Users\\adamn\\Dropbox\\src\\c code\\shell\\test.asn";
     #else
-    char path[9] = "test.asn";
+    char path[53] = "/mnt/c/Users/adamn/Dropbox/src/c code/shell/test.asn";
     #endif
     FILE *f = FOPEN(path, mode);
     set_input_file(f);
@@ -37,7 +37,7 @@ void test_str_split(void)
     str_arr_free(arr);
 }
 
-int main1(void)
+int main(void)
 {
     /*
     for (int i = 0; i < 10; i++)

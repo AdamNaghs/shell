@@ -40,6 +40,7 @@ struct cmd_return b_cd(String_Array arr)
         return ret;
     }
     String str = str_arr_join((String_Array){arr.arr + 1, arr.size - 1}, ' ');
+    str_remove_trailing_whitespace(&str);
     if (str.size)
         str.cstr[str.size--] = '\0'; /* remove extra ' ' at end */
     if (-1 == CHDIR(str.cstr))

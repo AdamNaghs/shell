@@ -29,6 +29,7 @@ String str_arr_join(String_Array arr, char seperator)
         str_append(&ret, arr.arr[i]);
         str_append(&ret, STR(sep));
     }
+    ret.cstr[--ret.size] = '\0';
     return ret;
 }
 

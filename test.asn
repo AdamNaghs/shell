@@ -1,11 +1,12 @@
+cd ../
+exit
 time ls
-time mkdir Test_Dir
+#time mkdir Test_Dir
 time cd Test_Dir
-time touch Test_File
-time mkdir Test_Dir1
+#time touch Test_File
+#time mkdir Test_Dir1
 time rm Test_File
 time rm Test_Dir1
-time cd ../
 time ls
 time rm Test_Dir
 time ls

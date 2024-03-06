@@ -43,58 +43,70 @@ void shell_reset(void)
 }
 
 #define CWD_BUF 4096
-void shell_loop_step(bool print)
+void shell_loop_step(bool print_output, bool print_input)
 {
-    String inp = input('\n',0);
-    shell_loop_manual_step(inp,print,print);
+    if (print_output)
+    {
+        char cwd_buf[CWD_BUF];
+        char *c = GETCWD(cwd_buf, CWD_BUF);
+        if (!c)
+        {
+            perror(RED "asn: Could not get current working directory.\n" CRESET);
+            exit(1);
+        }
+        printf(BLU "asn" CRESET "@" CYN "%s> " CRESET, cwd_buf);
+    }
+    String inp = input('\n', 0);
+
+    shell_loop_manual_step(inp, print_input, print_output, true);
     str_free(inp);
 }
-void shell_loop_manual_step(String inp, bool print_input, bool print_output)
+void shell_loop_manual_step(String inp, bool print_input, bool print_output, bool print_error)
 {
     shell_prelude();
     static char buf[2] = " ";
     static char buf1[2] = "|";
     String space_delim = STR(buf);
     String pipe_delim = STR(buf1);
-    char cwd_buf[CWD_BUF];
-    struct cmd_return ret = {.success = false, .func_return = 0, .str = {.cstr = NULL, .size = 0}};
-    char *c = GETCWD(cwd_buf, CWD_BUF);
-    if (!c)
-    {
-        perror(RED "asn: Could not get current working directory.\n");
-        exit(1);
-    }
-    if (print_input)
-        printf(BLU "asn" CRESET "@" CYN "%s> " CRESET, cwd_buf);
+
     String a = inp;
+    str_remove_trailing_whitespace(&a);
+    struct cmd_return ret = {.success = false, .func_return = 0, .str = {.cstr = NULL, .size = 0}};
     if (print_input)
     {
         printf("%s", a.cstr);
     }
     if (a.size == 0 || -1 != str_contains_char(a, '#'))
     {
-        printf("\n");
-        str_free(a);
+        if (print_output)
+            printf("\n");
+        // str_free(a);
         return;
     }
     if (0 == read_var(a))
     {
-        str_free(a);
+        // str_free(a);
         return;
     }
     paste_vars('$', &a);
-    String_Array commands = str_split(a, pipe_delim);
-    // String_Array commands;
-    // STR_ARRAY_STACK_ALLOC(commands, str_count(a, pipe_delim));
-    // str_split_as_view(&commands, a, pipe_delim);
-
+    String_Array commands;
+#ifdef STR_ARRAY_VIEWS
+    STR_ARRAY_STACK_ALLOC(commands, str_count(a, pipe_delim));
+    str_split_as_view(&commands, a, pipe_delim);
+#else
+    commands = str_split(a, pipe_delim);
+#endif
     size_t cmd;
     bool ran = false;
     for (cmd = 0; cmd < commands.size; cmd++)
     {
-        String_Array args = str_split(commands.arr[cmd], space_delim);
-        // STR_ARRAY_STACK_ALLOC(args, str_count(commands.arr[cmd], space_delim));
-        // str_split_as_view(&args, commands.arr[cmd], space_delim);
+        String_Array args;
+#ifdef STR_ARRAY_VIEWS
+        STR_ARRAY_STACK_ALLOC(args, str_count(commands.arr[cmd], space_delim));
+        str_split_as_view(&args, commands.arr[cmd], space_delim);
+#else
+        args = str_split(commands.arr[cmd], space_delim);
+#endif
         if (!args.size)
             break;
         struct internal_cmd *int_cmd = find_internal_cmd(args.arr[0]);
@@ -129,16 +141,23 @@ void shell_loop_manual_step(String inp, bool print_input, bool print_output)
             // ran = true;
             // printf("asn: Ran file found in path.\n");
         }
+#ifndef STR_ARRAY_VIEWS
         str_arr_free(args);
+#endif
     }
     if (print_output)
     {
         if (!ran)
-            printf("asn: Could not find command '%s'.\n", commands.arr[0].cstr);
+        {
+            if (print_error)
+                printf("asn: Could not find command '%s'.\n", commands.arr[0].cstr);
+        }
         else
             printf("\n%s\n", ret.str.cstr);
     }
+#ifndef STR_ARRAY_VIEWS
     str_arr_free(commands);
+#endif
     if (ret.str.cstr)
         str_free(ret.str);
 }
@@ -148,9 +167,8 @@ void shell_loop_test()
     shell_prelude();
     while (shell_run && !at_eof())
     {
-        shell_loop_step(true);
+        shell_loop_step(true,true);
     }
-    printf("\n");
 }
 
 void shell_loop(void)
@@ -158,6 +176,6 @@ void shell_loop(void)
     shell_prelude();
     while (shell_run)
     {
-        shell_loop_step(false);
+        shell_loop_step(true,true);
     }
 }
