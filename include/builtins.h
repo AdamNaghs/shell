@@ -1,7 +1,8 @@
 #ifndef SHELL_BUILTINS
 #define SHELL_BUILTINS
+#include <stdbool.h>
 
-int ran_load_builtins;
+int* are_builtins_loaded(void);
 
 void load_builtins(void);
 
