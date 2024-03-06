@@ -25,3 +25,4 @@ str_new_results/default
 shell_results/default
 asn
 tmp.txt
+gmon.out
