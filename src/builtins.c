@@ -8,7 +8,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-static bool ran_load_builtins = false;
+ran_load_builtins = false;
 
 
 struct cmd_return b_mkdir(String_Array arr)
@@ -193,7 +193,6 @@ struct cmd_return b_exit(String_Array arr)
         .func_return = 0,
         .str = str_new(tmp_char),
     };
-    ran_load_builtins = false;
     shell_stop();
     str_append(&ret.str,STR(GRN "\nExitting...\n" CRESET));
     return ret;

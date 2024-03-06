@@ -27,6 +27,7 @@ void shell_prelude(void)
 
 void shell_stop(void)
 {
+    ran_load_builtins = false;
     shell_run = false;
     prelude_ran = 0;
     free_all_vars();
