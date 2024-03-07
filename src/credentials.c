@@ -3,6 +3,7 @@
 #include "../include/utils.h"
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 #define SALT_LEN 20
 
@@ -195,7 +196,7 @@ void attempt_login_loop(void)
         if (check_login(username, password))
             found = true;
         else
-            printf("Could not find a user matching that username and password.\n");
+            printf("\nCould not find a user matching that username and password.\n");
         enable_input_buffer_display();
         str_free(username);
         str_free(password);
