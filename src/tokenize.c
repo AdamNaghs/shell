@@ -114,6 +114,7 @@ void free_token_array(Token_Array ta)
     {
         str_free(ta.arr[i].str);
     }
+    free(ta.arr);
 }
 
 String token_array_to_str(Token_Array ta, char sep)
