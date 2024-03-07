@@ -17,4 +17,8 @@ bool at_eof(void);
     provide 0 for max_size if you do not care how long the input is */
 String input(char ret_char, size_t max_size);
 
+void disable_input_buffer_display();
+
+void enable_input_buffer_display();
+
 #endif /* SHELL_IO */
