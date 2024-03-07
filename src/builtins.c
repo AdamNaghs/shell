@@ -58,7 +58,7 @@ struct cmd_return b_cd(Token_Array arr)
     str_remove_trailing_whitespace(&str);
     if (-1 == CHDIR(str.cstr))
     {
-        printf(RED "asn: Could not open directory " BHRED "'%s'\n" CRESET, str.cstr);
+        printf( "asn: Could not open directory '%s'\n" , str.cstr);
     }
     str_free(str);
     ret.success = true;
@@ -110,7 +110,6 @@ struct cmd_return b_ls(Token_Array arr)
     do
     {
         tmp_str = str_new(findFileData.cFileName);
-
         str_append(&tmp_str, new_line_str);
         str_append(&ret.str, tmp_str);
         str_free(tmp_str);
@@ -268,7 +267,7 @@ struct cmd_return b_touch(Token_Array arr)
         if (!f)
         {
             char tmp[4096];
-            sprintf(tmp, RED "asn: Failed to create file '%s'." CRESET, arr.arr[i].str.cstr);
+            sprintf(tmp, "asn: Failed to create file '%s'.", arr.arr[i].str.cstr);
             String tmp_str = {tmp, 4096};
             str_append(&ret.str, tmp_str);
             continue;

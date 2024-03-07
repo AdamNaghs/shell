@@ -1,5 +1,4 @@
 #include "../include/tokenize.h"
-#include "../include/colors.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -18,7 +17,7 @@ void tok_arr_add(Token_Array *ta, size_t *ta_cap, Token tok)
         Token *tmp = (Token *)realloc(ta->arr, *ta_cap * sizeof(Token));
         if (!tmp)
         {
-            perror(RED "asn: Could not realloc token array.\n" CRESET);
+            perror("asn: Could not realloc token array.\n");
             exit(1);
         }
         ta->arr = tmp;
@@ -132,7 +131,7 @@ String token_array_to_str(Token_Array ta, char sep)
     return ret;
 }
 #else
-/* test version*/
+/* test/new version*/
 String token_array_to_str(Token_Array ta, char sep)
 {
     size_t cap = 100;
@@ -144,7 +143,7 @@ String token_array_to_str(Token_Array ta, char sep)
         if (ret.size + s.size >= cap)
         {
             cap *= 2;
-            char *tmp = realloc(ret.cstr, cap * sizeof(char));
+            char *tmp = (char*)realloc(ret.cstr, cap * sizeof(char));
             if (!tmp)
             {
                 perror("Could not realloc string in 'token_array_to_str'\n");
