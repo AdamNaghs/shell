@@ -182,6 +182,7 @@ void attempt_login_loop(void)
 {
     if (!file_exists(CREDS_FILE_PATH))
     {
+        printf("Please create a login.\n");
         new_user();
         return;
     }
