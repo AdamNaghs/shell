@@ -10,6 +10,7 @@ typedef struct
 } String;
 
 #define STR(cstr)  ((String){cstr, cstr_len(cstr)})
+#define STR_LIT(cstr)  ((String){cstr, sizeof(cstr) - 1})
 
 /* returns -1 if no chars of c is in str and the first occurance index of any char of c if it is */
 signed long long str_contains_char(String str, char c);
@@ -25,6 +26,9 @@ void str_append(String* dest, String end);
 void str_free(String str);
 
 bool str_equal(String,String);
+
+/* only use if the 'dest' memory is large enough to hold 'end' */
+void str_memcpy(String* dest, size_t offset, String end);
 
 size_t cstr_len(char* str);
 

@@ -28,14 +28,14 @@ void test_shell_loop(void)
 void test_str_split(void)
 {
     String_Array arr;
-    String case0 = STR(" ");
-    arr = str_split(case0, STR(" "));
+    String case0 = STR_LIT(" ");
+    arr = str_split(case0, STR_LIT(" "));
     str_arr_free(arr);
-    String case1 = STR("  ");
-    arr = str_split(case1, STR(" "));
+    String case1 = STR_LIT("  ");
+    arr = str_split(case1, STR_LIT(" "));
     str_arr_free(arr);
-    String case2 = STR(" ");
-    arr = str_split(case2, STR(" "));
+    String case2 = STR_LIT(" ");
+    arr = str_split(case2, STR_LIT(" "));
     str_arr_free(arr);
 }
 
@@ -58,6 +58,40 @@ void test_tokenize(void)
     set_input_file(tmp_file);
     exit(0);
 }
+#define LOOP_MAX 10000000 /* 10 000 000 000*/
+
+void test_string_speed(void)
+{
+    clock_t start = clock();
+    String str = str_new(NULL);
+    size_t i;
+    for (i = 0; i < LOOP_MAX; i++)
+    {
+        str_append(&str,STR_LIT("A not very but still reasonably long string.\n"));
+    }
+    str_free(str);
+    printf("String TEST1 ran in %lfms \n",((double)(clock() - start)/CLOCKS_PER_SEC) * 1000);
+
+
+    start = clock();
+    for (i = 0; i < LOOP_MAX; i++)
+    {
+        str = str_new(NULL);
+        str_append(&str,STR_LIT("A not very but still reasonably long string.\n"));
+        str_free(str);
+    }
+    printf("String TEST2 ran in %lfms \n",((double)(clock() - start)/CLOCKS_PER_SEC) * 1000);
+
+    start = clock();
+    str = STR_LIT("A not very but still reasonably long string.\n");
+    for (i = 0; i < LOOP_MAX; i++)
+    {
+        Token_Array ta = tokenize(str);
+        free_token_array(ta);
+    }
+    printf("Token_Array TEST1 ran in %lfms \n",((double)(clock() - start)/CLOCKS_PER_SEC) * 1000);
+
+}
 
 int main(void)
 {
@@ -70,6 +104,8 @@ int main(void)
     //     test_shell_loop();
     // test_tokenize();k
     //test_shell_loop();
+    // test_string_speed();
+    // exit(0);
     shell_loop();
     return 0;
 }
