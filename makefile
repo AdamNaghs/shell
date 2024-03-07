@@ -41,5 +41,5 @@ clean:
 	$(RM) a.out
 
 fuzz:
-	afl-clang-fast -g -fsanitize=address,undefined fuzz_test.c $(OBJS)
+	afl-clang-fast -g -fsanitize=address,undefined fuzz_test.c -std=c99 $(OBJS)
 	
