@@ -13,6 +13,8 @@
 static bool prelude_ran = 0;
 static bool shell_run = true;
 
+#define OUTPUT_COLOR BHWHT
+#define CWD_BUF 4096
 
 void shell_prelude(void)
 {
@@ -46,7 +48,6 @@ void shell_reset(void)
     shell_prelude();
 }
 
-#define CWD_BUF 4096
 void shell_print_line_flair(void)
 {
     char cwd_buf[CWD_BUF];
@@ -61,20 +62,27 @@ void shell_print_line_flair(void)
     printf(BLU "asn" CRESET "@" CYN "%s> " CRESET, cwd_buf);
 }
 
+void shell_print_greeting(void)
+{
+    printf("Welcome to "BLU "asn" CRESET " shell.\n\nInput "BLU "help"CRESET " for a list of commands.\n");
+}
+
 void shell_loop_step(bool print_output, bool print_input)
 {
     if (print_output)
-    {
         shell_print_line_flair();
-    }
     String inp = input('\n', 0);
     String_Array arr = str_split(inp, STR(";"));
     size_t i;
     for (i = 0; i < arr.size; i++)
     {
-        if (print_output)
+        if (print_output && i)
+        {
             shell_print_line_flair();
-        printf("%s\n", arr.arr[i].cstr);
+            printf("%s", arr.arr[i].cstr);
+            if (get_input_file() != stdin)
+                printf("\n");
+        }
         shell_loop_manual_step(&arr.arr[i], print_input, print_output, true);
     }
     str_free(inp);
@@ -160,16 +168,20 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
                 printf("asn: Could not find command '%s'.\n", commands.arr[0].cstr);
             }
         }
-        else
-            printf("\n%s\n", ret.str.cstr);
+        else if (ret.str.size)
+        {
+            FILE *input_file = get_input_file();
+            if (input_file != stdin)
+                printf(OUTPUT_COLOR "\n%s" CRESET, ret.str.cstr);
+            else
+                printf(OUTPUT_COLOR "%s\n" CRESET, ret.str.cstr);
+        }
     }
-#ifndef STR_ARRAY_VIEWS
     str_arr_free(commands);
-#endif
     if (ret.str.cstr)
         str_free(ret.str);
 }
-
+/* meant to be used if you change the input file */
 void shell_loop_test(void)
 {
     shell_prelude();
@@ -182,6 +194,7 @@ void shell_loop_test(void)
 void shell_loop(void)
 {
     shell_prelude();
+    shell_print_greeting();
     while (shell_run)
     {
         shell_loop_step(true, false);
