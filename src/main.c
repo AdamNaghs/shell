@@ -58,13 +58,14 @@ void test_tokenize(void)
     set_input_file(tmp_file);
     exit(0);
 }
-#define LOOP_MAX 10000000 /* 10 000 000 000*/
+#define LOOP_MAX 100000 /* 1 000 000 000*/
 
 void test_string_speed(void)
 {
     clock_t start = clock();
     String str = str_new(NULL);
     size_t i;
+    printf("Starting String Speed Test with %d iterations.\n",LOOP_MAX);
     for (i = 0; i < LOOP_MAX; i++)
     {
         str_append(&str,STR_LIT("A not very but still reasonably long string.\n"));
@@ -87,10 +88,20 @@ void test_string_speed(void)
     for (i = 0; i < LOOP_MAX; i++)
     {
         Token_Array ta = tokenize(str);
+        String s = token_array_to_str(ta, ' ');
         free_token_array(ta);
     }
     printf("Token_Array TEST1 ran in %lfms \n",((double)(clock() - start)/CLOCKS_PER_SEC) * 1000);
-
+    start = clock();
+    str = STR_LIT("A not very but still reasonably long string.\n");
+    Token_Array ta = tokenize(str);
+    for (i = 0; i < LOOP_MAX; i++)
+    {
+        String s = token_array_to_str(ta, ' ');
+        str_free(s);
+    }
+    free_token_array(ta);
+    printf("Token_Array to str TEST1 ran in %lfms\n",((double)(clock() - start)/CLOCKS_PER_SEC) * 1000);
 }
 
 int main(void)
@@ -104,8 +115,6 @@ int main(void)
     //     test_shell_loop();
     // test_tokenize();k
     //test_shell_loop();
-    // test_string_speed();
-    // exit(0);
     shell_loop();
     return 0;
 }
