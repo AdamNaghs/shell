@@ -106,10 +106,10 @@ void test_string_speed(void)
 
 int main(void)
 {
-    /*
-    for (int i = 0; i < 10; i++)
-        test_creds();
-    */
+    
+    // for (int i = 0; i < 10; i++)
+    //     test_creds();
+    
     // test_str_split();
     // for (size_t i = 0; i < 10000; i++)
     //     test_shell_loop();
