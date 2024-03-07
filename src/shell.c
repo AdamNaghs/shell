@@ -21,7 +21,6 @@ void shell_prelude(void)
     if (prelude_ran)
         return;
     bind_signals();
-    attempt_login_loop();
     load_builtins();
     load_external_commands();
     init_var_arr();
@@ -64,7 +63,7 @@ void shell_print_line_flair(void)
 
 void shell_print_greeting(void)
 {
-    printf("Welcome to "BLU "asn" CRESET " shell.\n\nInput "BLU "help"CRESET " for a list of commands.\n");
+    printf("Welcome to "BLU "asn" CRESET " shell.\n\nInput " BLU "help" CRESET " for a list of commands.\n");
 }
 
 void shell_loop_step(bool print_output, bool print_input)
@@ -188,6 +187,7 @@ void shell_loop_test(void)
 
 void shell_loop(void)
 {
+    attempt_login_loop();
     shell_prelude();
     shell_print_greeting();
     while (shell_run)

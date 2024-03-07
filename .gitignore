@@ -30,3 +30,4 @@ AFL Fuzzing/str_new_results
 AFL Fuzzing/str_split_results
 obj/tokenize.o
 gmon.out
+.asn_users
