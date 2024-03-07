@@ -1,5 +1,4 @@
 #include "../include/tokenize.h"
-#include "../include/colors.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -18,7 +17,7 @@ void tok_arr_add(Token_Array *ta, size_t *ta_cap, Token tok)
         Token *tmp = (Token *)realloc(ta->arr, *ta_cap * sizeof(Token));
         if (!tmp)
         {
-            perror(RED "asn: Could not realloc token array.\n" CRESET);
+            perror("asn: Could not realloc token array.\n");
             exit(1);
         }
         ta->arr = tmp;
@@ -29,13 +28,13 @@ bool tok_ispunct(char c)
 {
     switch (c)
     {
-        case ':':
-        case ';':
-        case ',':
-        case '|':
-            return true;
-        default:
-            return false;
+    case ':':
+    case ';':
+    case ',':
+    case '|':
+        return true;
+    default:
+        return false;
     }
 }
 
@@ -64,7 +63,7 @@ Token_Array tokenize(String line)
                 // Ending a quoted token
                 size_t token_length = i - start_idx;
                 String s = str_new_n(line.cstr + start_idx, token_length);
-                Token t = {.str = s, .type = STRING}; 
+                Token t = {.str = s, .type = STRING};
                 tok_arr_add(&ret, &cap, t);
 
                 in_quotes = false;
@@ -117,6 +116,7 @@ void free_token_array(Token_Array ta)
     free(ta.arr);
 }
 
+#ifdef TEST_TOKENIZE
 String token_array_to_str(Token_Array ta, char sep)
 {
     String ret = str_new(NULL);
@@ -130,3 +130,39 @@ String token_array_to_str(Token_Array ta, char sep)
     }
     return ret;
 }
+#else
+/* test/new version*/
+String token_array_to_str(Token_Array ta, char sep)
+{
+    size_t cap = 100;
+    String ret = (String){.cstr = (char *)malloc(cap * sizeof(char) + 1), .size = 0};
+    size_t i;
+    for (i = 0; i < ta.size; i++)
+    {
+        String s = ta.arr[i].str;
+        if (ret.size + s.size >= cap)
+        {
+            cap *= 2;
+            char *tmp = (char*)realloc(ret.cstr, cap * sizeof(char));
+            if (!tmp)
+            {
+                perror("Could not realloc string in 'token_array_to_str'\n");
+                exit(1);
+            }
+            ret.cstr = tmp;
+        }
+        str_memcpy(&ret, ret.size, s);
+        ret.cstr[ret.size++] = sep;
+    }
+    ret.cstr[ret.size] = '\0';
+    cap = ret.size + 1;
+    char *tmp_ret = (char*)realloc(ret.cstr, cap * sizeof(char));
+    if (!tmp_ret)
+    {
+        perror("Could not realloc string in 'token_array_to_str'\n");
+        exit(1);
+    }
+    ret.cstr = tmp_ret;
+    return ret;
+}
+#endif

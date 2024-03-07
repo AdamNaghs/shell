@@ -64,7 +64,7 @@ void add_internal_cmd(struct internal_cmd cmd)
         struct internal_cmd *tmp = (struct internal_cmd *)realloc(cmd_arr, cmd_arr_cap * sizeof(struct internal_cmd));
         if (!tmp)
         {
-            perror(RED "'add_internal_cmd' could not realloc cmd_arr.\n");
+            perror("'add_internal_cmd' could not realloc cmd_arr.\n");
             exit(1);
         }
         cmd_arr = tmp;
@@ -91,14 +91,14 @@ struct cmd_return facade_internal_cmd(Token_Array cmd)
 }
 void load_external_from_file(char *filename)
 {
+    if (!filename) return;
     String cmd = str_new(filename);
 #ifdef _WIN32
     char tmp[5] = ".exe";
 #else
     char tmp[5] = ".app";
 #endif
-    String exec = str_new(tmp);
-    signed long long idx = str_contains_str(cmd, exec);
+    signed long long idx = str_contains_str(cmd, STR(tmp));
     if (idx != -1)
     {
         cmd.size = idx;
@@ -108,7 +108,6 @@ void load_external_from_file(char *filename)
 #ifdef LOAD_EXTERNALS_DEBUG
     printf("Added command '%s'\n", cmd.cstr);
 #endif /* LOAD_EXTERNALS_DEBUG */
-    str_free(exec);
 }
 #ifdef _WIN32
 #include <windows.h>

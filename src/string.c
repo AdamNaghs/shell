@@ -9,6 +9,8 @@ void str_free(String str)
     free(str.cstr);
 }
 
+#ifdef STRING_TEST
+/* returns a string identical to str and sets the value of ret_size to the new strings length */
 char *mystrdup(char *str, unsigned long long *ret_size)
 {
     size_t cap = 50;
@@ -41,6 +43,28 @@ char *mystrdup(char *str, unsigned long long *ret_size)
     ret[i] = '\0';
     return ret;
 }
+#else
+/* new verison */
+char *mystrdup(char *str, unsigned long long *ret_size)
+{
+    if (str == NULL)
+    {
+        *ret_size = 0;
+        return NULL;
+    }
+    size_t len = strlen(str);
+    char *ret = (char *)malloc(len + 1);
+    if (!ret)
+    {
+        perror("'mystrdup' could not malloc string\n");
+        exit(1);
+    }
+    memcpy(ret, str, len);
+    *ret_size = (unsigned long long)len;
+    ret[len] = '\0';
+    return ret;
+}
+#endif
 
 String str_new(char *str)
 {
@@ -108,6 +132,8 @@ String str_new_n(char *str, size_t size)
 
 signed long long str_contains_char(String str, char c)
 {
+    if (!str.cstr || !str.size)
+        return -1;
     size_t i;
     for (i = 0; i < str.size; i++)
     {
@@ -119,6 +145,8 @@ signed long long str_contains_char(String str, char c)
 
 signed long long str_contains_str(String str, String c)
 {
+    if (!c.cstr || !str.cstr || !str.size|| !c.size || c.size > str.size)
+        return -1;
     signed long long i = 0, j = 0;
     for (; i < (signed long long)(str.size - c.size) + 1; i++)
     {
@@ -182,7 +210,7 @@ void str_append(String *dest, String end)
 
     size_t offset = dest->size;
     dest->size += end.size;
-    char *tmp = (char *)realloc(dest->cstr, dest->size + 1); // +1 for the null terminator
+    char *tmp = (char *)realloc(dest->cstr, dest->size * sizeof(char) + 1); // +1 for the null terminator
     if (!tmp)
     {
         perror("Could not realloc 'dest' string in 'str_append'.\n");
@@ -211,6 +239,7 @@ void str_memcpy(String *dest, size_t offset, String end)
         perror("Failed to memcpy 'end' to 'dest'.\n");
         exit(1);
     }
+    dest->size += end.size;
 }
 
 bool str_equal(String a, String b)

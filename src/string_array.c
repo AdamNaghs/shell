@@ -94,7 +94,7 @@ String_Array str_split(String str, String delim)
                 String *tmp = (String *)realloc(ret.arr, ret.size * sizeof(String));
                 if (!tmp)
                 {
-                    perror(RED "'str_split' could not realloc ret.arr 0.\n" CRESET);
+                    perror("'str_split' could not realloc ret.arr 0.\n");
                     exit(1);
                 }
                 ret.arr = tmp;
@@ -121,7 +121,7 @@ String_Array str_split(String str, String delim)
     ret.arr = (String *)realloc(ret.arr, sizeof(String) * ret.size);
     if (!ret.arr)
     {
-        perror(RED "'str_split' could not realloc ret.arr 1.\n" CRESET);
+        perror("'str_split' could not realloc ret.arr 1.\n");
         exit(1);
     }
     return ret;
@@ -158,7 +158,7 @@ void str_split_as_view1(String_Array *arr, String str, String delim)
         {
             if (found >= arr->size)
             {
-                perror(RED "Provided String_Array is not large enough to contain input.\n" CRESET);
+                perror("Provided String_Array is not large enough to contain input.\n");
                 exit(1);
             }
 
