@@ -107,10 +107,12 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
             printf("\n");
         return;
     }
+    /* variables must be initilized on their own line without a space between the name and equal sign and value */
     if (0 == read_var(*inp))
     {
         return;
     }
+    /* varaibles are pasted in before parsing by commands */
     paste_vars('$', inp);
     String_Array commands;
 
@@ -130,30 +132,21 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
             {
                 ret = int_cmd->func(args);
             }
-            else
+            else /* give next command the return of the last command */
             {
-                String tmp = str_new(NULL);
-                str_append(&tmp, commands.arr[cmd]);
-                str_append(&tmp, space_delim);
-                str_append(&tmp, ret.str);
+                size_t tmp_len = commands.arr[cmd].size + space_delim.size + ret.str.size;
+                String tmp = {.cstr = (char*) malloc(tmp_len * sizeof(char) + 1),.size = tmp_len};
+                str_memcpy(&tmp,0, commands.arr[cmd]);
+                str_memcpy(&tmp, commands.arr[cmd].size , space_delim);
+                str_memcpy(&tmp, tmp_len - ret.str.size , ret.str);
+                tmp.cstr[tmp_len] = '\0';
                 Token_Array piped_command_return;
                 piped_command_return = tokenize(tmp);
                 str_free(ret.str);
                 ret = int_cmd->func(piped_command_return);
                 free_token_array(piped_command_return);
-                str_free(tmp);
             }
             ran = true;
-        }
-        else
-        {
-            /*
-                This should probably stay commented out so the user knows
-                if they are using a shell or external command
-            */
-            // ret = facade_internal_cmd(args);
-            // ran = true;
-            // printf("asn: Ran file found in path.\n");
         }
         free_token_array(args);
     }
@@ -168,7 +161,7 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
                 printf("asn: Could not find command '%s'.\n", commands.arr[0].cstr);
             }
         }
-        else if (ret.str.size)
+        else if (ret.str.size) /* ran and the command returned a non-empty string */
         {
             FILE *input_file = get_input_file();
             if (input_file != stdin)
