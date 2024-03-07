@@ -211,6 +211,7 @@ void str_memcpy(String *dest, size_t offset, String end)
         perror("Failed to memcpy 'end' to 'dest'.\n");
         exit(1);
     }
+    dest->size+=end.size;
 }
 
 bool str_equal(String a, String b)
