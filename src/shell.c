@@ -90,6 +90,8 @@ void shell_loop_step(bool print_output, bool print_input)
 }
 void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bool print_error)
 {
+    if (!inp->cstr)// || !inp->size)
+        return;
     shell_prelude();
     static char buf[2] = " ";
     static char buf1[2] = "|";
