@@ -5,7 +5,7 @@
 #include "../include/utils.h"    /* is_dir */
 #include "../include/shell.h"    /* shell_stop*/
 #include "../include/tokenize.h"
-#include <stdlib.h>              /* getenv, malloc, realloc, free */
+#include <stdlib.h> /* getenv, malloc, realloc, free */
 #include <string.h>
 #include <time.h>
 
@@ -16,6 +16,7 @@ int *are_builtins_loaded(void)
     return &ran_load_builtins;
 }
 
+#define MKDIR_BUF 4096
 struct cmd_return b_mkdir(Token_Array arr)
 {
     struct cmd_return ret = DEFAULT_CMD_RETURN;
@@ -25,8 +26,17 @@ struct cmd_return b_mkdir(Token_Array arr)
         ret.func_return = 1;
         return ret;
     }
-    String path = arr.arr[1].str;
-    MKDIR(path.cstr);
+    size_t i;
+    for (i = 1; i < arr.size; i++)
+    {
+        String path = arr.arr[i].str;
+        if (0 != MKDIR(path.cstr))
+        {
+            char buf[MKDIR_BUF];
+            snprintf(buf, MKDIR_BUF, "\nasn: mkdir: Could not make directory '%s'.", arr.arr[i].str.cstr);
+            str_append(&ret.str, STR(buf));
+        };
+    }
     return ret;
 }
 
@@ -40,7 +50,8 @@ struct cmd_return b_cd(Token_Array arr)
         ret.func_return = 1;
         return ret;
     }
-    String str = token_array_to_str(arr,' ');
+    /* ignore first arg which is 'cd' */
+    String str = token_array_to_str((Token_Array){arr.arr + 1, arr.size - 1}, ' ');
     if (str.size)
         str.cstr[str.size--] = '\0'; /* remove extra ' ' at end */
     if (-1 == CHDIR(str.cstr))
@@ -76,7 +87,7 @@ struct cmd_return b_ls(Token_Array arr)
     HANDLE hFind = INVALID_HANDLE_VALUE;
 
     char searchPath[LS_BUF];
-    String tmp_str =token_array_to_str(arr,' ');
+    String tmp_str = token_array_to_str(arr, ' ');
     if (tmp_str.size && tmp_str.cstr[tmp_str.size - 1] == ' ')
         tmp_str.cstr[--tmp_str.size] = '\0';
     if (arr.size == 1) /* Use the current directory if no arguments are provided */
@@ -95,7 +106,6 @@ struct cmd_return b_ls(Token_Array arr)
     }
     char new_line_char[2] = "\n";
     String new_line_str = {.cstr = new_line_char, .size = 1};
-    str_append(&ret.str, new_line_str);
     do
     {
         tmp_str = str_new(findFileData.cFileName);
@@ -163,7 +173,7 @@ struct cmd_return b_echo(Token_Array arr)
     {
         return ret;
     }
-    String tmp = token_array_to_str(arr, ' ');
+    String tmp = token_array_to_str((Token_Array){arr.arr + 1, arr.size - 1}, ' ');
     str_append(&ret.str, tmp);
     str_free(tmp);
     return ret;
@@ -174,7 +184,7 @@ struct cmd_return b_rm(Token_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
 
-    String args = token_array_to_str(arr, ' ');
+    String args = token_array_to_str((Token_Array){arr.arr + 1, arr.size - 1}, ' ');
     if (is_dir(args.cstr))
     {
         ret.func_return = RMDIR(args.cstr);
@@ -201,7 +211,7 @@ struct cmd_return b_exit(Token_Array arr)
         .str = str_new(tmp_char),
     };
     shell_stop();
-    str_append(&ret.str, STR(GRN "\nExitting asn...\n" CRESET));
+    str_append(&ret.str, STR(GRN "Exitting asn..." CRESET));
     return ret;
 }
 /* unused param */
@@ -233,7 +243,7 @@ struct cmd_return b_help(Token_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     char help_buf[1000] =
-        BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n" BHCYN "rm" CRESET "\t - Removes files.\n" BHCYN "touch" CRESET "\t - Creates files.\n" BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n" BHCYN "rmdir" CRESET "\t - Removes directories.\n" BHCYN "asn" CRESET "\t - asn shell, used to run file containing commands.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "time" CRESET "\t - Prints runtime of its arguments or time since UNIX epoch.\n" BHCYN "reset" CRESET "\t - Resets commands & variables.\n";
+        BHCYN "help" CRESET "\t- Prints this message to stdout.\n" BHCYN "exit" CRESET "\t- Exits program.\n" BHCYN "echo" CRESET "\t- Prints message.\n" BHCYN "clear" CRESET "\t- Wipes terminal.\n" BHCYN "cd" CRESET "\t- Change directory.\n" BHCYN "ls" CRESET "\t- List files in current directory.\n" BHCYN "pwd" CRESET "\t- Print working directory.\n" BHCYN "rm" CRESET "\t - Removes files.\n" BHCYN "touch" CRESET "\t - Creates files.\n" BHCYN "mkdir" CRESET "\t - Creates new direction with provided path.\n" BHCYN "rmdir" CRESET "\t - Removes directories.\n" BHCYN "asn" CRESET "\t - asn shell, used to run file containing commands.\n" BHCYN "osys" CRESET "\t- Outer system/shell call.\n" BHCYN "time" CRESET "\t - Prints runtime of its arguments or time since UNIX epoch.\n" BHCYN "reset" CRESET "\t - Resets commands & variables.";
     String tmp_str = str_new(help_buf);
     str_append(&ret.str, tmp_str);
     str_free(tmp_str);
@@ -251,7 +261,7 @@ struct cmd_return b_touch(Token_Array arr)
         if (!f)
         {
             char tmp[4096];
-            sprintf(tmp, RED "asn: Failed to create file '%s'.\n" CRESET, arr.arr[i].str.cstr);
+            sprintf(tmp, RED "asn: Failed to create file '%s'." CRESET, arr.arr[i].str.cstr);
             String tmp_str = {tmp, 4096};
             str_append(&ret.str, tmp_str);
             continue;
@@ -264,7 +274,7 @@ struct cmd_return b_touch(Token_Array arr)
 struct cmd_return b_reset(Token_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
-    str_append(&ret.str, STR("\nResetting asn.\n"));
+    str_append(&ret.str, STR("Resetting asn."));
     shell_reset();
     return ret;
 }
@@ -275,13 +285,13 @@ struct cmd_return b_asn(Token_Array arr)
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     char mode[2] = "r";
     size_t i;
-    FILE* def_file = get_input_file();
+    FILE *def_file = get_input_file();
     for (i = 1; i < arr.size; i++)
     {
         FILE *fd = FOPEN(arr.arr[i].str.cstr, mode);
         if (!fd)
         {
-            str_append(&ret.str, STR("asn: Could not open file.\n"));
+            str_append(&ret.str, STR("asn: Could not open file."));
             ret.func_return = 1;
             ret.success = false;
             set_input_file(def_file);
@@ -291,7 +301,7 @@ struct cmd_return b_asn(Token_Array arr)
         shell_loop_test();
         if (0 != FCLOSE(fd))
         {
-            str_append(&ret.str, STR("asn: Could not close file.\n"));
+            str_append(&ret.str, STR("asn: Could not close file."));
             ret.func_return = 1;
             ret.success = false;
             set_input_file(def_file);
@@ -310,7 +320,7 @@ struct cmd_return b_time(Token_Array arr)
     if (arr.size <= 1)
     {
         char buf[TIME_BUF];
-        snprintf(buf, TIME_BUF, "%lld\n", time(NULL));
+        snprintf(buf, TIME_BUF, "%lld", time(NULL));
         str_append(&ret.str, STR(buf));
         return ret;
     }
@@ -324,9 +334,13 @@ struct cmd_return b_time(Token_Array arr)
         ret.success = false;
         return ret;
     }
+    str_free(ret.str);
     ret = cmd->func(tmp_arr);
     char buf[TIME_BUF];
-    snprintf(buf, TIME_BUF, "\n'%s' ran in: %ldms", tmp_arr.arr[0].str.cstr, clock() - start);
+    if (ret.str.size)
+        snprintf(buf, TIME_BUF, "\n'%s' ran in: %ldms", tmp_arr.arr[0].str.cstr, clock() - start);
+    else
+        snprintf(buf, TIME_BUF, "'%s' ran in: %ldms", tmp_arr.arr[0].str.cstr, clock() - start);
     str_append(&ret.str, STR(buf));
     return ret;
 }
