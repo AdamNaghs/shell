@@ -48,13 +48,14 @@ struct cmd_return b_cd(Token_Array arr)
     if (arr.size == 1)
     {
         ret.func_return = 1;
-        str_append(&ret.str,STR_LIT("asn: cd: Missing operand."));
+        str_append(&ret.str, STR_LIT("asn: cd: Missing operand."));
         return ret;
     }
     /* ignore first arg which is 'cd' */
     String str = token_array_to_str((Token_Array){arr.arr + 1, arr.size - 1}, ' ');
     if (str.size)
         str.cstr[str.size--] = '\0'; /* remove extra ' ' at end */
+    str_remove_trailing_whitespace(&str);
     if (-1 == CHDIR(str.cstr))
     {
         printf(RED "asn: Could not open directory " BHRED "'%s'\n" CRESET, str.cstr);
@@ -123,7 +124,7 @@ struct cmd_return b_ls(Token_Array arr)
 #include <dirent.h> /* opendir, readdir, closedir, */
 struct cmd_return b_ls(Token_Array cmd_inp)
 {
-    
+
     char new_line_char[2] = "\n";
     String new_line_str = {.cstr = new_line_char, .size = 1};
     struct cmd_return ret = DEFAULT_CMD_RETURN;
@@ -171,7 +172,7 @@ struct cmd_return b_echo(Token_Array arr)
     if (arr.size <= 1)
     {
         ret.func_return = 1;
-        str_append(&ret.str,STR_LIT("asn: echo: Missing operand."));
+        str_append(&ret.str, STR_LIT("asn: echo: Missing operand."));
         return ret;
     }
     String tmp = token_array_to_str((Token_Array){arr.arr + 1, arr.size - 1}, ' ');
@@ -186,7 +187,7 @@ struct cmd_return b_rm(Token_Array arr)
     if (arr.size <= 1)
     {
         ret.func_return = 1;
-        str_append(&ret.str,STR_LIT("asn: rm: Missing operand."));
+        str_append(&ret.str, STR_LIT("asn: rm: Missing operand."));
         return ret;
     }
 
@@ -318,14 +319,14 @@ struct cmd_return b_asn(Token_Array arr)
     // printf("Test File(s) Runtime: %lums",clock()-start);
     return ret;
 }
-#define TIME_BUF 16
+#define TIME_BUF 64
 
 struct cmd_return b_time(Token_Array arr)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
+    char buf[TIME_BUF];
     if (arr.size <= 1)
     {
-        char buf[TIME_BUF];
         snprintf(buf, TIME_BUF, "%lld", time(NULL));
         str_append(&ret.str, STR(buf));
         return ret;
@@ -342,11 +343,11 @@ struct cmd_return b_time(Token_Array arr)
     }
     str_free(ret.str);
     ret = cmd->func(tmp_arr);
-    char buf[TIME_BUF];
+    double runtime = (double)(clock() - start) / CLOCKS_PER_SEC;
     if (ret.str.size)
-        snprintf(buf, TIME_BUF, "\n'%s' ran in: %fs", tmp_arr.arr[0].str.cstr, (double)(clock() - start)/CLOCKS_PER_SEC);
+        snprintf(buf, TIME_BUF, "\n'%s' ran in: %lfs", tmp_arr.arr[0].str.cstr, runtime);
     else
-        snprintf(buf, TIME_BUF, "'%s' ran in: %fs", tmp_arr.arr[0].str.cstr, (double)(clock() - start)/CLOCKS_PER_SEC);
+        snprintf(buf, TIME_BUF, "'%s' ran in: %lfs", tmp_arr.arr[0].str.cstr, runtime);
     str_append(&ret.str, STR(buf));
     return ret;
 }
@@ -356,48 +357,33 @@ void load_builtins(void)
     if (ran_load_builtins)
         return;
     ran_load_builtins = 1;
-    char str_echo[5] = "echo";
-    add_internal_cmd(internal_cmd_new(str_new(str_echo), b_echo));
+    add_internal_cmd(internal_cmd_new(str_new("echo"), b_echo));
 
-    char str_exit[5] = "exit";
-    add_internal_cmd(internal_cmd_new(str_new(str_exit), b_exit));
+    add_internal_cmd(internal_cmd_new(str_new("exit"), b_exit));
 
-    char str_cd[3] = "cd";
-    add_internal_cmd(internal_cmd_new(str_new(str_cd), b_cd));
+    add_internal_cmd(internal_cmd_new(str_new("cd"), b_cd));
 
-    char str_ls[3] = "ls";
-    add_internal_cmd(internal_cmd_new(str_new(str_ls), b_ls));
+    add_internal_cmd(internal_cmd_new(str_new("ls"), b_ls));
 
-    char str_osys[5] = "osys";
-    add_internal_cmd(internal_cmd_new(str_new(str_osys), b_osys));
+    add_internal_cmd(internal_cmd_new(str_new("osys"), b_osys));
 
-    char str_clear[6] = "clear";
-    add_internal_cmd(internal_cmd_new(str_new(str_clear), b_clear));
+    add_internal_cmd(internal_cmd_new(str_new("clear"), b_clear));
 
-    char str_help[5] = "help";
-    add_internal_cmd(internal_cmd_new(str_new(str_help), b_help));
+    add_internal_cmd(internal_cmd_new(str_new("help"), b_help));
 
-    char str_pwd[4] = "pwd";
-    add_internal_cmd(internal_cmd_new(str_new(str_pwd), b_pwd));
+    add_internal_cmd(internal_cmd_new(str_new("pwd"), b_pwd));
 
-    char str_mkdir[6] = "mkdir";
-    add_internal_cmd(internal_cmd_new(str_new(str_mkdir), b_mkdir));
+    add_internal_cmd(internal_cmd_new(str_new("mkdir"), b_mkdir));
 
-    char str_rm[3] = "rm";
-    add_internal_cmd(internal_cmd_new(str_new(str_rm), b_rm));
+    add_internal_cmd(internal_cmd_new(str_new("rm"), b_rm));
 
-    char str_touch[6] = "touch";
-    add_internal_cmd(internal_cmd_new(str_new(str_touch), b_touch));
+    add_internal_cmd(internal_cmd_new(str_new("touch"), b_touch));
 
-    char str_rmdir[6] = "rmdir";
-    add_internal_cmd(internal_cmd_new(str_new(str_rmdir), b_rmdir));
+    add_internal_cmd(internal_cmd_new(str_new("rmdir"), b_rmdir));
 
-    char str_reset[6] = "reset";
-    add_internal_cmd(internal_cmd_new(str_new(str_reset), b_reset));
+    add_internal_cmd(internal_cmd_new(str_new("reset"), b_reset));
 
-    char str_asn[4] = "asn";
-    add_internal_cmd(internal_cmd_new(str_new(str_asn), b_asn));
+    add_internal_cmd(internal_cmd_new(str_new("asn"), b_asn));
 
-    char str_time[5] = "time";
-    add_internal_cmd(internal_cmd_new(str_new(str_time), b_time));
+    add_internal_cmd(internal_cmd_new(str_new("time"), b_time));
 }
