@@ -139,7 +139,7 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
                 str_memcpy(&tmp,0, commands.arr[cmd]);
                 str_memcpy(&tmp, commands.arr[cmd].size , space_delim);
                 str_memcpy(&tmp, tmp_len - ret.str.size , ret.str);
-                tmp.cstr[tmp_len] = '\0';
+                tmp.cstr[tmp.size++] = '\0';
                 Token_Array piped_command_return;
                 piped_command_return = tokenize(tmp);
                 str_free(ret.str);
