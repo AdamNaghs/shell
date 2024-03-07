@@ -1,6 +1,6 @@
-CC = gcc
+CC = clang
 CFILES = main.c IO.c string.c shell.c signal.c credentials.c cmd.c builtins.c utils.c var.c string_array.c tokenize.c
-CFLAGS = -Wall  -g -std=c99 -pedantic 
+CFLAGS = -Wall -fsanitize=address,undefined -g -std=c99 -pedantic 
 LFLAGS = 
 OUTNAME = asn
 OBJS = $(CFILES:%.c=$(OBJFOLDER)%.o)
