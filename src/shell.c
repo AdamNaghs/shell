@@ -72,7 +72,7 @@ void shell_loop_step(bool print_output, bool print_input)
     if (print_output)
         shell_print_line_flair();
     String inp = input('\n', 0);
-    String_Array arr = str_split(inp, STR(";"));
+    String_Array arr = str_split(inp, STR_LIT(";"));
     size_t i;
     for (i = 0; i < arr.size; i++)
     {
