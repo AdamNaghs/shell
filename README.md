@@ -106,11 +106,12 @@ The colors don't work in some terminals. I am not yet sure how I can check if a 
 2.  osys and external commands sometimes stop, or appear to perhaps because of the lack of file stream mixing.
 3.  Using rm/rmdir on a does not delete a folder.
 4.  Enabling/Disabling Colors is a compile time decision
+5.  The login probably isnt secure (who cares? lol).
+6.  Shell loop works on the assumtion the user is going to provide a newline character.
 # Todo
 ### All Versions
-    1. Get login working (credentials.h/c)
-    2. Get mixed input and output from caputure_system_call working. (cmd.c)
-    3. getenv is deprecated (cmd.c)
+    1. Get mixed input and output from caputure_system_call working. (cmd.c)
+    2. getenv is deprecated (cmd.c)
         3a. Find out if _dupenv_s is unix compatible
         3b. Find ansi C and crossplatform way to replace getenv
 ### Unix
