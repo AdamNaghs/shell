@@ -12,9 +12,9 @@ size_t cmd_arr_cap = 10;
 size_t cmd_arr_len = 0;
 struct internal_cmd *cmd_arr;
 #define CPT_SYS_CALL_BUF 4096
-void capture_system_call(struct cmd_return *ret, String command)
+void capture_system_call(struct cmd_return *ret, Token_Array arr)
 {
-    String new_cmd = str_new(command.cstr);
+    String new_cmd = token_array_to_str(arr, ' ');
     FILE *pipe = POPEN(new_cmd.cstr, "r");
     str_free(new_cmd);
     if (!pipe)
@@ -83,12 +83,10 @@ size_t get_internal_cmd_list_size(void)
     return cmd_arr_len;
 }
 
-struct cmd_return facade_internal_cmd(String_Array cmd)
+struct cmd_return facade_internal_cmd(Token_Array cmd)
 {
-    String str = str_arr_join(cmd, ' ');
     struct cmd_return ret = {.success = true, .func_return = 0, .str = str_new(NULL)};
-    capture_system_call(&ret, str);
-    str_free(str);
+    capture_system_call(&ret, cmd);
     return ret;
 }
 void load_external_from_file(char *filename)

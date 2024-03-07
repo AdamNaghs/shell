@@ -7,15 +7,16 @@
 #include "../include/tokenize.h"
 #include <time.h>
 #include <stdlib.h>
+
+#ifdef _WIN32
+char path[49] = "C:\\Users\\adamn\\Dropbox\\src\\c code\\shell\\test.asn";
+#else
+char path[53] = "/mnt/c/Users/adamn/Dropbox/src/c code/shell/test.asn";
+#endif
 void test_shell_loop(void)
 {
     clock_t start = clock();
     char mode[2] = "r";
-#ifdef _WIN32
-    char path[49] = "C:\\Users\\adamn\\Dropbox\\src\\c code\\shell\\test.asn";
-#else
-    char path[53] = "/mnt/c/Users/adamn/Dropbox/src/c code/shell/test.asn";
-#endif
     FILE *f = FOPEN(path, mode);
     set_input_file(f);
     shell_loop_test();
@@ -27,28 +28,69 @@ void test_shell_loop(void)
 void test_str_split(void)
 {
     String_Array arr;
-    String case0 = STR(" ");
-    arr = str_split(case0, STR(" "));
+    String case0 = STR_LIT(" ");
+    arr = str_split(case0, STR_LIT(" "));
     str_arr_free(arr);
-    String case1 = STR("  ");
-    arr = str_split(case1, STR(" "));
+    String case1 = STR_LIT("  ");
+    arr = str_split(case1, STR_LIT(" "));
     str_arr_free(arr);
-    String case2 = STR(" ");
-    arr = str_split(case2, STR(" "));
+    String case2 = STR_LIT(" ");
+    arr = str_split(case2, STR_LIT(" "));
     str_arr_free(arr);
 }
 
 void test_tokenize(void)
 {
-    Token_Array ta = tokenize(STR("if arg1 arg2: \"2 3\"\n\r\t "));
-    size_t i = 0;
-    for (; i < ta.size; i++)
+    FILE *fd = FOPEN(path, "r");
+    FILE *tmp_file = get_input_file();
+    set_input_file(fd);
+    while (!at_eof())
     {
-        printf("%s ",ta.arr[i].str.cstr);
+        String s = input('\n', 0);
+        Token_Array ta = tokenize(s);
+        size_t i = 0;
+        for (; i < ta.size; i++)
+            printf("%s ", ta.arr[i].str.cstr);
+        printf("\nSize: %d\n", ta.size);
+        free_token_array(ta);
+        str_free(s);
     }
-    printf("\nSize: %d\n",ta.size);
-    free_token_array(ta);
-    exit(1);
+    set_input_file(tmp_file);
+    exit(0);
+}
+#define LOOP_MAX 10000000 /* 10 000 000 000*/
+
+void test_string_speed(void)
+{
+    clock_t start = clock();
+    String str = str_new(NULL);
+    size_t i;
+    for (i = 0; i < LOOP_MAX; i++)
+    {
+        str_append(&str,STR_LIT("A not very but still reasonably long string.\n"));
+    }
+    str_free(str);
+    printf("String TEST1 ran in %lfms \n",((double)(clock() - start)/CLOCKS_PER_SEC) * 1000);
+
+
+    start = clock();
+    for (i = 0; i < LOOP_MAX; i++)
+    {
+        str = str_new(NULL);
+        str_append(&str,STR_LIT("A not very but still reasonably long string.\n"));
+        str_free(str);
+    }
+    printf("String TEST2 ran in %lfms \n",((double)(clock() - start)/CLOCKS_PER_SEC) * 1000);
+
+    start = clock();
+    str = STR_LIT("A not very but still reasonably long string.\n");
+    for (i = 0; i < LOOP_MAX; i++)
+    {
+        Token_Array ta = tokenize(str);
+        free_token_array(ta);
+    }
+    printf("Token_Array TEST1 ran in %lfms \n",((double)(clock() - start)/CLOCKS_PER_SEC) * 1000);
+
 }
 
 int main(void)
@@ -60,8 +102,10 @@ int main(void)
     // test_str_split();
     // for (size_t i = 0; i < 10000; i++)
     //     test_shell_loop();
-    test_tokenize();
-    test_shell_loop();
+    // test_tokenize();k
+    //test_shell_loop();
+    // test_string_speed();
+    // exit(0);
     shell_loop();
     return 0;
 }

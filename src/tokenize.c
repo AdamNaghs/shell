@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-bool has_minimum_tokens(Token_Type* expected, size_t expected_size, Token_Array given)
+bool has_minimum_tokens(Token_Type *expected, size_t expected_size, Token_Array given)
 {
     return false;
 }
@@ -24,6 +24,19 @@ void tok_arr_add(Token_Array *ta, size_t *ta_cap, Token tok)
         ta->arr = tmp;
     }
     ta->arr[ta->size++] = tok;
+}
+bool tok_ispunct(char c)
+{
+    switch (c)
+    {
+        case ':':
+        case ';':
+        case ',':
+        case '|':
+            return true;
+        default:
+            return false;
+    }
 }
 
 Token_Array tokenize(String line)
@@ -51,7 +64,7 @@ Token_Array tokenize(String line)
                 // Ending a quoted token
                 size_t token_length = i - start_idx;
                 String s = str_new_n(line.cstr + start_idx, token_length);
-                Token t = {.str = s, .type = STRING}; // Assuming QUOTED is a token type
+                Token t = {.str = s, .type = STRING}; 
                 tok_arr_add(&ret, &cap, t);
 
                 in_quotes = false;
@@ -61,7 +74,7 @@ Token_Array tokenize(String line)
 
         if (!in_quotes)
         {
-            if (isspace(line.cstr[i]) || ispunct(line.cstr[i]) || i == line.size)
+            if (isspace(line.cstr[i]) || tok_ispunct(line.cstr[i]) || i == line.size)
             {
                 if (in_token)
                 {
@@ -74,7 +87,7 @@ Token_Array tokenize(String line)
                     in_token = false;
                 }
 
-                if (ispunct(line.cstr[i]))
+                if (tok_ispunct(line.cstr[i]))
                 {
                     // Handle punctuation
                     char tmp[2] = {line.cstr[i], '\0'};
@@ -101,4 +114,19 @@ void free_token_array(Token_Array ta)
     {
         str_free(ta.arr[i].str);
     }
+    free(ta.arr);
+}
+
+String token_array_to_str(Token_Array ta, char sep)
+{
+    String ret = str_new(NULL);
+    size_t i;
+    char buf[2] = {sep, '\0'};
+    for (i = 0; i < ta.size; i++)
+    {
+        str_append(&ret, ta.arr[i].str);
+        if (ta.arr[i].type != PUNCT && i != ta.size - 1)
+            str_append(&ret, STR(buf));
+    }
+    return ret;
 }

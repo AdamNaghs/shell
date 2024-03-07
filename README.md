@@ -36,6 +36,9 @@ Not sure whether or not I should store the external programs found in the path o
 I think another project I may do is a terminal written in a graphics library and then I'll try integrating my shell.
 
 I want to improve the way that I tokenize a string to better support a scripting language. If I write a tokenizer, it will be meant for a line based scripted langauge similar to python but without indentation.
+
+It might be a good idea to change the way that input is handled
+If the input were as easy as a file stream then I could just parse the next word from the input buffer in each command. But with stdin and the way I am currently handling input I don't think its as easy. I could define a set of line seperators but then I cannot use any of those seperators as input to commands.
 ## Pipes '|'
 I implemented pipes in a cheaty way. I'm just passing the result string of a command that is being piped
 to the command that it is being piped to as the first argument.
@@ -102,6 +105,7 @@ The colors don't work in some terminals. I am not yet sure how I can check if a 
 1.  osys and external commands do not mix stdin, stdout, and stderr while running a process.
 2.  osys and external commands sometimes stop, or appear to perhaps because of the lack of file stream mixing.
 3.  Using rm/rmdir on a does not delete a folder.
+4.  Enabling/Disabling Colors is a compile time decision
 # Todo
 ### All Versions
     1. Get login working (credentials.h/c)

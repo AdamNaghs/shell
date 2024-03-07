@@ -13,7 +13,8 @@
 static bool prelude_ran = 0;
 static bool shell_run = true;
 
-#define STR_ARRAY_VIEWS
+#define OUTPUT_COLOR BHWHT
+#define CWD_BUF 4096
 
 void shell_prelude(void)
 {
@@ -47,7 +48,6 @@ void shell_reset(void)
     shell_prelude();
 }
 
-#define CWD_BUF 4096
 void shell_print_line_flair(void)
 {
     char cwd_buf[CWD_BUF];
@@ -62,19 +62,27 @@ void shell_print_line_flair(void)
     printf(BLU "asn" CRESET "@" CYN "%s> " CRESET, cwd_buf);
 }
 
+void shell_print_greeting(void)
+{
+    printf("Welcome to "BLU "asn" CRESET " shell.\n\nInput "BLU "help"CRESET " for a list of commands.\n");
+}
+
 void shell_loop_step(bool print_output, bool print_input)
 {
     if (print_output)
-    {
         shell_print_line_flair();
-    }
     String inp = input('\n', 0);
-    String_Array arr = str_split(inp, STR(";"));
+    String_Array arr = str_split(inp, STR_LIT(";"));
     size_t i;
     for (i = 0; i < arr.size; i++)
     {
-        shell_print_line_flair();
-        printf("%s\n",arr.arr[i].cstr);
+        if (print_output && i)
+        {
+            shell_print_line_flair();
+            printf("%s", arr.arr[i].cstr);
+            if (get_input_file() != stdin)
+                printf("\n");
+        }
         shell_loop_manual_step(&arr.arr[i], print_input, print_output, true);
     }
     str_free(inp);
@@ -88,7 +96,6 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
     String space_delim = STR(buf);
     String pipe_delim = STR(buf1);
 
-    str_remove_trailing_whitespace(inp);
     struct cmd_return ret = {.success = false, .func_return = 0, .str = {.cstr = NULL, .size = 0}};
     if (print_input)
     {
@@ -100,73 +107,48 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
             printf("\n");
         return;
     }
+    /* variables must be initilized on their own line without a space between the name and equal sign and value */
     if (0 == read_var(*inp))
     {
         return;
     }
+    /* varaibles are pasted in before parsing by commands */
     paste_vars('$', inp);
     String_Array commands;
-#ifdef STR_ARRAY_VIEWS
-    STR_ARRAY_STACK_ALLOC(commands, str_count(*inp, pipe_delim));
-    str_split_as_view(&commands, *inp, pipe_delim);
-#else
+
     commands = str_split(*inp, pipe_delim);
-#endif
     size_t cmd;
     bool ran = false;
     for (cmd = 0; cmd < commands.size; cmd++)
     {
-        String_Array args;
-#ifdef STR_ARRAY_VIEWS
-        STR_ARRAY_STACK_ALLOC(args, str_count(commands.arr[cmd], space_delim));
-        str_split_as_view(&args, commands.arr[cmd], space_delim);
-#else
-        args = str_split(commands.arr[cmd], space_delim);
-#endif
+        Token_Array args;
+        args = tokenize(commands.arr[cmd]);
         if (!args.size)
             break;
-        struct internal_cmd *int_cmd = find_internal_cmd(args.arr[0]);
+        struct internal_cmd *int_cmd = find_internal_cmd(args.arr[0].str);
         if (int_cmd)
         {
             if (cmd == 0)
             {
                 ret = int_cmd->func(args);
             }
-            else
+            else /* give next command the return of the last command */
             {
-                String tmp = str_new(NULL);
-                str_append(&tmp, commands.arr[cmd]);
-                str_append(&tmp, space_delim);
-                str_append(&tmp, ret.str);
-                String_Array piped_command_return;
-#ifdef STR_ARRAY_VIEWS
-                STR_ARRAY_STACK_ALLOC(piped_command_return, str_count(tmp, space_delim));
-                str_split_as_view(&piped_command_return, tmp, space_delim);
-#else
-                piped_command_return = str_split(tmp, space_delim);
-#endif
+                size_t tmp_len = commands.arr[cmd].size + space_delim.size + ret.str.size;
+                String tmp = {.cstr = (char*) malloc(tmp_len * sizeof(char) + 1),.size = tmp_len};
+                str_memcpy(&tmp,0, commands.arr[cmd]);
+                str_memcpy(&tmp, commands.arr[cmd].size , space_delim);
+                str_memcpy(&tmp, tmp_len - ret.str.size , ret.str);
+                tmp.cstr[tmp_len] = '\0';
+                Token_Array piped_command_return;
+                piped_command_return = tokenize(tmp);
                 str_free(ret.str);
                 ret = int_cmd->func(piped_command_return);
-#ifndef STR_ARRAY_VIEWS
-                str_arr_free(piped_command_return);
-#endif
-                str_free(tmp);
+                free_token_array(piped_command_return);
             }
             ran = true;
         }
-        else
-        {
-            /*
-                This should probably stay commented out so the user knows
-                if they are using a shell or external command
-            */
-            // ret = facade_internal_cmd(args);
-            // ran = true;
-            // printf("asn: Ran file found in path.\n");
-        }
-#ifndef STR_ARRAY_VIEWS
-        str_arr_free(args);
-#endif
+        free_token_array(args);
     }
     if (print_output)
     {
@@ -179,16 +161,20 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
                 printf("asn: Could not find command '%s'.\n", commands.arr[0].cstr);
             }
         }
-        else
-            printf("\n%s\n", ret.str.cstr);
+        else if (ret.str.size) /* ran and the command returned a non-empty string */
+        {
+            FILE *input_file = get_input_file();
+            if (input_file != stdin)
+                printf(OUTPUT_COLOR "\n%s" CRESET, ret.str.cstr);
+            else
+                printf(OUTPUT_COLOR "%s\n" CRESET, ret.str.cstr);
+        }
     }
-#ifndef STR_ARRAY_VIEWS
     str_arr_free(commands);
-#endif
     if (ret.str.cstr)
         str_free(ret.str);
 }
-
+/* meant to be used if you change the input file */
 void shell_loop_test(void)
 {
     shell_prelude();
@@ -201,6 +187,7 @@ void shell_loop_test(void)
 void shell_loop(void)
 {
     shell_prelude();
+    shell_print_greeting();
     while (shell_run)
     {
         shell_loop_step(true, false);
