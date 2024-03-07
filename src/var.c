@@ -125,6 +125,7 @@ void paste_vars(char prefix, String *string)
         /* Either no prefix found, or the next character after the prefix is not a letter*/
         return;
     }
+    if (size == 0) return;
 
     String ret = str_new(NULL);
     str_append(&ret, (String){.cstr = string->cstr, .size = (size_t)idx});
