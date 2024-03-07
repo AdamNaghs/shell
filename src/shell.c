@@ -21,7 +21,6 @@ void shell_prelude(void)
     if (prelude_ran)
         return;
     bind_signals();
-    attempt_login_loop();
     load_builtins();
     load_external_commands();
     init_var_arr();
@@ -188,6 +187,7 @@ void shell_loop_test(void)
 
 void shell_loop(void)
 {
+    attempt_login_loop();
     shell_prelude();
     shell_print_greeting();
     while (shell_run)
