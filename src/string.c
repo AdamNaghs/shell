@@ -67,6 +67,8 @@ char *mystrdup_n(char *str, unsigned long long ret_size)
     ret[ret_size] = '\0';
     return ret;
 }
+
+#ifdef STR_TEST
 String str_new_n(char *str, size_t size)
 {
     if (!str)
@@ -78,6 +80,31 @@ String str_new_n(char *str, size_t size)
     ret.size = size;
     return ret;
 }
+
+#else
+String str_new_n(char *str, size_t size)
+{
+    if (!str)
+    {
+        return str_new(NULL);
+    }
+    String ret;
+    ret.cstr = (char *)malloc(size * sizeof(char) + 1);
+    if (!ret.cstr)
+    {
+        perror("Could not allocate string in 'str_new_n'.\n");
+        exit(1);
+    }
+    if (NULL == memcpy(ret.cstr, str, size))
+    {
+        perror("Could not memcpy string in 'str_new_n'.\n");
+        exit(1);
+    }
+    ret.cstr[size] = '\0';
+    ret.size = size;
+    return ret;
+}
+#endif
 
 signed long long str_contains_char(String str, char c)
 {
@@ -115,7 +142,8 @@ signed long long str_contains_str(String str, String c)
     return -1;
 }
 
-void str_append1(String *dest, String end)
+#ifdef STR_TEST
+void str_append(String *dest, String end)
 {
     if (!dest)
     {
@@ -138,7 +166,7 @@ void str_append1(String *dest, String end)
     }
     dest->cstr[dest->size] = '\0';
 }
-
+#else
 void str_append(String *dest, String end)
 {
     if (!dest)
@@ -161,20 +189,28 @@ void str_append(String *dest, String end)
         exit(1);
     }
     dest->cstr = tmp;
-    if (!end.cstr)
-        return;
     if (!dest->cstr)
     {
         *dest = str_new(end.cstr);
         return;
     }
-    if (memcpy(dest->cstr + offset, end.cstr, end.size) == NULL)
+    if (memcpy(dest->cstr + offset, end.cstr, end.size * sizeof(char)) == NULL)
     {
         perror("Failed to memcpy 'end' to 'dest'.\n");
         exit(1);
     }
 
     dest->cstr[dest->size] = '\0';
+}
+#endif
+
+void str_memcpy(String *dest, size_t offset, String end)
+{
+    if (memcpy(dest->cstr + offset, end.cstr, end.size * sizeof(char)) == NULL)
+    {
+        perror("Failed to memcpy 'end' to 'dest'.\n");
+        exit(1);
+    }
 }
 
 bool str_equal(String a, String b)
