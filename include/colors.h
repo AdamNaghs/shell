@@ -34,7 +34,7 @@
 #endif
 #ifndef WHT
 #define WHT "\e[0;37m"
-#endif 
+#endif
 
 /*Regular bold text*/
 #ifndef BBLK
@@ -225,7 +225,7 @@
 #endif
 #ifndef WHT
 #define WHT ""
-#endif 
+#endif
 
 /*Regular bold text*/
 #ifndef BBLK
