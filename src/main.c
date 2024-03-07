@@ -69,7 +69,7 @@ int main(void)
     // for (size_t i = 0; i < 10000; i++)
     //     test_shell_loop();
     // test_tokenize();k
-    test_shell_loop();
+    //test_shell_loop();
     shell_loop();
     return 0;
 }
