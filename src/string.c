@@ -217,11 +217,6 @@ void str_append(String *dest, String end)
         exit(1);
     }
     dest->cstr = tmp;
-    if (!dest->cstr)
-    {
-        *dest = str_new(end.cstr);
-        return;
-    }
     if (memcpy(dest->cstr + offset, end.cstr, end.size * sizeof(char)) == NULL)
     {
         perror("Failed to memcpy 'end' to 'dest'.\n");

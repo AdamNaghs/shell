@@ -62,36 +62,44 @@ void test_tokenize(void)
 
 void test_string_speed(void)
 {
+    static int batch = 0;
     clock_t start = clock();
     String str = str_new(NULL);
     size_t i;
-    printf("Starting String Speed Test with %d iterations.\n",LOOP_MAX);
+    printf("Starting String Speed Batch %d with %d iterations.\n", batch, LOOP_MAX);
     for (i = 0; i < LOOP_MAX; i++)
     {
-        str_append(&str,STR_LIT("A not very but still reasonably long string.\n"));
+        str_append(&str, STR_LIT("A not very but still reasonably long string.\n"));
     }
     str_free(str);
-    printf("String TEST1 ran in %lfms \n",((double)(clock() - start)/CLOCKS_PER_SEC) * 1000);
-
+    printf("String_Append TEST%d ran in %lfms \n", 1 + batch, ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000);
 
     start = clock();
     for (i = 0; i < LOOP_MAX; i++)
     {
         str = str_new(NULL);
-        str_append(&str,STR_LIT("A not very but still reasonably long string.\n"));
+        str_append(&str, STR_LIT("A not very but still reasonably long string.\n"));
         str_free(str);
     }
-    printf("String TEST2 ran in %lfms \n",((double)(clock() - start)/CLOCKS_PER_SEC) * 1000);
+    printf("String_Append TEST%d ran in %lfms \n", 2 + batch, ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000);
+
+    start = clock();
+    str = STR_LIT("A not very but still reasonably long string.\n");
+    String memcpy_str = (String){(char*)malloc(LOOP_MAX * str.size + 1), 0};
+    for (i = 0; i < (LOOP_MAX * str.size); i+=str.size)
+    {
+        str_memcpy(&memcpy_str,i,str);
+    }
+    printf("String_Memcpy TEST%d ran in %lfms \n", 1 + batch, ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000);
 
     start = clock();
     str = STR_LIT("A not very but still reasonably long string.\n");
     for (i = 0; i < LOOP_MAX; i++)
     {
         Token_Array ta = tokenize(str);
-        String s = token_array_to_str(ta, ' ');
         free_token_array(ta);
     }
-    printf("Token_Array TEST1 ran in %lfms \n",((double)(clock() - start)/CLOCKS_PER_SEC) * 1000);
+    printf("Token_Array TEST%d ran in %lfms \n", 1 + batch, ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000);
     start = clock();
     str = STR_LIT("A not very but still reasonably long string.\n");
     Token_Array ta = tokenize(str);
@@ -101,20 +109,24 @@ void test_string_speed(void)
         str_free(s);
     }
     free_token_array(ta);
-    printf("Token_Array to str TEST1 ran in %lfms\n",((double)(clock() - start)/CLOCKS_PER_SEC) * 1000);
+    printf("Token_Array to str TEST%d ran in %lfms\n", 1 + batch, ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000);
+    batch++;
+    printf("\n");
 }
 
 int main(void)
 {
-    
+
     // for (int i = 0; i < 10; i++)
     //     test_creds();
-    
+
     // test_str_split();
     // for (size_t i = 0; i < 10000; i++)
     //     test_shell_loop();
     // test_tokenize();k
-    //test_shell_loop();
+    // test_shell_loop();
+    // for (int i = 0; i < 10; i++)
+    //     test_string_speed();
     shell_loop();
     return 0;
 }

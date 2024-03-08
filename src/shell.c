@@ -66,7 +66,7 @@ void shell_print_line_flair(void)
 
 void shell_print_greeting(void)
 {
-    if  (colors_enabled())
+    if (colors_enabled())
         output("Welcome to " BLU "asn" CRESET " shell.\n\nInput " BLU "help" CRESET " for a list of commands.\n");
     else
         output("Welcome to asn shell.\n\nInput help for a list of commands.\n");
@@ -103,7 +103,7 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
     String space_delim = STR(buf);
     String pipe_delim = STR(buf1);
 
-    struct cmd_return ret = {.success = false, .func_return = 0, .str = {.cstr = NULL, .size = 0}};
+    struct cmd_return ret = CMD_RETURN_SUCCESS;
     if (print_input)
     {
         output("%s", inp->cstr);
@@ -121,41 +121,23 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
     }
     /* varaibles are pasted in before parsing by commands */
     paste_vars('$', inp);
-    String_Array commands;
-
-    commands = str_split(*inp, pipe_delim);
+    Token_Array ta = tokenize(*inp);
+    Token_Array line = ta;
     size_t cmd;
     bool ran = false;
-    for (cmd = 0; cmd < commands.size; cmd++)
+    String ret_str = str_new(NULL);
+    for (cmd = 0; cmd < line.size; cmd++)
     {
-        Token_Array args;
-        args = tokenize(commands.arr[cmd]);
-        if (!args.size)
-            break;
-        struct internal_cmd *int_cmd = find_internal_cmd(args.arr[0].str);
+        struct internal_cmd *int_cmd = find_internal_cmd(line.arr[0].str);
         if (int_cmd)
         {
-            if (cmd == 0)
-            {
-                ret = int_cmd->func(args);
-            }
-            else /* give next command the return of the last command */
-            {
-                size_t tmp_len = commands.arr[cmd].size + space_delim.size + ret.str.size;
-                String tmp = {.cstr = (char *)malloc(tmp_len * sizeof(char) + 1), .size = tmp_len};
-                str_memcpy(&tmp, 0, commands.arr[cmd]);
-                str_memcpy(&tmp, commands.arr[cmd].size, space_delim);
-                str_memcpy(&tmp, tmp_len - ret.str.size, ret.str);
-                tmp.cstr[tmp.size++] = '\0';
-                Token_Array piped_command_return;
-                piped_command_return = tokenize(tmp);
-                str_free(ret.str);
-                ret = int_cmd->func(piped_command_return);
-                free_token_array(piped_command_return);
-            }
+            ret = int_cmd->func(&line, &ret_str);
             ran = true;
         }
-        free_token_array(args);
+        else 
+        {
+            break;
+        }
     }
     if (print_output)
     {
@@ -165,26 +147,26 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
             {
                 if (get_input_file() != stdin)
                     output("\n");
-                output("asn: Could not find command '%s'.\n", commands.arr[0].cstr);
+                output("asn: Could not find command '%s'.\n", line.arr[0].str.cstr);
             }
         }
-        else if (ret.str.size) /* ran and the command returned a non-empty string */
+        else if (ret_str.size) /* ran and the command returned a non-empty string */
         {
             FILE *input_file = get_input_file();
             int colors = colors_enabled();
             if (colors)
                 output(OUTPUT_COLOR);
             if (input_file != stdin)
-                output("\n%s", ret.str.cstr);
+                output("\n%s", ret_str.cstr);
             else
-                output("%s\n", ret.str.cstr);
+                output("%s\n", ret_str.cstr);
             if (colors)
                 output(CRESET);
         }
     }
-    str_arr_free(commands);
-    if (ret.str.cstr)
-        str_free(ret.str);
+    free_token_array(ta);
+    if (ret_str.cstr)
+        str_free(ret_str);
 }
 /* meant to be used if you change the input file */
 void shell_loop_test(void)
@@ -198,7 +180,7 @@ void shell_loop_test(void)
 
 void shell_loop(void)
 {
-    attempt_login_loop();
+    //attempt_login_loop();
     shell_prelude();
     shell_print_greeting();
     while (shell_run)

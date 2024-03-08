@@ -47,6 +47,8 @@ I want to improve the way that I tokenize a string to better support a scripting
 
 It might be a good idea to change the way that input is handled
 If the input were as easy as a file stream then I could just parse the next word from the input buffer in each command. But with stdin and the way I am currently handling input I don't think its as easy. I could define a set of line seperators but then I cannot use any of those seperators as input to commands.
+
+I should rewrite shell_loop_manual_step and all the builtins to change the way input is parsed. The shell_loop_manual_step will tokenize the line and store a stack copy so we can increment the ptr without leaking memory. In the while loop we will check if the first element of the array is a function and if it isnt we will break the loop. If it is a function we will run the function. I should also change the way the return string is handled and have the builtin functions take a string ptr that they append their output to instead of them returning a unique string. That way functions can see what the output is so far.
 ## Pipes '|'
 I implemented pipes in a cheaty way. I'm just passing the result string of a command that is being piped
 to the command that it is being piped to as the first argument.

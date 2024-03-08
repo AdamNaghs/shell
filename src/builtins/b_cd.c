@@ -1,24 +1,26 @@
 #include "../../include/cmd.h"     
 #include "../../include/tokenize.h"
-struct cmd_return b_cd(Token_Array arr)
+struct cmd_return b_cd(Token_Array* arr, String* str)
 {
     struct cmd_return ret = DEFAULT_CMD_RETURN;
-    if (arr.size == 1)
+    if (arr->size == 1)
     {
         ret.func_return = 1;
-        str_append(&ret.str, STR_LIT("asn: cd: Missing operand."));
-        return ret;
+        str_append(str, STR_LIT("asn: cd: Missing operand."));
+        goto exit_function;
     }
     /* ignore first arg which is 'cd' */
-    String str = token_array_to_str((Token_Array){arr.arr + 1, arr.size - 1}, ' ');
-    if (str.size)
-        str.cstr[str.size--] = '\0'; /* remove extra ' ' at end */
-    str_remove_trailing_whitespace(&str);
-    if (-1 == CHDIR(str.cstr))
+    String dir_str = token_array_to_str((Token_Array){arr->arr + 1, arr->size - 1}, ' ');
+    str_remove_trailing_whitespace(&dir_str);
+    if (-1 == CHDIR(dir_str.cstr))
     {
-        printf( "asn: Could not open directory '%s'\n" , str.cstr);
+        char buf[256];
+        snprintf(buf,256,"asn: Could not open directory '%s'\n" , dir_str.cstr);
+        str_append(str,STR(buf));
     }
-    str_free(str);
     ret.success = true;
+    exit_function:
+    arr->arr++;
+    arr->size--;
     return ret;
 }

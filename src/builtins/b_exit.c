@@ -4,15 +4,11 @@
 #include "../../include/shell.h"
 #include "../../include/colors.h"
 /* unused param */
-struct cmd_return b_exit(Token_Array arr)
+struct cmd_return b_exit(Token_Array* arr, String* str)
 {
     char tmp_char[1] = "";
-    struct cmd_return ret = {
-        .success = true,
-        .func_return = 0,
-        .str = str_new(tmp_char),
-    };
+    struct cmd_return ret = CMD_RETURN_SUCCESS;
     shell_stop();
-    str_append(&ret.str, STR(GRN "Exitting asn..." CRESET));
+    str_append(str, STR(GRN "Exitting asn..." CRESET));
     return ret;
 }
