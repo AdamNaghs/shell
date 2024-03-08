@@ -39,4 +39,6 @@ void str_remove_trailing_whitespace(String* str);
 
 void str_replace_all(String* str, char find, char replace);
 
+void str_replace(String *str, String find, String replace);
+
 #endif /* SHELL_STR */
