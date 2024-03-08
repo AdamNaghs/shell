@@ -66,7 +66,10 @@ void shell_print_line_flair(void)
 
 void shell_print_greeting(void)
 {
-    output("Welcome to " BLU "asn" CRESET " shell.\n\nInput " BLU "help" CRESET " for a list of commands.\n");
+    if  (colors_enabled())
+        output("Welcome to " BLU "asn" CRESET " shell.\n\nInput " BLU "help" CRESET " for a list of commands.\n");
+    else
+        output("Welcome to asn shell.\n\nInput help for a list of commands.\n");
 }
 
 void shell_loop_step(bool print_output, bool print_input)
