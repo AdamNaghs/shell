@@ -13,7 +13,6 @@
 static bool prelude_ran = 0;
 static bool shell_run = true;
 
-#define OUTPUT_COLOR BHWHT
 #define CWD_BUF 4096
 
 void shell_prelude(void)
@@ -22,7 +21,7 @@ void shell_prelude(void)
         return;
     bind_signals();
     load_builtins();
-    load_external_commands();
+    //load_external_commands();
     init_var_arr();
     prelude_ran = true;
     shell_run = true;
@@ -77,21 +76,8 @@ void shell_loop_step(bool print_output, bool print_input)
     if (print_output)
         shell_print_line_flair();
     String inp = input('\n', 0);
-    String_Array arr = str_split(inp, STR_LIT(";"));
-    size_t i;
-    for (i = 0; i < arr.size; i++)
-    {
-        if (print_output && i)
-        {
-            shell_print_line_flair();
-            output("%s", arr.arr[i].cstr);
-            if (get_input_file() != stdin)
-                output("\n");
-        }
-        shell_loop_manual_step(&arr.arr[i], print_input, print_output, true);
-    }
+    shell_loop_manual_step(&inp, print_input, print_output, true);
     str_free(inp);
-    str_arr_free(arr);
 }
 void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bool print_error)
 {
@@ -99,9 +85,7 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
         return;
     shell_prelude();
     static char buf[2] = " ";
-    static char buf1[2] = "|";
     String space_delim = STR(buf);
-    String pipe_delim = STR(buf1);
 
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     if (print_input)
@@ -126,7 +110,7 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
     size_t cmd;
     bool ran = false;
     String ret_str = str_new(NULL);
-    for (cmd = 0; cmd < line.size; cmd++)
+    for (cmd = 0; cmd < ta.size && line.size; cmd++)
     {
         struct internal_cmd *int_cmd = find_internal_cmd(line.arr[0].str);
         if (int_cmd)
@@ -136,6 +120,7 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
         }
         else 
         {
+            ran = false;
             break;
         }
     }
@@ -147,7 +132,7 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
             {
                 if (get_input_file() != stdin)
                     output("\n");
-                output("asn: Could not find command '%s'.\n", line.arr[0].str.cstr);
+                output("asn: Could not find command '%s'.\n", ta.arr[cmd].str.cstr);
             }
         }
         else if (ret_str.size) /* ran and the command returned a non-empty string */

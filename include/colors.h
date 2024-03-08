@@ -8,6 +8,8 @@
 
 #define COLORS_ENABLED
 
+#define OUTPUT_COLOR BHWHT
+
 #ifdef COLORS_ENABLED
 
 /*Regular text*/

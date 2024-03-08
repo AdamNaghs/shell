@@ -11,8 +11,8 @@ struct cmd_return b_echo(Token_Array* arr, String* str)
         str_append(str, STR_LIT("asn: echo: Missing operand."));
         return ret;
     }
-    String tmp = token_array_to_str((Token_Array){arr->arr + 1, arr->size - 1}, ' ');
-    str_append(str, tmp);
-    str_free(tmp);
+    str_append(str, arr->arr[1].str);
+    arr->arr+=2;
+    arr->size-=2;
     return ret;
 }

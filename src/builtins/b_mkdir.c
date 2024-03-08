@@ -24,7 +24,7 @@ struct cmd_return b_mkdir(Token_Array* arr, String* str)
         };
     }
     exit_function:
-    arr->arr++;
-    arr->size--;
+    arr->arr+=2;
+    arr->size-=2;
     return ret;
 }

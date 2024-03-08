@@ -6,5 +6,7 @@ int* are_builtins_loaded(void);
 
 void load_builtins(void);
 
+bool is_operator(String);
+
 
 #endif /* SHELL_BUILTINS */

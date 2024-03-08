@@ -33,7 +33,7 @@ struct cmd_return b_asn(Token_Array* arr, String* str)
     end_function:
     set_input_file(def_file);
     // printf("Test File(s) Runtime: %lums",clock()-start);
-    arr->arr++;
-    arr->size--;
+    arr->arr+=2;
+    arr->size-=2;
     return ret;
 }

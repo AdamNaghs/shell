@@ -87,6 +87,8 @@ struct cmd_return facade_internal_cmd(Token_Array* cmd, String* str)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     capture_system_call(&ret, *cmd, str);
+    cmd->arr++;
+    cmd->size--;
     return ret;
 }
 void load_external_from_file(char *filename)

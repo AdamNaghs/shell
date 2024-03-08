@@ -21,5 +21,7 @@ struct cmd_return b_touch(Token_Array* arr, String* str)
         }
         FCLOSE(f);
     }
+    arr->arr+=2;
+    arr->size-=2;
     return ret;
 }

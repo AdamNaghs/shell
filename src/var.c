@@ -1,5 +1,6 @@
 #include "../include/var.h"
 #include "../include/string_array.h"
+#include "../include/tokenize.h"
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
@@ -57,7 +58,7 @@ Variable *get_value(String name)
     return NULL;
 }
 /* return 0 if it read a variable and -1 if it did not, manages variables in an internal array */
-int read_var(String inp)
+int read_var1(String inp)
 {
     /* ignore leading spaces */
     if (!inp.size)
@@ -66,10 +67,10 @@ int read_var(String inp)
     {
         inp.size--;
     }
-    if (-1 != str_contains_char(inp, ' '))
+    /*if (-1 != str_contains_char(inp, ' '))
     {
         return -1;
-    }
+    }*/
     signed long long idx = str_contains_char(inp, '=');
     if (-1 == idx)
     {
@@ -94,6 +95,33 @@ int read_var(String inp)
         add_var(var_new(arr.arr[0], arr.arr[1]));
     }
     str_arr_free(arr);
+    return 0;
+}
+
+int read_var(String inp)
+{
+    Token_Array ta = tokenize(inp);
+    if (ta.size > 3)
+    {
+        free_token_array(ta);
+        return -1;
+    }
+    if (!str_equal(ta.arr[1].str,STR_LIT("=")))
+    {
+        free_token_array(ta);
+        return -1;
+    }
+    Variable *v = get_value(ta.arr[0].str);
+    if (NULL != v)
+    {
+        str_free(v->value);
+        v->value = str_new(ta.arr[2].str.cstr);
+    }
+    else
+    {
+        add_var(var_new(ta.arr[0].str, ta.arr[2].str));
+    }
+    free_token_array(ta);
     return 0;
 }
 

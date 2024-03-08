@@ -32,6 +32,7 @@ bool tok_ispunct(char c)
     case ';':
     case ',':
     case '|':
+    case '=':
         return true;
     default:
         return false;

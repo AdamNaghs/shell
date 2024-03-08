@@ -12,13 +12,23 @@ struct cmd_return b_ls(Token_Array *arr, String *str)
     HANDLE hFind = INVALID_HANDLE_VALUE;
 
     char searchPath[LS_BUF];
-    String tmp_str = token_array_to_str((Token_Array){arr->arr+1,arr->size-1}, ' ');
+    String tmp_str;
+    if (!is_operator(arr->arr[1].str))
+        tmp_str = token_array_to_str((Token_Array){arr->arr + 1, arr->size - 1}, ' ');
+    else
+        tmp_str = str_new(NULL);
+    arr->arr++;
+    arr->size--;
     if (tmp_str.size && tmp_str.cstr[tmp_str.size - 1] == ' ')
         tmp_str.cstr[--tmp_str.size] = '\0';
-    if (arr->size == 1) /* Use the current directory if no arguments are provided */
+    if (arr->size == 0 || is_operator(arr->arr[0].str)) /* Use the current directory if no arguments are provided */
         snprintf(searchPath, LS_BUF, ".\\*");
     else /* Use the provided directory path */
+    {
         snprintf(searchPath, LS_BUF, "%s\\*", tmp_str.cstr);
+        arr->arr++;
+        arr->size--;
+    }
     str_free(tmp_str);
     /* Find the first file in the directory */
     hFind = FindFirstFile(searchPath, &findFileData);
@@ -27,7 +37,7 @@ struct cmd_return b_ls(Token_Array *arr, String *str)
     {
         printf("asn: Unable to open directory '%s'\n", searchPath);
         ret.func_return = 1;
-        goto exit_function;
+        return;
     }
     char new_line_char[2] = "\n";
     String new_line_str = {.cstr = new_line_char, .size = 1};
@@ -41,9 +51,6 @@ struct cmd_return b_ls(Token_Array *arr, String *str)
     FindClose(hFind);
     str_remove_trailing_whitespace(str);
     ret.success = true;
-exit_function:
-    arr->arr++;
-    arr->size--;
     return ret;
 }
 #else
