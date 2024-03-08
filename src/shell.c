@@ -53,17 +53,20 @@ void shell_print_line_flair(void)
     char *c = GETCWD(cwd_buf, CWD_BUF);
     if (!c)
     {
-        perror(RED "asn: Could not get current working directory.\n" CRESET);
+        perror("asn: Could not get current working directory.\n");
         exit(1);
     }
     if (get_input_file() != stdin)
-        printf("\n");
-    printf(BLU "asn" CRESET "@" CYN "%s> " CRESET, cwd_buf);
+        output("\n");
+    if (colors_enabled())
+        output(BLU "asn" CRESET "@" CYN "%s> " CRESET, cwd_buf);
+    else
+        output("asn@%s> ", cwd_buf);
 }
 
 void shell_print_greeting(void)
 {
-    printf("Welcome to "BLU "asn" CRESET " shell.\n\nInput " BLU "help" CRESET " for a list of commands.\n");
+    output("Welcome to " BLU "asn" CRESET " shell.\n\nInput " BLU "help" CRESET " for a list of commands.\n");
 }
 
 void shell_loop_step(bool print_output, bool print_input)
@@ -78,9 +81,9 @@ void shell_loop_step(bool print_output, bool print_input)
         if (print_output && i)
         {
             shell_print_line_flair();
-            printf("%s", arr.arr[i].cstr);
+            output("%s", arr.arr[i].cstr);
             if (get_input_file() != stdin)
-                printf("\n");
+                output("\n");
         }
         shell_loop_manual_step(&arr.arr[i], print_input, print_output, true);
     }
@@ -89,7 +92,7 @@ void shell_loop_step(bool print_output, bool print_input)
 }
 void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bool print_error)
 {
-    if (!inp->cstr)// || !inp->size)
+    if (!inp->cstr) // || !inp->size)
         return;
     shell_prelude();
     static char buf[2] = " ";
@@ -100,12 +103,12 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
     struct cmd_return ret = {.success = false, .func_return = 0, .str = {.cstr = NULL, .size = 0}};
     if (print_input)
     {
-        printf("%s", inp->cstr);
+        output("%s", inp->cstr);
     }
     if (inp->size == 0 || -1 != str_contains_char(*inp, '#'))
     {
         if (print_output)
-            printf("\n");
+            output("\n");
         return;
     }
     /* variables must be initilized on their own line without a space between the name and equal sign and value */
@@ -136,10 +139,10 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
             else /* give next command the return of the last command */
             {
                 size_t tmp_len = commands.arr[cmd].size + space_delim.size + ret.str.size;
-                String tmp = {.cstr = (char*) malloc(tmp_len * sizeof(char) + 1),.size = tmp_len};
-                str_memcpy(&tmp,0, commands.arr[cmd]);
-                str_memcpy(&tmp, commands.arr[cmd].size , space_delim);
-                str_memcpy(&tmp, tmp_len - ret.str.size , ret.str);
+                String tmp = {.cstr = (char *)malloc(tmp_len * sizeof(char) + 1), .size = tmp_len};
+                str_memcpy(&tmp, 0, commands.arr[cmd]);
+                str_memcpy(&tmp, commands.arr[cmd].size, space_delim);
+                str_memcpy(&tmp, tmp_len - ret.str.size, ret.str);
                 tmp.cstr[tmp.size++] = '\0';
                 Token_Array piped_command_return;
                 piped_command_return = tokenize(tmp);
@@ -158,17 +161,22 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
             if (print_error)
             {
                 if (get_input_file() != stdin)
-                    printf("\n");
-                printf("asn: Could not find command '%s'.\n", commands.arr[0].cstr);
+                    output("\n");
+                output("asn: Could not find command '%s'.\n", commands.arr[0].cstr);
             }
         }
         else if (ret.str.size) /* ran and the command returned a non-empty string */
         {
             FILE *input_file = get_input_file();
+            int colors = colors_enabled();
+            if (colors)
+                output(OUTPUT_COLOR);
             if (input_file != stdin)
-                printf(OUTPUT_COLOR "\n%s" CRESET, ret.str.cstr);
+                output("\n%s", ret.str.cstr);
             else
-                printf(OUTPUT_COLOR "%s\n" CRESET, ret.str.cstr);
+                output("%s\n", ret.str.cstr);
+            if (colors)
+                output(CRESET);
         }
     }
     str_arr_free(commands);

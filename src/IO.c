@@ -1,6 +1,7 @@
 #include "../include/string.h"
 #include "../include/IO.h"
 #include <stdlib.h>
+#include <stdarg.h>
 
 #define MAX_STR 10000
 
@@ -16,20 +17,60 @@ void set_input_file(FILE *fd)
     input_file = fd;
 }
 
-FILE* get_input_file(void)
+FILE *get_input_file(void)
 {
     if (!input_file)
-        return stdout;
+        input_file = stdin;
     return input_file;
+}
+
+FILE *output_file = NULL;
+
+void set_output_file(FILE *fd)
+{
+    if (!fd)
+    {
+        perror(RED "'fd' is null.\n" CRESET);
+        exit(1);
+    }
+    output_file = fd;
+}
+
+FILE *get_output_file(void)
+{
+    if (!output_file)
+        output_file = stdout;
+    return output_file;
 }
 
 #ifdef _WIN32
 #include <conio.h>
 #include <windows.h>
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#endif
 #else
 #include <termios.h>
 #include <unistd.h>
 #endif
+
+int colors_enabled()
+{
+    if (output_file != stdout)
+        return 0;
+#ifdef _WIN32
+    // Check if the output is a terminal on Windows
+    DWORD mode;
+    if (!GetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), &mode))
+    {
+        return 0; // Failed to get console mode, assume no colors
+    }
+    return (mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+#else
+    // Check if the output is a terminal on Unix-like systems
+    return isatty(STDOUT_FILENO);
+#endif
+}
 
 void disable_input_buffer_display()
 {
@@ -66,6 +107,17 @@ static char c;
 bool at_eof(void)
 {
     return c == EOF;
+}
+
+int output(const char *format, ...)
+{
+    int result;
+    va_list args;
+    FILE *f = get_output_file();
+    va_start(args, format);
+    result = vfprintf(f, format, args);
+    va_end(args);
+    return result;
 }
 
 String input(char enter_char, size_t max_size)
@@ -106,4 +158,3 @@ String input(char enter_char, size_t max_size)
     ret.cstr[ret.size] = '\0';
     return ret;
 }
-

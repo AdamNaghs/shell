@@ -5,21 +5,25 @@
 #include <time.h>
 #include <string.h>
 
-#define SALT_LEN 20
-
+#define SALT_MAX 26
+#define SALT_MIN 11
 String generate_salt(void)
 {
     static size_t count = 0;
     srand(time(NULL) + count);
 
-    String ret = {.cstr = (char *)malloc(SALT_LEN * sizeof(char) + 1), .size = SALT_LEN};
+    String ret = {.cstr = (char *)malloc(SALT_MAX * sizeof(char) + 1), .size = rand() % SALT_MAX};
+    if (ret.size < SALT_MIN)
+    {
+        ret.size += SALT_MIN;
+    }
     if (!ret.cstr)
     {
         // Handle malloc failure
         return ret;
     }
 
-    for (size_t i = 0; i < SALT_LEN; i++)
+    for (size_t i = 0; i < ret.size; i++)
     {
         int randomValue = rand() % 62; // There are 26 lowercase, 26 uppercase letters, and 10 digits
         if (randomValue < 10)
@@ -38,7 +42,7 @@ String generate_salt(void)
             ret.cstr[i] = 'a' + (randomValue - 36);
         }
     }
-    ret.cstr[SALT_LEN] = '\0';
+    ret.cstr[ret.size] = '\0';
     count++;
     return ret;
 }
@@ -59,7 +63,7 @@ size_t str_hash(String string)
     size_t len = string.size;
     const int p = 31;
     const int m = 1e9 + 9;
-    long long hash_value = 0;
+    long long hash_value = 7;
     long long p_pow = 1;
     size_t i;
     for (i = 0; i < len; i++)
@@ -68,33 +72,41 @@ size_t str_hash(String string)
         hash_value = (hash_value + (c - 'a' + 1) * p_pow) % m;
         p_pow = (p_pow * p) % m;
     }
+    hash_value %= SIZE_MAX / 10;
     return hash_value;
 }
-/* String get_username(void) */
 
-/* String get_password(void) */
 #define CREDS_FILE_PATH ".asn_users"
 bool check_login(String username, String password);
 
 void new_user(void)
 {
-    printf("Username: ");
-    String username = input('\n', 0);
-    printf("\nPassword: ");
-    disable_input_buffer_display();
-    String password = input('\n', 0);
-    enable_input_buffer_display();
     FILE *f = FOPEN(CREDS_FILE_PATH, "a");
     if (!f)
     {
         perror("Could not open password file.\n");
         exit(1);
     }
+    printf("Username: ");
+    String username = input('\n', 0);
+    printf("\nPassword: ");
+    disable_input_buffer_display();
+    String password = input('\n', 0);
+    enable_input_buffer_display();
     String salt = generate_salt();
-    size_t hash = generate_hash(username, salt);
+    size_t hash = generate_hash(password, salt);
     fprintf(f, "%s asn0|%llu$%s\n", username.cstr, hash, salt.cstr);
     FCLOSE(f);
-    check_login(username, password);
+    if (!check_login(username, password))
+    {
+        perror("Fatal error: could not find user which was just created.\n");
+        //remove(CREDS_FILE_PATH);
+        exit(1);
+    }
+    ;
+    str_free(salt);
+    str_free(username);
+    str_free(password);
 }
 
 bool check_login(String username, String password)
@@ -131,7 +143,7 @@ bool check_login(String username, String password)
         {
             goto next_line;
         }
-        String salt = {salt_start + 1, SALT_LEN};
+        String salt = {salt_start + 1, line.cstr + line.size - salt_start - 1};
         size_t test_hash = generate_hash(password, salt);
         size_t file_hash = strtoull(pipe + 1, NULL, 10);
         if (test_hash == file_hash)
@@ -182,6 +194,7 @@ void attempt_login_loop(void)
 {
     if (!file_exists(CREDS_FILE_PATH))
     {
+        printf("Please create a login.\n");
         new_user();
         return;
     }

@@ -35,7 +35,7 @@ I just got logins working.
 
 The shell manages the username and encrypted passwords in a file called '.asn_users'. I used a hash and salt based encryption method that most likely isn't secure, also my hash function is for hash sets not cryptography. I just used a hash function from an old project that I remember getting from wikipedia. This login is just for fun and educational purposes and doesn't need to be secure, but I might make it secure at some point.
 
-There is only one user. If you forget your password delete the '.asn_users' file.
+There is only one user. If you forget your password delete the '.asn_users' file while the shell is not running and then start the shell to create a new user.
 
 
 # Notes
