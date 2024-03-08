@@ -180,7 +180,7 @@ void shell_loop_test(void)
 
 void shell_loop(void)
 {
-    //attempt_login_loop();
+    attempt_login_loop();
     shell_prelude();
     shell_print_greeting();
     while (shell_run)
