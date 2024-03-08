@@ -4,28 +4,24 @@
 #include <stdio.h> /* remove */
 struct cmd_return b_rm(Token_Array *arr, String *str)
 {
+    consume_first_token(arr);
     struct cmd_return ret = CMD_RETURN_SUCCESS;
-    if (arr->size <= 1)
+    if (arr->size <= 0)
     {
         ret.func_return = 1;
         str_append(str, STR_LIT("asn: rm: Missing operand."));
-        arr->arr++;
-        arr->size--;
         return ret;
     }
-
-    String args = token_array_to_str((Token_Array){arr->arr + 1, arr->size - 1}, ' ');
-    if (is_dir(args.cstr))
+    Token* arg;
+    while ((arg = consume_first_token(arr)) != NULL && !is_operator(arg->str))
+    if (is_dir(arg->str.cstr))
     {
-        ret.func_return = RMDIR(args.cstr);
+        ret.func_return = RMDIR(arg->str.cstr);
     }
     else
     {
-        ret.func_return = remove(args.cstr);
+        ret.func_return = remove(arg->str.cstr);
     }
-    str_free(args);
-    arr->arr += 2;
-    arr->size -= 2;
     return ret;
 }
 

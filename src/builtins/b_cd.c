@@ -9,7 +9,7 @@ struct cmd_return b_cd(Token_Array *arr, String *str)
         str_append(str, STR_LIT("asn: cd: Missing operand."));
         arr->arr++;
         arr->size--;
-        return;
+        return ret;
     }
     /* ignore first arg which is 'cd' */
     String dir_str = token_array_to_str((Token_Array){arr->arr + 1, arr->size - 1}, ' ');

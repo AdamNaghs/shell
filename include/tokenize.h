@@ -41,11 +41,16 @@ typedef struct token_array
 /* returns heap allocated array of tokens */
 Token_Array tokenize(String line);
 
+/* only use on copies of an array, this function will increment the array pointer. */
+Token* consume_first_token(Token_Array* ta);
+
 void free_token_array(Token_Array);
 
 bool has_minimum_tokens(Token_Type* expected, size_t expected_size, Token_Array given);
 
 /* heap allocated str */
 String token_array_to_str(Token_Array ta, char sep);
+
+Token_Array token_array_copy(Token_Array ta);
 
 #endif /* SHELL_TOKENIZE */

@@ -5,10 +5,8 @@
 struct cmd_return b_osys(Token_Array *arr, String *str)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
-    arr->arr++;
-    arr->size--;
+    consume_first_token(arr);
     capture_system_call(&ret, *arr, str);
-    arr->arr++;
-    arr->size--;
+    consume_first_token(arr);
     return ret;
 }

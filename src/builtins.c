@@ -43,46 +43,45 @@ struct cmd_return b_help(Token_Array *arr, String *str)
 struct cmd_return b_write_str_to_file(Token_Array *arr, String *str)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
-    arr->arr++;
-    arr->size--;
+    consume_first_token(arr);
     if (!arr->size)
-        return;
-    String filepath = arr->arr[0].str;
-    arr->arr++;
-    arr->size--;
+        return ret;
+    String filepath = consume_first_token(arr)->str;
     FILE *f = FOPEN(filepath.cstr, "w");
     FILE *tmp = get_output_file();
     set_output_file(f);
     output("%s\n", str->cstr);
     set_output_file(tmp);
     ret.func_return = FCLOSE(f);
+    str_free(*str);
+    *str = str_new(NULL);
     return ret;
 }
 
 struct cmd_return b_append_str_to_file(Token_Array *arr, String *str)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
-    arr->arr++;
-    arr->size--;
+    consume_first_token(arr);
     if (!arr->size)
-        return;
-    String filepath = arr->arr[0].str;
-    arr->arr++;
-    arr->size--;
+        return ret;
+    String filepath = consume_first_token(arr)->str;
     FILE *f = FOPEN(filepath.cstr, "a");
     FILE *tmp = get_output_file();
     set_output_file(f);
     output("%s\n", str->cstr);
     set_output_file(tmp);
     ret.func_return = FCLOSE(f);
+    str_free(*str);
+    *str = str_new(NULL);
     return ret;
 }
 
 struct cmd_return b_pipe(Token_Array *arr, String *str)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
-    arr->arr++;
-    arr->size--;
+    consume_first_token(arr);
+    if (!arr->size)
+        return ret;
     struct internal_cmd *cmd = find_internal_cmd(arr->arr[0].str);
     if (!cmd)
     {
@@ -92,7 +91,8 @@ struct cmd_return b_pipe(Token_Array *arr, String *str)
     String new_cmd = str_new(cmd->name.cstr);
     str_append(&new_cmd, STR_LIT(" "));
     str_append(&new_cmd, *str);
-    String back_end = str_arr_join((String_Array){arr->arr + 1, arr->size - 1}, ' ');
+    str_append(&new_cmd, STR_LIT(" "));
+    String back_end = token_array_to_str((Token_Array){arr->arr + 1, arr->size - 1}, ' ');
     str_append(&new_cmd, back_end);
     str_free(back_end);
     Token_Array tmp = tokenize(new_cmd);
@@ -111,8 +111,8 @@ struct cmd_return b_pipe(Token_Array *arr, String *str)
     {
         if (str_equal(match, arr->arr[i].str))
             break;
-        arr->arr++;
-        arr->size--;
+        if (NULL == consume_first_token(arr))
+            break;
     }
     return ret;
 }
@@ -128,6 +128,56 @@ struct cmd_return b_semicolon(Token_Array *arr, String *str)
         output("%s\n", str->cstr);
     str_free(*str);
     *str = str_new(NULL);
+    return ret;
+}
+struct cmd_return b_loop(Token_Array *arr, String *str)
+{
+    /* takes a number(iterations), and a variable "$var_name"
+        then runs the provided code
+        and pastes in the iteration number anywhere it sees var_name
+    */
+    struct cmd_return ret = CMD_RETURN_SUCCESS;
+    consume_first_token(arr);
+    Token *iter = consume_first_token(arr);
+    Token *var_name = consume_first_token(arr);
+    if (!iter || !var_name)
+        return ret;
+    size_t end = strtoull(iter->str.cstr, NULL, 10);
+    if (!arr->size)
+        return ret;
+    struct internal_cmd *cmd = find_internal_cmd(arr->arr[0].str);
+    if (!cmd)
+        return ret;
+    size_t i;
+    for (i = 0; i < end; i++)
+    {
+        Token_Array tmp_arr = token_array_copy(*arr);
+        Token_Array refrence = tmp_arr;
+        char buf[256];
+        snprintf(buf, 256, "%llu", i);
+        size_t j;
+        for (j = 0; j < tmp_arr.size; j++)
+        {
+            str_replace(&tmp_arr.arr[j].str, var_name->str, STR(buf));
+        }
+        do
+        {
+            ret = cmd->func(&tmp_arr, str);
+            if (!tmp_arr.size)
+                goto break_while;
+            String new_cmd = tmp_arr.arr[0].str;
+            cmd = find_internal_cmd(new_cmd);
+            if (!cmd)
+            {
+                free_token_array(refrence);
+                goto break_all;
+            }
+        } while (tmp_arr.size);
+        break_while:
+        free_token_array(refrence);
+    }
+    arr->size = 0;
+break_all:
     return ret;
 }
 
@@ -164,6 +214,7 @@ void load_builtins(void)
     add_internal_cmd(internal_cmd_new(str_new("reset"), b_reset));
     add_internal_cmd(internal_cmd_new(str_new("asn"), b_asn));
     add_internal_cmd(internal_cmd_new(str_new("time"), b_time));
+    add_internal_cmd(internal_cmd_new(str_new("loop"), b_loop));
     add_internal_cmd(internal_cmd_new(str_new(">"), b_write_str_to_file));
     add_internal_cmd(internal_cmd_new(str_new(">>"), b_append_str_to_file));
     add_internal_cmd(internal_cmd_new(str_new("|"), b_pipe));

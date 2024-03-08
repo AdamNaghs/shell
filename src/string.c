@@ -108,7 +108,7 @@ String str_new_n(char *str, size_t size)
 #else
 String str_new_n(char *str, size_t size)
 {
-    if (!str)
+    if (!str || !size)
     {
         return str_new(NULL);
     }
@@ -145,7 +145,7 @@ signed long long str_contains_char(String str, char c)
 
 signed long long str_contains_str(String str, String c)
 {
-    if (!c.cstr || !str.cstr || !str.size|| !c.size || c.size > str.size)
+    if (!c.cstr || !str.cstr || !str.size || !c.size || c.size > str.size)
         return -1;
     signed long long i = 0, j = 0;
     for (; i < (signed long long)(str.size - c.size) + 1; i++)
@@ -313,4 +313,18 @@ void str_remove_trailing_whitespace(String *str)
         else
             break;
     }
+}
+
+void str_replace(String *str, String find, String replace) {
+    if (!str || !str->cstr || !find.cstr || !replace.cstr)
+        return;
+
+    signed long long idx = str_contains_str(*str,find);
+    if (idx == -1)
+        return;
+    String front = str_new_n(str->cstr,idx);
+    str_append(&front,replace);
+    str_append(&front,STR((str->cstr+idx+find.size)));
+    str_free(*str);
+    *str = front;
 }

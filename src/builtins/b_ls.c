@@ -17,8 +17,7 @@ struct cmd_return b_ls(Token_Array *arr, String *str)
         tmp_str = token_array_to_str((Token_Array){arr->arr + 1, arr->size - 1}, ' ');
     else
         tmp_str = str_new(NULL);
-    arr->arr++;
-    arr->size--;
+    consume_first_token(arr);
     if (tmp_str.size && tmp_str.cstr[tmp_str.size - 1] == ' ')
         tmp_str.cstr[--tmp_str.size] = '\0';
     if (arr->size == 0 || is_operator(arr->arr[0].str)) /* Use the current directory if no arguments are provided */
@@ -26,8 +25,7 @@ struct cmd_return b_ls(Token_Array *arr, String *str)
     else /* Use the provided directory path */
     {
         snprintf(searchPath, LS_BUF, "%s\\*", tmp_str.cstr);
-        arr->arr++;
-        arr->size--;
+        consume_first_token(arr);
     }
     str_free(tmp_str);
     /* Find the first file in the directory */
@@ -37,7 +35,7 @@ struct cmd_return b_ls(Token_Array *arr, String *str)
     {
         printf("asn: Unable to open directory '%s'\n", searchPath);
         ret.func_return = 1;
-        return;
+        return ret;
     }
     char new_line_char[2] = "\n";
     String new_line_str = {.cstr = new_line_char, .size = 1};
@@ -57,7 +55,7 @@ struct cmd_return b_ls(Token_Array *arr, String *str)
 #include <dirent.h> /* opendir, readdir, closedir, */
 struct cmd_return b_ls(Token_Array *cmd_inp, String *str)
 {
-
+    consume_first_token(arr);
     char new_line_char[2] = "\n";
     String new_line_str = {.cstr = new_line_char, .size = 1};
     struct cmd_return ret = DEFAULT_CMD_RETURN;
@@ -75,7 +73,8 @@ struct cmd_return b_ls(Token_Array *cmd_inp, String *str)
     }
     else
     {
-        d = opendir(cmd_inp->arr[1].str.cstr);
+        d = opendir(cmd_inp->arr[0].str.cstr);
+        consume_first_token(arr);
     }
     if (!d)
         return ret;
@@ -93,8 +92,6 @@ struct cmd_return b_ls(Token_Array *cmd_inp, String *str)
     str_remove_trailing_whitespace(str);
     ret.success = true;
     /*ret.str.cstr[ret.str.size--] = '\0';*/
-    cmd_inp->arr++;
-    cmd_inp->size--;
     return ret;
 }
 #endif

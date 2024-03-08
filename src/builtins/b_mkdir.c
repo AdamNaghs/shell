@@ -5,26 +5,24 @@
 #define MKDIR_BUF 4096
 struct cmd_return b_mkdir(Token_Array* arr, String* str)
 {
+    consume_first_token(arr);
     struct cmd_return ret = DEFAULT_CMD_RETURN;
-    if (arr->size <= 1)
+    if (arr->size <= 0)
     {
         ret.success = false;
         ret.func_return = 1;
-        goto exit_function;
+        return ret;
     }
-    size_t i;
-    for (i = 1; i < arr->size; i++)
+    Token* arg;
+    while ((arg = consume_first_token(arr)) != NULL && !is_operator(arg->str))
     {
-        String path = arr->arr[i].str;
+        String path = arg->str;
         if (0 != MKDIR(path.cstr))
         {
             char buf[MKDIR_BUF];
-            snprintf(buf, MKDIR_BUF, "\nasn: mkdir: Could not make directory '%s'.", arr->arr[i].str.cstr);
+            snprintf(buf, MKDIR_BUF, "\nasn: mkdir: Could not make directory '%s'.", path.cstr);
             str_append(str, STR(buf));
         };
     }
-    exit_function:
-    arr->arr+=2;
-    arr->size-=2;
     return ret;
 }

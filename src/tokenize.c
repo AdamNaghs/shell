@@ -144,7 +144,7 @@ String token_array_to_str(Token_Array ta, char sep)
         if (ret.size + s.size >= cap)
         {
             cap *= 2;
-            char *tmp = (char*)realloc(ret.cstr, cap * sizeof(char));
+            char *tmp = (char *)realloc(ret.cstr, cap * sizeof(char));
             if (!tmp)
             {
                 perror("Could not realloc string in 'token_array_to_str'\n");
@@ -157,7 +157,7 @@ String token_array_to_str(Token_Array ta, char sep)
     }
     ret.cstr[ret.size] = '\0';
     cap = ret.size + 1;
-    char *tmp_ret = (char*)realloc(ret.cstr, cap * sizeof(char));
+    char *tmp_ret = (char *)realloc(ret.cstr, cap * sizeof(char));
     if (!tmp_ret)
     {
         perror("Could not realloc string in 'token_array_to_str'\n");
@@ -167,3 +167,27 @@ String token_array_to_str(Token_Array ta, char sep)
     return ret;
 }
 #endif
+
+Token *consume_first_token(Token_Array *ta)
+{
+    if (!ta || !ta->size)
+    {
+        return NULL;
+    }
+    Token *ret = &ta->arr[0];
+    ta->arr++;
+    ta->size--;
+    return ret;
+}
+
+Token_Array token_array_copy(Token_Array ta)
+{
+    Token_Array ret = {(Token *)malloc(sizeof(Token) * ta.size), ta.size};
+    size_t i;
+    for (i = 0; i < ta.size; i++)
+    {
+        ret.arr[i].str = str_new(ta.arr[i].str.cstr);
+        ret.arr[i].type = ta.arr[i].type; 
+    }
+    return ret;
+}
