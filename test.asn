@@ -1,3 +1,7 @@
+mkdir test_folder
+cd test_folder
+time loop 5 $i touch file$i; echo "Test $i" > file$i
+exit
 time clear
 time mkdir "Test_Dir"
     ls
