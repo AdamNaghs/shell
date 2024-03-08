@@ -114,7 +114,7 @@ void test_string_speed(void)
     printf("\n");
 }
 
-int main(void)
+int main1(void)
 {
 
     // for (int i = 0; i < 10; i++)

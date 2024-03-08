@@ -6,7 +6,7 @@
 #ifndef COLORS_H
 #define COLORS_H
 
-#define COLORS_ENABLED
+//#define COLORS_ENABLED
 
 #define OUTPUT_COLOR BHWHT
 

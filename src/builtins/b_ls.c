@@ -5,17 +5,17 @@
 #define LS_BUF 1024
 #ifdef _WIN32
 #include <windows.h>
-struct cmd_return b_ls(Token_Array *arr, String *str)
+struct cmd_return b_ls(Token_Array *ta, String *str)
 {
     struct cmd_return ret = DEFAULT_CMD_RETURN;
     WIN32_FIND_DATA findFileData;
     HANDLE hFind = INVALID_HANDLE_VALUE;
 
-    consume_first_token(arr);
+    consume_first_token(ta);
     char searchPath[LS_BUF];
     String tmp_str;
-    if (arr->size && !is_operator(arr->arr[0].str))
-        tmp_str = consume_first_token(arr)->str;
+    if (ta->size && !is_operator(ta->arr[0]))
+        tmp_str = consume_first_token(ta)->str;
     else
         tmp_str = str_new(NULL);
     if (tmp_str.size == 0) /* Use the current directory if no arguments are provided */
@@ -55,7 +55,7 @@ struct cmd_return b_ls(Token_Array *arr, String *str)
 #include <dirent.h> /* opendir, readdir, closedir, */
 struct cmd_return b_ls(Token_Array *cmd_inp, String *str)
 {
-    consume_first_token(arr);
+    consume_first_token(cmd_inp);
     char new_line_char[2] = "\n";
     String new_line_str = {.cstr = new_line_char, .size = 1};
     struct cmd_return ret = DEFAULT_CMD_RETURN;
@@ -74,7 +74,7 @@ struct cmd_return b_ls(Token_Array *cmd_inp, String *str)
     else
     {
         d = opendir(cmd_inp->arr[0].str.cstr);
-        consume_first_token(arr);
+        consume_first_token(cmd_inp);
     }
     if (!d)
         return ret;

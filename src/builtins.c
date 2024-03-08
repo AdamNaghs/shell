@@ -181,8 +181,11 @@ break_all:
     return ret;
 }
 
-bool is_operator(String s)
+bool is_operator(Token t)
 {
+    if (t.type != PUNCT)
+        return false;
+    String s = t.str;
     if (str_equal(s, STR_LIT(">")))
         return true;
     if (str_equal(s, STR_LIT(">>")))

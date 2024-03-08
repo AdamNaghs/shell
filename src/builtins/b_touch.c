@@ -7,7 +7,7 @@ struct cmd_return b_touch(Token_Array* arr, String* str)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     static char open_mode[2] = "a";
-    while (consume_first_token(arr) != NULL && arr-> size &&  !is_operator(arr->arr[0].str))
+    while (consume_first_token(arr) != NULL && arr-> size &&  !is_operator(arr->arr[0]))
     {
         FILE *f = FOPEN(arr->arr[0].str.cstr, open_mode);
         if (!f)

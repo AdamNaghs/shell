@@ -7,7 +7,7 @@ struct cmd_return b_time(Token_Array *arr, String *str)
 {
     struct cmd_return ret = CMD_RETURN_SUCCESS;
     char buf[TIME_BUF];
-    if (arr->size <= 1 || is_operator(arr->arr[1].str))
+    if (arr->size <= 1 || is_operator(arr->arr[1]))
     {
         snprintf(buf, TIME_BUF, "%lld", time(NULL));
         str_append(str, STR(buf));
