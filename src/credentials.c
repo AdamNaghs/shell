@@ -1,12 +1,255 @@
 #include "../include/credentials.h"
 #include "../include/IO.h"
 #include "../include/utils.h"
+#include "../include/string.h"
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
 
-#define SALT_MAX 26
-#define SALT_MIN 11
+typedef struct 
+{
+    String operation;
+    String readable;
+} Big_Int;
+
+Big_Int big_int_init(String base)
+{
+    Big_Int bi = {str_new(base.cstr),str_new(base.cstr)};
+    str_reverse(&bi.operation);
+    return bi;
+}
+
+void big_int_free(Big_Int bi)
+{
+    str_free(bi.operation);
+    str_free(bi.readable);
+}
+
+/* string does not need to be freed, it belongs to the Big_Int */
+String big_int_read(Big_Int* bi)
+{
+    str_free(bi->readable);
+    bi->readable = str_new(bi->operation.cstr);
+    str_reverse(&bi->readable);
+    return bi->readable;
+}
+
+#define MAX(a,b) ((a > b) ? a : b)
+#define MIN(a,b) ((a < b) ? a : b)
+/* only worry about the operation string */
+Big_Int big_int_add(Big_Int a, Big_Int b) {
+    Big_Int result = big_int_init(STR(""));
+    int carry = 0;
+    size_t max_size = MAX(a.operation.size, b.operation.size);
+
+    for (size_t i = 0; i < max_size; i++) {
+        int digit_a = (i < a.operation.size) ? a.operation.cstr[i] - '0' : 0;
+        int digit_b = (i < b.operation.size) ? b.operation.cstr[i] - '0' : 0;
+        int sum = digit_a + digit_b + carry;
+        carry = sum / 10;
+        sum %= 10;
+
+        char digit_str[2] = {sum + '0', '\0'};
+        str_append(&result.operation, STR(digit_str));
+    }
+
+    if (carry > 0) {
+        char carry_str[2] = {carry + '0', '\0'};
+        str_append(&result.operation, STR(carry_str));
+    }
+
+    return result;
+}
+
+Big_Int big_int_sub(Big_Int a, Big_Int b) {
+    Big_Int result = big_int_init(STR(""));
+    int carry = 0;
+    size_t max_size = MAX(a.operation.size, b.operation.size);
+
+    for (size_t i = 0; i < max_size; i++) {
+        int digit_a = (i < a.operation.size) ? a.operation.cstr[i] - '0' : 0;
+        int digit_b = (i < b.operation.size) ? b.operation.cstr[i] - '0' : 0;
+        int sum = digit_a - digit_b - carry;
+        carry = sum / 10;
+        sum %= 10;
+
+        char digit_str[2] = {sum + '0', '\0'};
+        str_append(&result.operation, STR(digit_str));
+    }
+
+    if (carry > 0) {
+        char carry_str[2] = {carry + '0', '\0'};
+        str_append(&result.operation, STR(carry_str));
+    }
+
+    return result;
+}
+
+Big_Int big_int_mult(Big_Int a, Big_Int b) {
+    Big_Int result = big_int_init(STR("0"));
+
+    for (size_t i = 0; i < a.operation.size; i++) {
+        int carry = 0;
+        String temp = str_new(NULL);
+
+        // Pad with leading zeros for the current digit
+        for (size_t j = 0; j < i; j++) {
+            str_append(&temp, STR("0"));
+        }
+
+        int digit_a = a.operation.cstr[i] - '0';
+        for (size_t j = 0; j < b.operation.size; j++) {
+            int digit_b = b.operation.cstr[j] - '0';
+            int product = digit_a * digit_b + carry;
+            carry = product / 10;
+            product %= 10;
+
+            char digit_str[2] = {product + '0', '\0'};
+            str_append(&temp, STR(digit_str));
+        }
+
+        if (carry > 0) {
+            char carry_str[2] = {carry + '0', '\0'};
+            str_append(&temp, STR(carry_str));
+        }
+        // Reverse the intermediate result
+        str_reverse(&temp);
+        Big_Int tmp_big_int = big_int_init(temp);
+        // Add the intermediate result to the final result
+        result = big_int_add(result, tmp_big_int);
+        big_int_free(tmp_big_int);
+        str_free(temp);
+    }
+    return result;
+}
+
+
+Big_Int big_int_div(Big_Int a, Big_Int b) {
+    Big_Int result = big_int_init(STR("0"));
+
+    for (size_t i = 0; i < a.operation.size; i++) {
+        int carry = 0;
+        String temp = str_new(NULL);
+
+        // Pad with leading zeros for the current digit
+        for (size_t j = 0; j < i; j++) {
+            str_append(&temp, STR("0"));
+        }
+
+        int digit_a = a.operation.cstr[i] - '0';
+        for (size_t j = 0; j < b.operation.size; j++) {
+            int digit_b = b.operation.cstr[j] - '0';
+            int divisor = digit_a / digit_b - carry;
+            carry = divisor / 10;
+            divisor %= 10;
+
+            char digit_str[2] = {divisor + '0', '\0'};
+            str_append(&temp, STR(digit_str));
+        }
+
+        if (carry > 0) {
+            char carry_str[2] = {carry + '0', '\0'};
+            str_append(&temp, STR(carry_str));
+        }
+        // Reverse the intermediate result
+        str_reverse(&temp);
+        Big_Int tmp_big_int = big_int_init(temp);
+        // Add the intermediate result to the final result
+        result = big_int_add(result, tmp_big_int);
+        big_int_free(tmp_big_int);
+        str_free(temp);
+    }
+    return result;
+}
+
+
+Big_Int big_int_mod(Big_Int a, Big_Int b) {
+    Big_Int result = big_int_init(STR("0"));
+
+    for (size_t i = 0; i < a.operation.size; i++) {
+        int carry = 0;
+        String temp = str_new(NULL);
+
+        // Pad with leading zeros for the current digit
+        for (size_t j = 0; j < i; j++) {
+            str_append(&temp, STR("0"));
+        }
+
+        int digit_a = a.operation.cstr[i] - '0';
+        for (size_t j = 0; j < b.operation.size; j++) {
+            int digit_b = b.operation.cstr[j] - '0';
+            int divisor = digit_a % digit_b - carry;
+            carry = divisor / 10;
+            divisor %= 10;
+
+            char digit_str[2] = {divisor + '0', '\0'};
+            str_append(&temp, STR(digit_str));
+        }
+
+        if (carry > 0) {
+            char carry_str[2] = {carry + '0', '\0'};
+            str_append(&temp, STR(carry_str));
+        }
+        // Reverse the intermediate result
+        str_reverse(&temp);
+        Big_Int tmp_big_int = big_int_init(temp);
+        // Add the intermediate result to the final result
+        result = big_int_add(result, tmp_big_int);
+        big_int_free(tmp_big_int);
+        str_free(temp);
+    }
+    return result;
+}
+
+bool big_int_eq(Big_Int a, Big_Int b)
+{
+    size_t max = MAX(a.operation.size,b.operation.size);
+    size_t i;
+    for (i = 0; i < max; i++)
+    {
+        char ac = i < a.operation.size ? a.operation.cstr[i] : 0;
+        char bc = i < b.operation.size ? b.operation.cstr[i] : 0;
+        if (ac != bc)
+            return false;
+    }
+    return true;
+}
+
+
+Big_Int str_hash(String string)
+{
+    char *str = string.cstr;
+    size_t len = string.size;
+    size_t i;
+    Big_Int hash_value = big_int_init(STR_LIT("7"));
+    Big_Int bi_p_pow = big_int_init(STR_LIT("1"));
+    Big_Int bi_p = big_int_init(STR_LIT("31"));
+    for (i = 0; i < len; i++)
+    {
+        char c = str[i];
+        char buf[6];
+        snprintf(buf,10,"%d",(int)c);
+        Big_Int bi_c = (Big_Int){STR(buf)};
+        //hash_value = (hash_value + (c - 'a' + 1) * p_pow);
+        Big_Int bi_hash_value = big_int_add(hash_value,bi_c);
+        big_int_free(hash_value);
+        hash_value = bi_hash_value;
+
+        Big_Int bi_hash_value_time_p_pow = big_int_mult(hash_value,bi_p_pow);
+        big_int_free(hash_value);
+        hash_value = bi_hash_value_time_p_pow;
+        //p_pow = (p_pow * p);
+        Big_Int tmp_p_pow =  big_int_mult(bi_p_pow,bi_p);
+        big_int_free(bi_p_pow);
+        bi_p_pow = tmp_p_pow;
+    }
+    return hash_value;
+}
+
+#define SALT_MAX 50
+#define SALT_MIN 25
 String generate_salt(void)
 {
     static size_t count = 0;
@@ -48,32 +291,13 @@ String generate_salt(void)
 }
 
 #define HASH_MAX 2000
-size_t generate_hash(String str, String salt)
+Big_Int generate_hash(String str, String salt)
 {
     String tmp = str_new(str.cstr);
     str_append(&tmp, salt);
-    size_t ret = str_hash(tmp);
+    Big_Int ret = str_hash(tmp);
     str_free(tmp);
     return ret;
-}
-
-size_t str_hash(String string)
-{
-    char *str = string.cstr;
-    size_t len = string.size;
-    const int p = 31;
-    const int m = 1e9 + 9;
-    long long hash_value = 7;
-    long long p_pow = 1;
-    size_t i;
-    for (i = 0; i < len; i++)
-    {
-        char c = str[i];
-        hash_value = (hash_value + (c - 'a' + 1) * p_pow) % m;
-        p_pow = (p_pow * p) % m;
-    }
-    hash_value %= SIZE_MAX / 10;
-    return hash_value;
 }
 
 #define CREDS_FILE_PATH ".asn_users"
@@ -95,10 +319,10 @@ void new_user(void)
     String password = input('\n', 0);
     enable_input_buffer_display();
     String salt = generate_salt();
-    size_t hash = generate_hash(password, salt);
+    Big_Int hash = generate_hash(password, salt);
     FILE* tmp = get_output_file();
     set_output_file(f);
-    output( "%s asn0|%llu$%s\n", username.cstr, hash, salt.cstr);
+    output( "%s asn1|%s$%s\n", username.cstr, big_int_read(&hash).cstr, salt.cstr);
     set_output_file(tmp);
     FCLOSE(f);
     if (!check_login(username, password))
@@ -111,6 +335,7 @@ void new_user(void)
     str_free(salt);
     str_free(username);
     str_free(password);
+    big_int_free(hash);
 }
 
 bool check_login(String username, String password)
@@ -148,19 +373,24 @@ bool check_login(String username, String password)
             goto next_line;
         }
         String salt = {salt_start + 1, line.cstr + line.size - salt_start - 1};
-        size_t test_hash = generate_hash(password, salt);
-        size_t file_hash = strtoull(pipe + 1, NULL, 10);
-        if (test_hash == file_hash)
+        Big_Int test_hash = generate_hash(password, salt);
+        *salt_start = '\0';
+        String file_hash_str = str_new(pipe+1);
+        Big_Int file_hash = big_int_init(file_hash_str);
+        if (big_int_eq(test_hash,file_hash))
         {
             printf("User found!\n");
             found = true;
         }
+        big_int_free(test_hash);
+        big_int_free(file_hash);
 
     next_line:
         str_free(line);
     }
 
     set_input_file(tmp);
+    FCLOSE(f);
     return found;
 }
 

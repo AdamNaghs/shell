@@ -16,8 +16,6 @@
 /* has memory leaks (used address sanitizer)*/
 void test_creds(void);
 
-size_t str_hash(String str);
-
 /* returns when the user logs in or creates a new user */
 void attempt_login_loop(void);
 
