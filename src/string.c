@@ -328,3 +328,18 @@ void str_replace(String *str, String find, String replace) {
     str_free(*str);
     *str = front;
 }
+
+
+void str_reverse(String* str)
+{
+    size_t i;
+    for (i = 0; i < str->size; i++)
+    {
+        size_t j = (str->size - i) - 1;
+        if (j <= i)
+            break;
+        char tmp = str->cstr[j];
+        str->cstr[j] = str->cstr[i];
+        str->cstr[i] = tmp;
+    }
+}
