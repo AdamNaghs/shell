@@ -87,6 +87,7 @@ void new_user(void)
         perror("Could not open password file.\n");
         exit(1);
     }
+    enable_input_buffer_display();
     printf("Username: ");
     String username = input('\n', 0);
     printf("\nPassword: ");
@@ -95,7 +96,10 @@ void new_user(void)
     enable_input_buffer_display();
     String salt = generate_salt();
     size_t hash = generate_hash(password, salt);
-    fprintf(f, "%s asn0|%llu$%s\n", username.cstr, hash, salt.cstr);
+    FILE* tmp = get_output_file();
+    set_output_file(f);
+    output( "%s asn0|%llu$%s\n", username.cstr, hash, salt.cstr);
+    set_output_file(tmp);
     FCLOSE(f);
     if (!check_login(username, password))
     {
