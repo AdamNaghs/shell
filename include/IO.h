@@ -10,7 +10,7 @@
 */
 void set_input_file(FILE *fd);
 
-FILE* get_input_file(void);
+FILE *get_input_file(void);
 
 bool at_eof(void);
 /* ret_char is the char that once pressed returns the string.
@@ -20,5 +20,13 @@ String input(char ret_char, size_t max_size);
 void disable_input_buffer_display();
 
 void enable_input_buffer_display();
+
+int output(const char *format, ...);
+
+FILE *get_output_file(void);
+
+void set_output_file(FILE *fd);
+
+int colors_enabled(void);
 
 #endif /* SHELL_IO */
