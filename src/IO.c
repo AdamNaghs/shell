@@ -72,7 +72,7 @@ int colors_enabled()
 #endif
 }
 
-void disable_input_buffer_display()
+void disable_input_buffer_display(void)
 {
 #ifdef _WIN32
     HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
@@ -87,7 +87,7 @@ void disable_input_buffer_display()
 #endif
 }
 
-void enable_input_buffer_display()
+void enable_input_buffer_display(void)
 {
 #ifdef _WIN32
     HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
