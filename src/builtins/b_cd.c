@@ -1,18 +1,18 @@
 #include "../../include/cmd.h"
 #include "../../include/tokenize.h"
+#include "../../include/builtins.h"
 struct cmd_return b_cd(Token_Array *arr, String *str)
 {
     struct cmd_return ret = DEFAULT_CMD_RETURN;
-    if (arr->size == 1)
+    consume_first_token(arr);
+    if (arr->size == 0)
     {
         ret.func_return = 1;
         str_append(str, STR_LIT("asn: cd: Missing operand."));
-        arr->arr++;
-        arr->size--;
         return ret;
     }
     /* ignore first arg which is 'cd' */
-    String dir_str = token_array_to_str((Token_Array){arr->arr + 1, arr->size - 1}, ' ');
+    String dir_str = consume_first_token(arr)->str;
     str_remove_trailing_whitespace(&dir_str);
     if (-1 == CHDIR(dir_str.cstr))
     {
@@ -21,7 +21,5 @@ struct cmd_return b_cd(Token_Array *arr, String *str)
         str_append(str, STR(buf));
     }
     ret.success = true;
-    arr->arr += 2;
-    arr->size -= 2;
     return ret;
 }

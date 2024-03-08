@@ -11,23 +11,23 @@ struct cmd_return b_ls(Token_Array *arr, String *str)
     WIN32_FIND_DATA findFileData;
     HANDLE hFind = INVALID_HANDLE_VALUE;
 
+    consume_first_token(arr);
     char searchPath[LS_BUF];
     String tmp_str;
-    if (!is_operator(arr->arr[1].str))
-        tmp_str = token_array_to_str((Token_Array){arr->arr + 1, arr->size - 1}, ' ');
+    if (arr->size && !is_operator(arr->arr[0].str))
+        tmp_str = consume_first_token(arr)->str;
     else
         tmp_str = str_new(NULL);
-    consume_first_token(arr);
-    if (tmp_str.size && tmp_str.cstr[tmp_str.size - 1] == ' ')
-        tmp_str.cstr[--tmp_str.size] = '\0';
-    if (arr->size == 0 || is_operator(arr->arr[0].str)) /* Use the current directory if no arguments are provided */
+    if (tmp_str.size == 0) /* Use the current directory if no arguments are provided */
+    {
         snprintf(searchPath, LS_BUF, ".\\*");
+        str_free(tmp_str);
+    }
     else /* Use the provided directory path */
     {
         snprintf(searchPath, LS_BUF, "%s\\*", tmp_str.cstr);
-        consume_first_token(arr);
     }
-    str_free(tmp_str);
+
     /* Find the first file in the directory */
     hFind = FindFirstFile(searchPath, &findFileData);
 

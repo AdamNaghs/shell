@@ -76,7 +76,7 @@ void shell_loop_step(bool print_output, bool print_input)
     if (print_output)
         shell_print_line_flair();
     String inp = input('\n', 0);
-    shell_loop_manual_step(&inp, print_input, print_output, true);
+     shell_loop_manual_step(&inp, print_input, print_output, true);
     str_free(inp);
 }
 void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bool print_error)
@@ -106,6 +106,7 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
     /* varaibles are pasted in before parsing by commands */
     paste_vars('$', inp);
     Token_Array ta = tokenize(*inp);
+    trim_tokens(&ta);
     Token_Array line = ta;
     size_t cmd;
     bool ran = false;
@@ -149,7 +150,7 @@ void shell_loop_manual_step(String *inp, bool print_input, bool print_output, bo
                 output(CRESET);
         }
     }
-    free_token_array(ta);
+    free_token_array(&ta);
     if (ret_str.cstr)
         str_free(ret_str);
 }

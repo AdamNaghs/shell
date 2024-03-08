@@ -52,7 +52,7 @@ void test_tokenize(void)
         for (; i < ta.size; i++)
             printf("%s ", ta.arr[i].str.cstr);
         printf("\nSize: %d\n", ta.size);
-        free_token_array(ta);
+        free_token_array(&ta);
         str_free(s);
     }
     set_input_file(tmp_file);
@@ -97,7 +97,7 @@ void test_string_speed(void)
     for (i = 0; i < LOOP_MAX; i++)
     {
         Token_Array ta = tokenize(str);
-        free_token_array(ta);
+        free_token_array(&ta);
     }
     printf("Token_Array TEST%d ran in %lfms \n", 1 + batch, ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000);
     start = clock();
@@ -108,7 +108,7 @@ void test_string_speed(void)
         String s = token_array_to_str(ta, ' ');
         str_free(s);
     }
-    free_token_array(ta);
+    free_token_array(&ta);
     printf("Token_Array to str TEST%d ran in %lfms\n", 1 + batch, ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000);
     batch++;
     printf("\n");

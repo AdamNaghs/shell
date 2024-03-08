@@ -12,15 +12,23 @@ struct cmd_return b_rm(Token_Array *arr, String *str)
         str_append(str, STR_LIT("asn: rm: Missing operand."));
         return ret;
     }
-    Token* arg;
-    while ((arg = consume_first_token(arr)) != NULL && !is_operator(arg->str))
-    if (is_dir(arg->str.cstr))
+    Token *arg;
+    while (arr->size && !is_operator(arr->arr[0].str) && (arg = consume_first_token(arr)) != NULL)
     {
-        ret.func_return = RMDIR(arg->str.cstr);
-    }
-    else
-    {
-        ret.func_return = remove(arg->str.cstr);
+        if (is_dir(arg->str.cstr))
+        {
+            ret.func_return = RMDIR(arg->str.cstr);
+        }
+        else
+        {
+            ret.func_return = remove(arg->str.cstr);
+        }
+        if (ret.func_return != 0)
+        {
+            char buf[256];
+            snprintf(buf,256,"asn: rm: Failed to remove file/directory '%s'.",arg->str.cstr);
+            str_append(str, STR(buf));
+        }
     }
     return ret;
 }

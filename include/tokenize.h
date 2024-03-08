@@ -44,7 +44,7 @@ Token_Array tokenize(String line);
 /* only use on copies of an array, this function will increment the array pointer. */
 Token* consume_first_token(Token_Array* ta);
 
-void free_token_array(Token_Array);
+void free_token_array(Token_Array*);
 
 bool has_minimum_tokens(Token_Type* expected, size_t expected_size, Token_Array given);
 
@@ -52,5 +52,10 @@ bool has_minimum_tokens(Token_Type* expected, size_t expected_size, Token_Array 
 String token_array_to_str(Token_Array ta, char sep);
 
 Token_Array token_array_copy(Token_Array ta);
+
+void trim_tokens(Token_Array* ta);
+
+/* the user is responsible for where tok is allocated */
+void tok_arr_add(Token_Array *ta, size_t *ta_cap, Token tok);
 
 #endif /* SHELL_TOKENIZE */

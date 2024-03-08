@@ -103,12 +103,12 @@ int read_var(String inp)
     Token_Array ta = tokenize(inp);
     if (ta.size > 3)
     {
-        free_token_array(ta);
+        free_token_array(&ta);
         return -1;
     }
     if (!str_equal(ta.arr[1].str,STR_LIT("=")))
     {
-        free_token_array(ta);
+        free_token_array(&ta);
         return -1;
     }
     Variable *v = get_value(ta.arr[0].str);
@@ -121,7 +121,7 @@ int read_var(String inp)
     {
         add_var(var_new(ta.arr[0].str, ta.arr[2].str));
     }
-    free_token_array(ta);
+    free_token_array(&ta);
     return 0;
 }
 

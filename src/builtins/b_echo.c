@@ -15,7 +15,7 @@ struct cmd_return b_echo(Token_Array *arr, String *str)
     while (arr->size && !is_operator(arr->arr[0].str) && (arg = consume_first_token(arr)) != NULL)
     {
         str_append(str, arg->str);
-        str_append(str, STR_LIT(" "));
+        //str_append(str, STR_LIT(" "));
     }
     return ret;
 }

@@ -79,7 +79,8 @@ Token_Array tokenize(String line)
                 if (in_token)
                 {
                     // End of the current token
-                    size_t token_length = i - start_idx;
+                    size_t token_length = i - start_idx;// + 1;// +1 to include the seperator
+                    if (isspace(line.cstr[i])) token_length++;
                     String s = str_new_n(line.cstr + start_idx, token_length);
                     Token t = {.str = s, .type = STRING};
                     tok_arr_add(&ret, &cap, t);
@@ -107,14 +108,15 @@ Token_Array tokenize(String line)
     return ret;
 }
 
-void free_token_array(Token_Array ta)
+void free_token_array(Token_Array* ta)
 {
     size_t i;
-    for (i = 0; i < ta.size; i++)
+    for (i = 0; i < ta->size; i++)
     {
-        str_free(ta.arr[i].str);
+        str_free(ta->arr[i].str);
     }
-    free(ta.arr);
+    free(ta->arr);
+    ta->size = 0;
 }
 
 #ifdef TEST_TOKENIZE
@@ -167,6 +169,15 @@ String token_array_to_str(Token_Array ta, char sep)
     return ret;
 }
 #endif
+
+void trim_tokens(Token_Array* ta)
+{
+    size_t i;
+    for (i = 0; i < ta->size; i++)
+    {
+        str_trim(&ta->arr[i].str);
+    }
+}
 
 Token *consume_first_token(Token_Array *ta)
 {

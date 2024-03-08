@@ -88,32 +88,32 @@ struct cmd_return b_pipe(Token_Array *arr, String *str)
         // str_append(str,STR_LIT("asn: pipe: Could not find command.\n"));
         return ret;
     }
-    String new_cmd = str_new(cmd->name.cstr);
-    str_append(&new_cmd, STR_LIT(" "));
-    str_append(&new_cmd, *str);
-    str_append(&new_cmd, STR_LIT(" "));
-    String back_end = token_array_to_str((Token_Array){arr->arr + 1, arr->size - 1}, ' ');
-    str_append(&new_cmd, back_end);
-    str_free(back_end);
-    Token_Array tmp = tokenize(new_cmd);
+    size_t cap = 10;
+    Token_Array new_tokens = (Token_Array){(Token*)malloc(sizeof(Token) * cap),0};
+    Token t = (Token){.str = str_new(arr->arr[0].str.cstr), .type = arr->arr[0].type};
+    tok_arr_add(&new_tokens,&cap,t);
+    tok_arr_add(&new_tokens,&cap,(Token){str_new(str->cstr),STRING});
+    size_t i;
+    for (i = 1; i < arr->size; i++)
+    {
+        t = (Token){.str = str_new(arr->arr[i].str.cstr), .type = arr->arr[i].type};
+        tok_arr_add(&new_tokens,&cap,t);
+    }
+    Token_Array tmp = new_tokens;
     str_free(*str);
     *str = str_new(NULL);
+
     ret = cmd->func(&tmp, str);
-    size_t i;
     if (tmp.size == 0)
     {
         arr->size = 0;
+        free_token_array(&new_tokens);
         return ret;
     }
-    String match = tmp.arr[0].str;
-    size_t end = arr->size;
-    for (i = 0; i < end; i++)
-    {
-        if (str_equal(match, arr->arr[i].str))
-            break;
-        if (NULL == consume_first_token(arr))
-            break;
-    }
+    size_t offset = arr->size - tmp.size - 1; // -1 for token that was appended
+    for (i = 0; i < offset; i++)
+        consume_first_token(arr);
+    free_token_array(&new_tokens);
     return ret;
 }
 
@@ -169,12 +169,12 @@ struct cmd_return b_loop(Token_Array *arr, String *str)
             cmd = find_internal_cmd(new_cmd);
             if (!cmd)
             {
-                free_token_array(refrence);
+                free_token_array(&refrence);
                 goto break_all;
             }
         } while (tmp_arr.size);
         break_while:
-        free_token_array(refrence);
+        free_token_array(&refrence);
     }
     arr->size = 0;
 break_all:

@@ -14,7 +14,7 @@ struct cmd_return b_mkdir(Token_Array* arr, String* str)
         return ret;
     }
     Token* arg;
-    while ((arg = consume_first_token(arr)) != NULL && !is_operator(arg->str))
+    while (arr->size && !is_operator(arr->arr[0].str) && (arg = consume_first_token(arr)) != NULL)
     {
         String path = arg->str;
         if (0 != MKDIR(path.cstr))

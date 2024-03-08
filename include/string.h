@@ -44,4 +44,7 @@ void str_replace(String *str, String find, String replace);
 /* doesnt work with STR_LIT */
 void str_reverse(String* str);
 
+/* remove leading and trailing whitespace*/
+void str_trim(String *str);
+
 #endif /* SHELL_STR */

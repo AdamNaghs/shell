@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
+
 void str_free(String str)
 {
     if (!str.cstr)
@@ -241,7 +243,10 @@ bool str_equal(String a, String b)
 {
     if (!(a.cstr && b.cstr))
         return false;
-    return a.size == b.size && !memcmp(a.cstr, b.cstr, a.size);
+    if (!(a.size == b.size))
+        return false;
+    int res = memcmp(a.cstr, b.cstr, a.size);
+    return !res;
 }
 
 size_t str_count(String str, String delim)
@@ -315,22 +320,22 @@ void str_remove_trailing_whitespace(String *str)
     }
 }
 
-void str_replace(String *str, String find, String replace) {
+void str_replace(String *str, String find, String replace)
+{
     if (!str || !str->cstr || !find.cstr || !replace.cstr)
         return;
 
-    signed long long idx = str_contains_str(*str,find);
+    signed long long idx = str_contains_str(*str, find);
     if (idx == -1)
         return;
-    String front = str_new_n(str->cstr,idx);
-    str_append(&front,replace);
-    str_append(&front,STR((str->cstr+idx+find.size)));
+    String front = str_new_n(str->cstr, idx);
+    str_append(&front, replace);
+    str_append(&front, STR((str->cstr + idx + find.size)));
     str_free(*str);
     *str = front;
 }
 
-
-void str_reverse(String* str)
+void str_reverse(String *str)
 {
     size_t i;
     for (i = 0; i < str->size; i++)
@@ -342,4 +347,42 @@ void str_reverse(String* str)
         str->cstr[j] = str->cstr[i];
         str->cstr[i] = tmp;
     }
+}
+
+void str_trim(String *str)
+{
+    if (!str || !str->cstr || str->size == 0)
+    {
+        return;
+    }
+
+    char *start = str->cstr;
+    char *end = str->cstr + str->size - 1;
+
+    // Remove leading whitespace
+    while (isspace(*start) && *start != '\0')
+    {
+        start++;
+    }
+
+    // Remove trailing whitespace
+    while (end > start && isspace(*end))
+    {
+        end--;
+    }
+
+    // Copy the trimmed string and update size
+    size_t new_size = end - start + 1;
+    char *tmp = (char *)malloc(new_size + 1);
+    if (!tmp)
+    {
+        perror("Failed to allocate memory");
+        return;
+    }
+    memcpy(tmp, start, new_size);
+    tmp[new_size] = '\0';
+
+    free(str->cstr);
+    str->cstr = tmp;
+    str->size = new_size;
 }
