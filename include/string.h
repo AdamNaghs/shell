@@ -41,4 +41,7 @@ void str_replace_all(String* str, char find, char replace);
 
 void str_replace(String *str, String find, String replace);
 
+/* doesnt work with STR_LIT */
+void str_reverse(String* str);
+
 #endif /* SHELL_STR */
